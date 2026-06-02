@@ -15,9 +15,6 @@ Sources (both stable + reproducible; this is what Arditi's diff-of-means uses):
 All 360 are behaviorally filtered AFTER extraction (keep harmful prompts the
 model actually refused, harmless/anchor prompts it actually complied with),
 targeting ~100 clean each.
-
-Output: /content/prompts.parquet  with columns [id, pool, prompt]
-No GPU needed - safe to run while the SGLang server is up.
 """
 
 import io
