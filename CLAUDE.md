@@ -1,39 +1,78 @@
 # CLAUDE.md — Validating-NLAs
 
-Guidance for Claude Code working in this repo. Read this before editing.
+Guidance for Claude Code working in this repo. Read this before editing. This file is the
+**always-loaded index**; deep knowledge lives in `docs/` and is read on demand (see the map below).
+Keep this file lean — it is paid for on every turn.
 
 ## What this project is
 
-We test whether Natural Language Autoencoders (NLAs) actually detect cognition a
-model represents internally but does not verbalize — the "verbalization gap." The
-NLA paper could not check this against ground truth (a real model's internal
-beliefs are unobservable). We replace unobservable ground truth with *constructed*
-ground truth: model organisms / steering / prompting where we control exactly what
-cognition is present, then measure whether the NLA detects it.
+We test whether Natural Language Autoencoders (NLAs) actually detect cognition a model represents
+internally but does not verbalize — the **verbalization gap**, with **evaluation awareness** as the
+headline case. The NLA paper claims this but could not check it against ground truth (a real model's
+internal beliefs are unobservable, so "the NLA says the model thinks it's being tested" can't be
+scored). We replace unobservable ground truth with **constructed** ground truth — injected directions,
+prompt-constructed states, steered behavior, and a trained model organism — where we control exactly
+what cognition is present, then measure whether the **released open-model NLAs** (Gemma-3-27B,
+Qwen-2.5-7B) detect it. This is a validation-and-characterization program on an existing tool, not a
+new method.
 
-## Repo layout
+### Research questions (full text in `docs/specs/nla_validation_project_plan.md`)
+- **RQ1 detection validity** · **RQ2 specificity** · **RQ3 the verbalization gap (the one that matters)**
+  · **RQ4 transfer to finetuned organisms** · **RQ5 confabulation structure → trust calibration.**
 
-- `Experiment 1/` — NLA detects injected refusal, concept-specifically (Gemma-3-27B, Qwen-2.5-7B).
-- `Experiment 2/` — CAA directions + eval-awareness + refusal verbalization gap. **Being rebuilt** under confound control; see `Experiment 2/rebuild/`. The old `CAA Vectors/src/` is kept as reference, not extended.
-- `Experiment 3/`, `Experiment 4/` — see their own READMEs.
-- Scripts are a numbered pipeline (`01_…` → `10_…`); each stage drops artifacts the next consumes.
+## The program at a glance
+
+Staged cleanest-ground-truth → most-realistic, so an early failure still leaves a reportable result.
+**Repo `Experiment N/` folders map to the plan's experiments as below** (the plan also calls the
+organism "Exp 2b" — in this repo that is `Experiment 4/`).
+
+| Repo folder | What | Status |
+|---|---|---|
+| `Experiment 1/` | Injection dose-response: does the NLA detect an independently built **refusal** direction, specifically & dose-dependently? | **Complete** (Gemma validated, Qwen replicated). Result: `docs/specs/experiment_1_result.md` |
+| `Experiment 2/` | **Verbalization-gap** validation: injection specificity + prompted eval-awareness + steered refusal, fully confound-controlled. **Being rebuilt** in `Experiment 2/rebuild/`. | Specced; rebuild in progress |
+| `Experiment 3/` | **Cross-model** feature transfer: ridge map Qwen-L20→Gemma-L41; co-firing AUROC + causal steering. Standalone. | Specced; pipeline built; needs the §9 layer correction |
+| `Experiment 4/` | **Model organism** (plan's "Exp 2b"): install eval-awareness in weights (Hua recipe → Gemma) — the one design that escapes the framing-vs-state caveat. | New / scoping |
+
+Scripts are a numbered pipeline (`01_…` → `10_…`); each stage drops artifacts the next consumes.
 
 ## The load-bearing principle (do not violate)
 
-**A probe/AUROC baseline is only a baseline if it is confound-controlled.** In v1,
-the eval-awareness probe read AUROC 0.990 — but it was mostly prompt length; after
-control it was 0.622. So:
+**A probe/AUROC is only a baseline if it is confound-controlled, and an NLA detection is only a
+detection if it is echo-, template-, and degeneration-controlled.** In v1 the eval-awareness probe
+read AUROC 0.990 — but it was mostly prompt length; after control it was 0.622. So:
 
-- No single AUROC is ever reported alone. Every concept goes through the
-  four-number battery in `Experiment 2/rebuild/confounds.py`:
-  `raw / length_residualized / length_only / null`, each with a cluster-bootstrap CI.
-- The verdict is pre-registered (frozen in `confounds.py`): a concept is
-  "represented" iff `length_residualized.ci_lo > max(floor, null.ci_hi)`.
+- No single AUROC is ever reported alone. Every concept goes through the battery in
+  **`Experiment 2/rebuild/confounds.py`**: `raw / length_residualized / length_only / null`, each
+  with a **cluster-bootstrap CI** and **pair-level StratifiedGroupKFold baked into the CV** (matched
+  pairs never straddle a split). This operationalizes the spec's five-number doctrine (raw /
+  length-only / length-residualized / pair-level / shuffled-null).
+- The verdict is **pre-registered** (frozen in `confounds.py`): a concept is "represented" iff
+  `length_residualized.ci_lo > max(REPRESENTED_FLOOR, null.ci_hi)`. We deliberately do **not** require
+  resid > length_only (when length is near-perfectly predictive nothing beats it; `length_only` stays
+  a diagnostic via `length_inflation`).
 - Decisions compare CI **bounds**, not point estimates (n≈60–120 is noisy).
-- NLA "detections" need an **echo control** — the NLA can parrot prompt words
-  ("test"/"simulated") instead of reading a state. Report detection excluding echo.
-- When a confound is collinear with the label, the effect is **not identifiable** —
-  refuse to certify it (watch `length_inflation`).
+- **NLA detections** report four ways — raw / excluding echo / excluding `generic_template` /
+  excluding `nla_degenerate`. `generic_template` ≠ echo (a generic safety template inflates refusal
+  for *every* concept without echoing a word).
+- **Per-activation co-registration** for any gap claim: probe-yes AND NLA-no on the *same* `h`, never
+  population-vs-population.
+- When a confound is collinear with the label, the effect is **not identifiable** — refuse to certify.
+- **Injection ≠ real activations** (the Qwen dissociation): report them as different measurements.
+- **Validate the instrument before trusting it:** `test_confounds.py` must pass on synthetic ground
+  truth (clean / length / mixed / collinear regimes) before the battery touches real activations.
+
+## Where knowledge lives (read on demand)
+
+- `docs/specs/` — the **spec docs are the source of truth** for what we're building:
+  `experiment_1_spec.md`, `exp2_spec.md`, `exp3_spec.md`, `nla_validation_project_plan.md`,
+  plus `experiment_1_result.md` (+ `.pdf`).
+- `docs/references/papers.md` — NLA + Activation Oracle **materials & methods**, and how we use each.
+- `docs/references/nla-infrastructure.md` — **AV vs AR**, SGLang flags, checkpoint table, Gemma
+  patch, injection/dose conventions, scorer gotchas. Read before any GPU stage.
+- `docs/references/literature.md` — full reference list, each with why it matters to us.
+- `docs/references/known-corrections.md` — **load-bearing fixes** (Gemma has 62 layers not 46;
+  AdvBench/HarmBench reconciliation; no SAE position exclusion in the NLA read path). Check before
+  trusting derived figures in older docs.
 
 ## Run / dev (CPU work — no GPU needed)
 
@@ -45,42 +84,44 @@ A gitignored venv at repo root has the CPU deps (numpy/sklearn/scipy):
 
 If the venv is missing (fresh container): `uv venv .venv --python 3.11 && uv pip install --python .venv/bin/python numpy scikit-learn scipy`.
 
-The confound battery is pure CPU. Validate the *instrument* on synthetic ground
-truth (`test_confounds.py`) before trusting it on real activations.
-
 ## GPU work runs on a Vast.ai box, not here
 
-This container has no GPU. Forward passes (Gemma/Qwen extraction), the SGLang AV
-server, and NLA decoding run on a rented GPU box; results are pushed back and
-analyzed here. Division of labor:
+This container has no GPU. Forward passes (Gemma/Qwen extraction), the SGLang AV server, and NLA
+decoding run on a rented GPU box; results are pushed back and analyzed here.
 
-- **Author code here** (this session has full context). Commit + push.
-- **Run GPU stages on the box**: clone the branch, `uv sync` in the experiment
-  dir, `python src/01_verify_env.py`, then run the pipeline.
-- **Push small structured results** (JSON/CSV/JSONL) back — never weights or caches
-  (`cache/`, `workspace/`, `.venv` are gitignored).
+- **Author code here** (full context). Commit + push.
+- **Run GPU stages on the box**: clone the branch, `uv sync` in the experiment dir,
+  `python src/01_verify_env.py`, then run the numbered pipeline. Gemma activations cached **fp32**
+  (large-norm outlier dims overflow fp16).
+- **Push small structured results** (JSON/CSV/JSONL) back — never weights or caches (`cache/`,
+  `workspace/`, `.venv` are gitignored).
 
-## NLA serving — AV vs AR (a common confusion)
+## NLA serving — AV vs AR (the common confusion). Full detail in `docs/references/nla-infrastructure.md`.
 
-- **AV** (activation verbalizer, `vector → text`): served as an **SGLang server**
-  (`launch_sglang_server.sh`). Mandatory flag: `--disable-radix-cache`.
-- **AR** (activation reconstructor, `text → vector`): **NOT a server.** Pure
-  PyTorch, loaded in-process via `NLACritic(ckpt_dir, device="cuda:0")` from
-  `nla_inference.py`. It only produces an MSE/cosine fidelity score.
+- **AV** (`vector → text`): an **SGLang server** (`launch_sglang_server.sh`). Mandatory
+  `--disable-radix-cache`; Gemma-3 also needs `--attention-backend fa3` + the `input_embeds` patch.
+- **AR** (`text → vector`): **NOT a server.** Pure PyTorch, in-process via
+  `NLACritic(ckpt_dir, device="cuda:0")` from `nla_inference.py`; produces an MSE/cosine fidelity only.
+- The vendored `nla_inference.py` is byte-identical to upstream `kitft/nla-inference`. Gemma-3 needs the
+  multimodal `input_embeds` patch from `kitft/natural_language_autoencoders`; Qwen does not.
 
-The vendored `nla_inference.py` is byte-identical to upstream `kitft/nla-inference`.
-Gemma-3 additionally needs the multimodal `input_embeds` patch from the training
-repo (`kitft/natural_language_autoencoders`); Qwen does not.
+## Engineering gotchas (each fails silently/plausibly)
 
-## Engineering gotchas (from the v1 debrief)
-
-- OpenAI: use `chat.completions.create` (not `responses.create`); `max_completion_tokens` (not `max_tokens`); pass a hashed `safety_identifier`.
-- Tokenization: two-step `apply_chat_template(tokenize=False)` → `tokenizer(rendered, add_special_tokens=False)` to avoid double-BOS and NFKC eating the injection char.
-- Gemma (55GB) + SGLang AV can't coexist on 80GB: `pkill -f sglang` before loading the target model, relaunch after.
-- Layer convention: Gemma L41 = `hidden_states[42]`; Qwen = L20. Verified.
+- **Layer convention:** Gemma block-41 = `hidden_states[42]`; Qwen block-20 = `hidden_states[21]`.
+  Verify behaviorally — off-by-one yields plausible garbage. (Gemma has 62 layers, not 46.)
+- **Gemma embed_scale = √5376 ≈ 73.32**; **injection_scale** from `nla_meta.yaml` (do not hardcode);
+  wrong values → AV verbalizes the marker char U+321C.
+- **Tokenization:** two-step `apply_chat_template(tokenize=False)` → `tokenizer(rendered, add_special_tokens=False)`
+  (avoid double-BOS and NFKC eating the U+321C injection char).
+- **Dose = realized `cos(h', v̂)`**, never raw β; solve β analytically per anchor; log `cos(h,h')`.
+- **Memory:** Gemma (~55 GB) + SGLang AV can't coexist on 80 GB — `pkill -f sglang` before loading the
+  target model, relaunch after.
+- **OpenAI scorer:** `chat.completions.create` (not `responses.create`); `max_completion_tokens` (not
+  `max_tokens`); hashed `safety_identifier`; semaphore-limit.
 
 ## Conventions
 
 - Develop on the assigned feature branch; push there; open a draft PR.
-- Keep code and results separate; results are small and diffable.
-- Don't extend the old `CAA Vectors/src/`; build in `Experiment 2/rebuild/`.
+- Keep code and results separate; results are small and diffable. Spec docs in `docs/specs/` are
+  reference truth — don't silently edit them to match code; reconcile deliberately.
+- Don't extend the old `Experiment 2/CAA Vectors/src/`; build in `Experiment 2/rebuild/`.
