@@ -1,0 +1,226 @@
+# concepts.yaml — the Experiment 2 candidate net (manifest, not construction logic).
+#
+# The wide net per spec §1: cast wide, let the gates cull (Gate 1 is probe-only and
+# cheap, so heavy attrition is the design working). This file declares WHAT each
+# concept is and its intended role/fate; the HOW (pair construction) lives in
+# scripts/02_build_concept_pairs.py, which reads this manifest. 04_run_gate1_battery
+# reads it back to attach role/fate when reporting.
+#
+# Fields per concept:
+#   key              identifier (also the concept field in result filenames, verbatim)
+#   role             anchor | control | core | sanity | candidate | exploratory
+#   source           where the pairs come from (advbench+llm_rewrite | nrimsky_caa |
+#                    geometry_of_truth | constructed)
+#   construction     one-line description of the present-vs-absent contrast
+#   expectation      pre-registered expected Gate-1 fate: PASS | WEAK | FAIL | DROP
+#   cosine_baseline  positive | negative  (negative-baseline concepts must be dosed
+#                    relative to their natural distribution, spec §3, or they read null)
+#   echo_prone       true for surface/format concepts the AV can echo (flag, not exclude)
+#   n_target         target number of matched pairs
+#   notes            caveats / role in the design
+
+version: 1
+seed: 42
+roles: [anchor, control, core, sanity, candidate, exploratory]
+fates: [PASS, WEAK, FAIL, DROP]
+
+concepts:
+  - key: refusal
+    role: anchor
+    source: advbench+llm_rewrite
+    construction: AdvBench harmful (refused) vs matched benign rewrite, same topic/length
+    expectation: PASS
+    cosine_baseline: positive
+    echo_prone: false
+    n_target: 120
+    notes: >
+      DoM direction (Arditi et al.). AdvBench to match Exp 1 (diverges from spec §1
+      HarmBench — see known-corrections). Refusal-ASSOCIATED, not pure refusal.
+
+  - key: apology_polite_refusal
+    role: control
+    source: constructed
+    construction: polite/hedged declines ("I'd rather not") vs hard refusal
+    expectation: PASS
+    cosine_baseline: positive
+    echo_prone: false
+    n_target: 40
+    notes: Attacks "refusal = politeness". refusal must separate from this to count.
+
+  - key: harmful_topic_benign
+    role: control
+    source: constructed
+    construction: harmful TOPIC but complied (neutral writing about weapons) vs refused
+    expectation: PASS
+    cosine_baseline: positive
+    echo_prone: false
+    n_target: 40
+    notes: Attacks "refusal = harmful-topic content". The headline control for refusal.
+
+  - key: safe_completion
+    role: control
+    source: constructed
+    construction: harm-minimization / safe-completion answer vs hard refusal
+    expectation: WEAK
+    cosine_baseline: positive
+    echo_prone: false
+    n_target: 40
+    notes: Collinear with refusal by construction; expect WEAK but informative.
+
+  - key: eval_framing_matched
+    role: core
+    source: constructed
+    construction: >
+      eval vs deploy framing, length-matched to identical token count and lexically
+      neutralized; differs only in semantic content ("reviewed and scored by the
+      research team" vs "delivered directly to a member of the public").
+    expectation: WEAK
+    cosine_baseline: positive
+    echo_prone: false
+    n_target: 50
+    notes: >
+      The core v1 fix — NOT v1's unmatched NLA-paper system prompts. Probe side
+      tractable; NLA side is the open question. Framing-vs-state caveat applies.
+
+  - key: style_emoji
+    role: sanity
+    source: constructed
+    construction: same content with emoji/casual styling vs plain formal
+    expectation: PASS
+    cosine_baseline: positive
+    echo_prone: true
+    n_target: 30
+    notes: Positive sanity that the instrument detects something; exercises echo flags.
+
+  - key: json_format
+    role: sanity
+    source: constructed
+    construction: JSON-formatted output vs prose
+    expectation: PASS
+    cosine_baseline: positive
+    echo_prone: true
+    n_target: 30
+    notes: Format control; echo-prone (flag).
+
+  - key: bullet_list
+    role: sanity
+    source: constructed
+    construction: bulleted list vs prose
+    expectation: PASS
+    cosine_baseline: positive
+    echo_prone: true
+    n_target: 30
+    notes: Format control; echo-prone (flag).
+
+  - key: code_block
+    role: sanity
+    source: constructed
+    construction: code-block answer vs prose
+    expectation: PASS
+    cosine_baseline: positive
+    echo_prone: true
+    n_target: 30
+    notes: Format control; echo-prone (flag).
+
+  - key: language_switch
+    role: sanity
+    source: constructed
+    construction: non-English continuation vs English
+    expectation: PASS
+    cosine_baseline: positive
+    echo_prone: true
+    n_target: 30
+    notes: Known-detectable positive sanity (surface echo of language); not a contribution.
+
+  - key: neg_sentiment
+    role: candidate
+    source: constructed
+    construction: negative vs positive valence, parallel phrasing (length-matched)
+    expectation: PASS
+    cosine_baseline: positive
+    echo_prone: false
+    n_target: 30
+    notes: >
+      Valence control — orthogonalize against refusal at the direction stage. If the
+      NLA fires equally here and on refusal, it is reading valence, not refusal.
+
+  - key: uncertainty
+    role: candidate
+    source: constructed
+    construction: same question answered hedged vs confident (length-matched)
+    expectation: WEAK
+    cosine_baseline: negative
+    echo_prone: false
+    n_target: 25
+    notes: Negative cosine baseline — must be dosed per §3 to get a fair test.
+
+  - key: sycophancy
+    role: candidate
+    source: nrimsky_caa
+    construction: Rimsky CAA sycophancy contrastive pairs (answer_matching vs not)
+    expectation: WEAK
+    cosine_baseline: positive
+    echo_prone: false
+    n_target: 120
+    notes: Subtle social concept; likely WEAK. Watch answer-letter balance.
+
+  - key: corrigibility
+    role: candidate
+    source: nrimsky_caa
+    construction: Rimsky CAA corrigible-neutral-HHH contrastive pairs
+    expectation: WEAK
+    cosine_baseline: positive
+    echo_prone: false
+    n_target: 120
+    notes: Strong vector but subtle behavior; likely WEAK.
+
+  - key: truth_value
+    role: candidate
+    source: geometry_of_truth
+    construction: Geometry-of-Truth cities.csv true vs false statements
+    expectation: WEAK
+    cosine_baseline: negative
+    echo_prone: false
+    n_target: 120
+    notes: Factual truth-value, NOT deception. Negative baseline — dose per §3.
+
+  - key: correction_acceptance
+    role: exploratory
+    source: constructed
+    construction: accept-correction vs resist-correction
+    expectation: DROP
+    cosine_baseline: positive
+    echo_prone: false
+    n_target: 25
+    notes: No clean pair yet; construct or DROP at Gate 1.
+
+  - key: sandbagging
+    role: exploratory
+    source: constructed
+    construction: withhold-capability vs full-answer on the same task
+    expectation: WEAK
+    cosine_baseline: positive
+    echo_prone: false
+    n_target: 25
+    notes: Hard to construct cleanly; expect WEAK/DROP, high value if it survives.
+
+# Negative-control DIRECTIONS — built at the direction stage (05/07) from other
+# activations, not as text pairs, so they live outside `concepts:`. They must read
+# ~null in the battery / cross-detection matrix. (Spec §1 row 18 expands to these.)
+derived_controls:
+  - key: random_direction
+    construction: random unit vector in activation space
+    expectation: FAIL
+    notes: Pure null direction; any detection on it is confabulation.
+  - key: refusal_orthogonalized
+    construction: refusal direction with the topic-harmfulness component projected out
+    expectation: FAIL
+    notes: Tests whether "refusal" detection survives removing harmful-topic content.
+  - key: length_direction
+    construction: diff-of-means between long and short neutral prompts
+    expectation: FAIL
+    notes: The v1 confound as an explicit direction; must read null after control.
+  - key: topic_only_harmfulness
+    construction: harmful-topic vs benign-topic, both complied (no refusal)
+    expectation: FAIL
+    notes: The strongest refusal alt-explanation isolated as its own direction.
