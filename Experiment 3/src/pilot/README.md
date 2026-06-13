@@ -1,8 +1,6 @@
 # Experiment 3 Activation Co-Firing Setup
 
-This folder is the clean restart of the activation co-firing arm from
-`experiment_3_nla.ipynb`. The NLA explanation arm is intentionally not in this
-path yet.
+The NLA explanation arm is intentionally not in this path yet.
 
 ## What This Runs
 
