@@ -13,7 +13,7 @@ The NLA explanation arm is intentionally not in this path yet.
 
 ## Key Corrections From The Notebook
 
-- Gemma-3-27B has 62 transformer blocks, so Gemma L41 is about 66% depth.
+- Gemma L41 is about 66% depth.
 - Qwen L20 is about 71% depth, so the primary pair is near depth-matched.
 - Neuronpedia positive examples are deduplicated before scoring.
 - `clean_transfer` now means strict identity-specific transfer:
