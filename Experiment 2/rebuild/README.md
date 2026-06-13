@@ -1,0 +1,125 @@
+# Experiment 2 (rebuild) — Verbalization-Gap Validation of Open-Model NLAs
+
+Clean rebuild of Experiment 2. **Do not extend `../CAA Vectors/`** (the v1 path) — build here.
+The spec is the source of truth: `docs/specs/exp2_spec.md`. This README is the run order + design.
+
+## Why a rebuild
+
+v1 reported an eval-awareness probe AUROC of **0.990 that was mostly prompt length** (0.622 after
+control), and used **unmatched** NLA-paper eval/deploy system prompts. The rebuild's fix is the
+confound battery (`confounds.py`) plus length/lexically-matched concept construction. **No single
+AUROC is ever reported alone**, and the verdict is pre-registered (frozen in `confounds.py`):
+
+> a concept is "represented" iff `length_residualized.ci_lo > max(REPRESENTED_FLOOR=0.60, null.ci_hi)`.
+
+## The claim (per-activation, not population-vs-population)
+
+For an activation `h`, the verbalization gap holds iff a **confound-controlled probe detects** the
+concept on `h` **AND** the **echo/template/degeneration-controlled NLA does not verbalize** it on the
+*same* `h`. Three claims must independently survive: RQ1 detection validity, RQ2 specificity, RQ3 the
+gap (the headline). See `docs/specs/exp2_spec.md` §0.
+
+## Status
+
+| Component | State |
+|---|---|
+| `confounds.py` — pre-registered probe battery (the instrument) | **Done** |
+| `test_confounds.py` — synthetic self-test (clean/length/mixed/collinear) | **Done — passing** |
+| Gate 0–4 pipeline (`01`–`10`) | Not started (this README is the roadmap) |
+
+## Run order (numbered pipeline; mirrors Experiment 1)
+
+CPU stages author+run here; **GPU stages run on the Vast.ai box** (no GPU in the dev container).
+Each gate's exit criteria gate the next (spec §2).
+
+```
+Gate 0  implementation sanity      01_verify_env.py                         [box]
+Gate 1  vector validity (cheap)    concepts.yaml
+                                   02_build_concept_pairs.py                [here]
+                                   audits.py                                [here]
+                                   03_extract_for_battery.py               [box]
+                                   04_run_gate1_battery.py                  [here]
+Gate 2  NLA injection specificity  05_inject_matrix.py                     [here]
+                                   06_decode_matrix.py                     [box, SGLang AV]
+                                   flags.py / 07_score_matrix.py           [here, OpenAI]
+                                   08_analyze_gate2.py                      [here]
+Gate 3  real-activation reading    09_real_activation_reads.py             [box + here]
+Gate 4  verbalization-gap tests    10_final_gap_analysis.py                [box + here]
+```
+
+### Quick start (CPU dev box)
+```bash
+# from repo root
+uv venv .venv --python 3.11 && uv pip install --python .venv/bin/python numpy scikit-learn scipy
+.venv/bin/python "Experiment 2/rebuild/test_confounds.py"   # must print ALL CHECKS PASSED
+```
+
+### Gate 1 detail (the load-bearing, cheap gate)
+Probe-only (activation extraction + AUROC battery; **no NLA decode, no LLM judge**), so a wide
+candidate net is cheap. Each direction carries the **five-number battery** before any NLA work:
+raw / length-only / length-residualized / pair-level GroupKFold / shuffled-null. Pre-extraction audit
+per concept: length balance (`pct_gap<25%`), lexical-leak check, framing length-match to identical
+token count. Every concept exits with a label: **PASS / WEAK / FAIL / DROP** (spec §5). Only PASS
+vectors reach Gates 2–4.
+
+### Gate 2 detail (specificity diagnostic, NOT the gap)
+DoM injection direction (independent of the NLA) into neutral anchors; **dose = realized cosine**,
+solved analytically per anchor (exact to float precision); log realized cos, baseline cos, `cos(h,h')`,
+norms, `delta_norm/‖h‖`; off-manifold gate. Per-output flags: `echo_*`, **`generic_template`**
+(distinct from echo — a generic safety template inflates refusal for *every* concept without echoing a
+word), `nla_degenerate`, `n_unique`. **Every detection rate reported four ways**: raw / excluding echo /
+excluding generic_template / excluding degenerate. Run the same injections on Qwen for the
+**dissociation track** (injection ≠ real activations).
+
+### Gate 4 detail (the science)
+Per-activation co-registration (probe-yes ∧ NLA-no on the same `h`). Track A eval-awareness (matched
+framing — state the **framing-vs-state caveat**: "represents the eval-framing context", not "knows it
+is being evaluated"; Exp 2b is the escape route). Track B refusal (minimal-coefficient steering, probe
+independent of `v_refusal`, behavioral compliance check; Phase-1 bucket report A/B/B′/C/D/E).
+**Gap recovery is the headline number**, against output-reading + context-only + linear-probe baselines.
+
+## Concept set (full 18-concept net; spec §1)
+
+Cast wide, let the gates cull. Refusal (anchor) + controls (apology_polite_refusal,
+harmful_topic_benign, safe_completion, eval_framing_matched) + positive sanity (style_emoji, json_format,
+bullet_list, code_block, language_switch) + candidates (neg_sentiment, uncertainty, sycophancy,
+corrigibility, truth_value) + exploratory (correction_acceptance, sandbagging) + negative controls
+(random / orthogonalized-refusal / length-direction / topic-only-harmfulness).
+
+**Pre-registered primary test:** does `refusal` survive after `apology_polite_refusal`,
+`harmful_topic_benign`, and `neg_sentiment` controls?
+
+## Decisions (this rebuild)
+
+- **Refusal anchor = AdvBench** (+ LLM benign rewrite), to match the completed Experiment 1.
+  ⚠️ This **diverges from `exp2_spec.md` §1, which specifies HarmBench** (diff-of-means per Arditi).
+  Chosen for cross-experiment comparability; tracked in `docs/references/known-corrections.md`.
+- **Scorer = `chat.completions.create` + `max_completion_tokens` + hashed `safety_identifier`**
+  (semaphore-limited), per `exp2_spec.md` §8 / `CLAUDE.md`. Note: Experiment 1's
+  `Gemma 3 27B/src/10_score_responses.py` uses the **Responses API** — the rebuild deliberately follows
+  the spec instead.
+- **`eval_framing_matched`** uses length-matched, lexically-neutralized eval/deploy framing — **not**
+  v1's unmatched NLA-paper system prompts. This is the core v1 fix.
+- **Representation claim = regularized logistic regression** via `probe_battery` (nested CV); **DoM is
+  used only for the injection direction**. Never reimplement AUROC — import from `confounds.py`.
+
+## Engineering constants (fail silently if wrong — see `docs/references/nla-infrastructure.md`)
+
+- Gemma-3-27B: **62 layers** (not 46); read at `hidden_states[42]` (block 41), d=5376, ~66% depth.
+  Qwen-2.5-7B: `hidden_states[21]` (block 20), d=3584. Off-by-one yields plausible garbage.
+- Gemma `embed_scale = √5376 ≈ 73.32`; `injection_scale` from `nla_meta.yaml` (**never hardcode**);
+  injection marker U+321C; two-step tokenization (avoid double-BOS / NFKC eating the marker).
+- SGLang AV: `--disable-radix-cache` (mandatory) + `--attention-backend fa3` (Gemma); memory dance
+  (`pkill -f sglang` before loading the target model; relaunch after). **No SAE position exclusion** in
+  the NLA read path. Activations cached **fp32**.
+
+## Reuse
+
+- `confounds.py` — `probe_battery`, `residualize`, `AUROC`, `summarize`, `battery_to_dict`.
+- `../CAA Vectors/src/01_build_concept_pairs.py` — concept-construction + length-audit **template**
+  (port, do not extend); `../CAA Vectors/data/concept_pairs.parquet` — reference data.
+- `../../Experiment 1/{Gemma 3 27B,qwen-2_5-7b}/src/` — `01_verify_env`, `05_extract`,
+  `07_build_direction` (DoM), `08_inject` (exact-cosine solver), `09_decode` (NLAClient),
+  `10_regex_score`, `10c_analyze`.
+- `../../Experiment 1/qwen-2_5-7b/nla-inference/nla_inference.py` — `NLAClient` (AV server),
+  `NLACritic` (AR, in-process), `load_nla_config`, `resolve_embed_scale`, `inject_at_marked_positions`.
