@@ -25,7 +25,54 @@ gap (the headline). See `docs/specs/exp2_spec.md` §0.
 |---|---|
 | `confounds.py` — pre-registered probe battery (the instrument) | **Done** |
 | `test_confounds.py` — synthetic self-test (clean/length/mixed/collinear) | **Done — passing** |
-| Gate 0–4 pipeline (`01`–`10`) | Not started (this README is the roadmap) |
+| `paths.py` + `test_paths.py` — canonical paths & file-naming convention | **Done — passing** |
+| Gate 0–4 pipeline (`scripts/01`–`10`) | Not started (scaffold + naming ready) |
+
+## Repository layout & naming
+
+Libraries (imported) stay at the rebuild root so imports don't break; runnable pipeline stages live
+in `scripts/`. Inputs, outputs, and scratch each get their own directory.
+
+```
+rebuild/
+├── confounds.py  paths.py  audits.py*  flags.py*    importable libs (root)   (* planned)
+├── test_*.py                                         CPU self-tests
+├── scripts/        NN_*.py   numbered pipeline stages (entry points)
+├── configs/        concepts.yaml  (hand-authored config)
+├── data/        ✓  small constructed datasets (concept_pairs.parquet)    [committed]
+├── results/     ✓  analysis outputs, one subdir per gate                 [committed]
+│   └── gate0/ gate1/ gate2/ gate3/ gate4/
+├── cache/       ✗  large artifacts: activations .npz, raw decodes        [gitignored]
+└── workspace/   ✗  scratch                                               [gitignored]
+```
+
+**Script names:** `scripts/<NN>_<verb_noun>.py` — `NN` is a monotonic stage number (the gate is shown
+in the run order below). E.g. `04_run_gate1_battery.py`.
+
+**Result / cache file names — built only via `paths.py`, never by hand:**
+
+```
+<stage>__<model>[__<concept>][__<variant>].<ext>
+  stage   = the producing script's basename, via stage_of(__file__) — a file names its own maker
+  model   = gemma3-27b | qwen2.5-7b
+  concept = a key from concepts.yaml (verbatim), or `all` for cross-concept summaries
+  variant = optional: raw | exc-echo | exc-template | exc-degen (the 4 NLA arms), a dose, …
+fields joined by '__'; within a field lowercase [a-z0-9_-].
+```
+
+Examples — `results/gate1/04_run_gate1_battery__gemma3-27b__refusal.json`,
+`results/gate2/07_score_matrix__qwen2.5-7b__refusal__exc-echo.jsonl`,
+`cache/03_extract_for_battery__gemma3-27b__refusal.npz`.
+
+In a `scripts/NN_*.py` stage:
+
+```python
+import sys, pathlib
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))  # reach root libs
+from paths import result_path, stage_of
+from confounds import probe_battery
+out = result_path("gate1", stage_of(__file__), "gemma", concept="refusal")
+```
 
 ## Run order (numbered pipeline; mirrors Experiment 1)
 
@@ -33,18 +80,19 @@ CPU stages author+run here; **GPU stages run on the Vast.ai box** (no GPU in the
 Each gate's exit criteria gate the next (spec §2).
 
 ```
-Gate 0  implementation sanity      01_verify_env.py                         [box]
-Gate 1  vector validity (cheap)    concepts.yaml
-                                   02_build_concept_pairs.py                [here]
-                                   audits.py                                [here]
-                                   03_extract_for_battery.py               [box]
-                                   04_run_gate1_battery.py                  [here]
-Gate 2  NLA injection specificity  05_inject_matrix.py                     [here]
-                                   06_decode_matrix.py                     [box, SGLang AV]
-                                   flags.py / 07_score_matrix.py           [here, OpenAI]
-                                   08_analyze_gate2.py                      [here]
-Gate 3  real-activation reading    09_real_activation_reads.py             [box + here]
-Gate 4  verbalization-gap tests    10_final_gap_analysis.py                [box + here]
+Gate 0  implementation sanity      scripts/01_verify_env.py                 [box]
+Gate 1  vector validity (cheap)    configs/concepts.yaml
+                                   scripts/02_build_concept_pairs.py        [here]
+                                   audits.py  (root lib)                    [here]
+                                   scripts/03_extract_for_battery.py        [box]
+                                   scripts/04_run_gate1_battery.py          [here]
+Gate 2  NLA injection specificity  scripts/05_inject_matrix.py             [here]
+                                   scripts/06_decode_matrix.py             [box, SGLang AV]
+                                   flags.py (root lib) +
+                                   scripts/07_score_matrix.py              [here, OpenAI]
+                                   scripts/08_analyze_gate2.py             [here]
+Gate 3  real-activation reading    scripts/09_real_activation_reads.py     [box + here]
+Gate 4  verbalization-gap tests    scripts/10_final_gap_analysis.py        [box + here]
 ```
 
 ### Quick start (CPU dev box)
@@ -52,6 +100,7 @@ Gate 4  verbalization-gap tests    10_final_gap_analysis.py                [box 
 # from repo root
 uv venv .venv --python 3.11 && uv pip install --python .venv/bin/python numpy scikit-learn scipy
 .venv/bin/python "Experiment 2/rebuild/test_confounds.py"   # must print ALL CHECKS PASSED
+.venv/bin/python "Experiment 2/rebuild/test_paths.py"       # naming convention self-test
 ```
 
 ### Gate 1 detail (the load-bearing, cheap gate)
@@ -116,6 +165,7 @@ corrigibility, truth_value) + exploratory (correction_acceptance, sandbagging) +
 ## Reuse
 
 - `confounds.py` — `probe_battery`, `residualize`, `AUROC`, `summarize`, `battery_to_dict`.
+- `paths.py` — `result_path`, `cache_path`, `data_path`, `config_path`, `stage_of`, `model_slug`.
 - `../CAA Vectors/src/01_build_concept_pairs.py` — concept-construction + length-audit **template**
   (port, do not extend); `../CAA Vectors/data/concept_pairs.parquet` — reference data.
 - `../../Experiment 1/{Gemma 3 27B,qwen-2_5-7b}/src/` — `01_verify_env`, `05_extract`,
