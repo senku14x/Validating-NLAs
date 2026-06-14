@@ -147,7 +147,11 @@ def main() -> int:
               "load-bearing case. Run 03 for the survivor concepts first.")
 
     # --- AV client (identical convention to nla_box.smoke / av_up.sh) ---
-    sys.path.insert(0, os.environ["NLA_REPO_DIR"])  # cloned (and, if needed, tokenization-patched) upstream
+    nla_repo = os.environ.get("NLA_REPO_DIR", "/workspace/nla_repo")  # av_up.sh's default clone path
+    if not pathlib.Path(nla_repo, "nla_inference.py").exists():
+        sys.exit(f"FAIL: nla_inference.py not under NLA_REPO_DIR={nla_repo!r} — "
+                 f"set NLA_REPO_DIR or run av_up.sh (it clones to /workspace/nla_repo).")
+    sys.path.insert(0, nla_repo)  # cloned (and, if needed, tokenization-patched) upstream
     from nla_inference import NLAClient  # noqa: E402
     av_dir = nla_box.resolve_av(a.model, full=True)
     port = os.environ.get("SGLANG_PORT", "30000")
