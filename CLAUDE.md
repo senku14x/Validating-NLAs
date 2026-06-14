@@ -29,7 +29,7 @@ organism "Exp 2b" — in this repo that is `Experiment 4/`).
 | Repo folder | What | Status |
 |---|---|---|
 | `Experiment 1/` | Injection dose-response: does the NLA detect an independently built **refusal** direction, specifically & dose-dependently? | **Complete** (Gemma validated, Qwen replicated). Result: `docs/specs/experiment_1_result.md` |
-| `Experiment 2/` | **Verbalization-gap** validation: injection specificity + prompted eval-awareness + steered refusal, fully confound-controlled. **Being rebuilt** in `Experiment 2/rebuild/`. | Specced; rebuild in progress |
+| `Experiment 2/` | **Verbalization-gap** validation, rebuilt in `Experiment 2/rebuild/`. | **Gate 0–1 done, audited, cross-model.** Pipeline `scripts/01–04`+`04b`. Corrected gate (BoW + small-n, see below) → **5 "represented" on BOTH Gemma & Qwen**: truth_value, sycophancy, corrigibility, neg_sentiment, harmful_topic_benign; refusal + eval_framing demoted. **Gate 2 (inject → AV verbalize) next.** State: `Experiment 2/rebuild/README.md` |
 | `Experiment 3/` | **Cross-model** feature transfer: ridge map Qwen-L20→Gemma-L41; co-firing AUROC + causal steering. Standalone. | Specced; pipeline built; needs the §9 layer correction |
 | `Experiment 4/` | **Model organism** (plan's "Exp 2b"): install eval-awareness in weights (Hua recipe → Gemma) — the one design that escapes the framing-vs-state caveat. | New / scoping |
 
@@ -46,10 +46,16 @@ read AUROC 0.990 — but it was mostly prompt length; after control it was 0.622
   with a **cluster-bootstrap CI** and **pair-level StratifiedGroupKFold baked into the CV** (matched
   pairs never straddle a split). This operationalizes the spec's five-number doctrine (raw /
   length-only / length-residualized / pair-level / shuffled-null).
-- The verdict is **pre-registered** (frozen in `confounds.py`): a concept is "represented" iff
-  `length_residualized.ci_lo > max(REPRESENTED_FLOOR, null.ci_hi)`. We deliberately do **not** require
-  resid > length_only (when length is near-perfectly predictive nothing beats it; `length_only` stays
-  a diagnostic via `length_inflation`).
+- **Length control is NOT sufficient — the Gate-1 audit's load-bearing lesson:** a length-only gate
+  PASSed 14/18, but a **bag-of-words text baseline** (`confounds.bow_auroc`, the lexical analog of
+  `length_only`) showed ~half were just surface vocabulary (the headline `eval_framing` is BoW-on-text
+  **1.000**; refusal's AdvBench-vs-Alpaca two-pool is **0.997** = corpus identity). A concept counts as
+  "represented" only if the activation probe **clearly beats BoW-on-text**, not merely length.
+- Verdict (**pre-registration v2**, `confounds.gate_v2`; the original length-only gate stays in
+  `probe_battery`): requires `length_residualized.ci_lo > max(REPRESENTED_FLOOR, null.ci_hi)` **AND**
+  clearly beats the **BoW text baseline** **AND** not lexical-leak-flagged **AND** **≥ `MIN_GROUPS` (20)
+  groups** (≤12 groups → ~10% false PASS on noise). Re-gate cached results with
+  `scripts/04b_recheck_gate1.py`. We still do **not** require resid > length_only.
 - Decisions compare CI **bounds**, not point estimates (n≈60–120 is noisy).
 - **NLA detections** report four ways — raw / excluding echo / excluding `generic_template` /
   excluding `nla_degenerate`. `generic_template` ≠ echo (a generic safety template inflates refusal
@@ -57,7 +63,11 @@ read AUROC 0.990 — but it was mostly prompt length; after control it was 0.622
 - **Per-activation co-registration** for any gap claim: probe-yes AND NLA-no on the *same* `h`, never
   population-vs-population.
 - When a confound is collinear with the label, the effect is **not identifiable** — refuse to certify.
-- **Injection ≠ real activations** (the Qwen dissociation): report them as different measurements.
+- **Injection ≠ real activations** (Qwen dissociation: the AV read *offline*-injected Gemma but was
+  NULL on offline-injected Qwen, while positive on *real* Qwen). Three vector sources, three meanings:
+  **offline** `h'=anchor+βv̂` (off-manifold, cheap → Gate-2 specificity) · **online-steered** (a forward-pass
+  hook adds `βv̂` → on-manifold real state) · **real natural** (Gate 3). Gate 2 should run offline **and**
+  online-steered and report the dissociation; the gap (RQ3) lives in steered+real, not offline.
 - **Validate the instrument before trusting it:** `test_confounds.py` must pass on synthetic ground
   truth (clean / length / mixed / collinear regimes) before the battery touches real activations.
 
@@ -73,16 +83,18 @@ read AUROC 0.990 — but it was mostly prompt length; after control it was 0.622
 - `docs/references/known-corrections.md` — **load-bearing fixes** (Gemma has 62 layers not 46;
   AdvBench/HarmBench reconciliation; no SAE position exclusion in the NLA read path). Check before
   trusting derived figures in older docs.
+- `Experiment 2/rebuild/README.md` — **current Exp 2 state**, run order, Gate-1 results + open
+  decisions; `Experiment 2/rebuild/SGLANG.md` — the NLA AV SGLang fire-up recipe (`scripts/av_up.sh`).
 
 ## Run / dev (CPU work — no GPU needed)
 
 A gitignored venv at repo root has the CPU deps (numpy/sklearn/scipy):
 
 ```bash
-.venv/bin/python "Experiment 2/rebuild/test_confounds.py"   # battery self-test
+for t in test_confounds test_paths test_audits test_concepts test_sources; do .venv/bin/python "Experiment 2/rebuild/$t.py"; done
 ```
 
-If the venv is missing (fresh container): `uv venv .venv --python 3.11 && uv pip install --python .venv/bin/python numpy scikit-learn scipy`.
+If the venv is missing (fresh container): `uv venv .venv --python 3.11 && uv pip install --python .venv/bin/python numpy scikit-learn scipy pandas pyarrow pyyaml requests`.
 
 ## GPU work runs on a Vast.ai box, not here
 
@@ -90,8 +102,11 @@ This container has no GPU. Forward passes (Gemma/Qwen extraction), the SGLang AV
 decoding run on a rented GPU box; results are pushed back and analyzed here.
 
 - **Author code here** (full context). Commit + push.
-- **Run GPU stages on the box**: clone the branch, `uv sync` in the experiment dir,
-  `python src/01_verify_env.py`, then run the numbered pipeline. Gemma activations cached **fp32**
+- **Run GPU stages on the box**: clone the branch; in `Experiment 2/rebuild/` run
+  `pip install -r requirements.txt` (+ `transformers accelerate tqdm`), set `HF_TOKEN`, then
+  `python scripts/01_verify_env.py --model gemma` and the numbered pipeline (`03` extract →
+  `04`/`04b` battery; Gate-2 AV via `scripts/av_up.sh <gemma|qwen>`). `03` only generates for the
+  behavioral concepts (refusal, harmful_topic_benign); MAXNEW=64 is sufficient. Activations cached **fp32**
   (large-norm outlier dims overflow fp16).
 - **Push small structured results** (JSON/CSV/JSONL) back — never weights or caches (`cache/`,
   `workspace/`, `.venv` are gitignored).

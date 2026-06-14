@@ -3,6 +3,46 @@
 Clean rebuild of Experiment 2. **Do not extend `../CAA Vectors/`** (the v1 path) — build here.
 The spec is the source of truth: `docs/specs/exp2_spec.md`. This README is the run order + design.
 
+## Current state (handoff — read this first)
+
+**Gate 0–1: complete, audited, cross-model.** Pipeline `scripts/01–04` + `04b`, run on **Gemma-3-27B and
+Qwen-2.5-7B**; results in `results/gate1/`.
+
+- The v1 gate (length-only) PASSed 14/18 — but a 3-agent audit showed it was **lexically blind**: ~half
+  were just surface vocabulary (the headline `eval_framing` is bag-of-words-on-text AUROC **1.000**), and
+  the cluster-bootstrap CI gives ~10% false PASS below ~12 groups.
+- **Corrected gate** (`confounds.gate_v2`, run by `scripts/04b_recheck_gate1.py`) adds a **BoW text
+  baseline** + lexical-leak + **min-groups (≥20)** rules. Result: **5 "represented" on BOTH models**
+  (18/18 v2 agreement): `truth_value` (cleanest — BoW at chance), `sycophancy`/`corrigibility` (real but
+  *answer-binding*, narrow), `neg_sentiment`, `harmful_topic_benign`.
+- **Demoted:** `refusal` → WEAK (AdvBench-vs-Alpaca is a *corpus* confound, BoW 0.997; refusal is still
+  causally real per Exp 1 — it needs a **topic-matched contrast** for a clean probe baseline).
+  `eval_framing` → WEAK (framing-vs-state: the probe reads the note's words, not an eval-*state* — a
+  Gate-4 / organism question). Small-n exploratory concepts → WEAK pending more pairs.
+- Standing caveat: a probe PASS = "decodable beyond surface text," **not** "the model *uses* it."
+  Decodability-vs-use is the logit-lens / causal / NLA-verbalization question (Gates 2–4).
+
+**Next: Gate 2 — the verbalization test.** Inject each surviving direction (+ the refusal anchor) and ask
+whether the NLA AV *verbalizes* it, four-way scored. Open decisions:
+1. **Injection mode** — offline `h'=anchor+βv̂` (cheap, off-manifold → Gate-2 specificity) vs **online-
+   steered** (forward-pass hook → on-manifold real state). The Qwen dissociation (offline NULL, real
+   positive) means offline alone can mislead — build both, report the dissociation. Planned scripts:
+   `05_inject_matrix` (offline, CPU) + `05b_steer_extract` (online, box) → `06_decode_matrix` (AV via
+   `scripts/av_up.sh`) → `flags.py` + `07_score_matrix` (four-way: raw / exc-echo / exc-template / exc-degen).
+2. **Refusal** — rebuild with a topic-matched contrast (`harmful_topic_benign` is the disentangling tool);
+   the injection DoM direction is unaffected and still advances.
+3. **Scoring** — `07` uses the OpenAI judge (`chat.completions.create`); needs `OPENAI_API_KEY` on the box,
+   or run regex-first.
+4. **n-expansion** — constructed controls are at curated base (16–40 pairs); expand borderline ones to ~90
+   (LLM, audit-gated) before trusting their verdicts.
+5. **Spec reconciliation** — `exp2_spec.md` still states the v1 PASS rule + a separate pair-level number;
+   reconcile to `gate_v2` deliberately.
+
+**Box engineering notes:** `03` only generates completions for the behavioral concepts (refusal,
+harmful_topic_benign); MAXNEW=64 is enough (refusal labeled 111/120, matching Exp 1). Newer transformers
+returns a `BatchEncoding` from `apply_chat_template` (handled). H200 (141 GB) fits target + AV together →
+no memory dance; on 80 GB use `av_down.sh` between extraction and AV decode.
+
 ## Why a rebuild
 
 v1 reported an eval-awareness probe AUROC of **0.990 that was mostly prompt length** (0.622 after
