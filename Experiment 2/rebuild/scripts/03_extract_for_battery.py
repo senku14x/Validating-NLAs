@@ -36,7 +36,7 @@ import numpy as np
 import pandas as pd
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))  # reach root libs
-from paths import cache_path, data_path, model_slug, stage_of  # noqa: E402
+from paths import CACHE, cache_path, data_path, model_slug, stage_of  # noqa: E402
 
 STAGE = stage_of(__file__)
 MAXNEW = int(os.environ.get("MAXNEW", "64"))  # only affects refusal/harmful_topic_benign labels
@@ -210,7 +210,7 @@ def assemble(model_key: str, A: np.ndarray, meta: pd.DataFrame) -> int:
                  X=Xf.astype(np.float32), y=yf.astype(int), lengths=lengths, groups=groups.astype(int))
         summary.append((concept, int(keep.sum()), f"y1={int(yf.sum())} y0={int((yf == 0).sum())}"))
 
-    print(f"\nper-concept battery inputs -> {cache_path(STAGE, model_key, concept='<c>', ext='npz').parent}")
+    print(f"\nper-concept battery inputs -> {CACHE}")
     for c, n, note in sorted(summary):
         print(f"  {c:24s} n={n:>4}  {note}")
     return 0
