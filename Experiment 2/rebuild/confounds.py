@@ -51,6 +51,7 @@ import json
 from dataclasses import asdict, dataclass
 
 import numpy as np
+from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import roc_auc_score
 from sklearn.model_selection import StratifiedGroupKFold
@@ -65,6 +66,7 @@ N_NULL = 25            # label permutations for the null band
 ALPHA = 0.05           # 95% intervals
 REPRESENTED_FLOOR = 0.60
 SEED = 42
+MIN_GROUPS = 20        # below this the cluster-bootstrap CI gives ~10% false PASS on noise (Gate-1 audit)
 
 
 @dataclass
@@ -309,6 +311,49 @@ def summarize(battery: dict, name: str = "") -> str:
             f"  gate: {battery['gate']}",
         ]
     )
+
+
+# ── pre-registration v2: lexical baseline + corrected gate ───────────────────
+# Added after the Gate-1 audit found the battery controlled length but NOT lexical
+# content, and that the cluster-bootstrap CI is unreliable below MIN_GROUPS groups.
+# Additive: the original probe_battery output is unchanged.
+
+def bow_auroc(texts, y, groups=None, *, c_grid=DEFAULT_C_GRID, n_splits=N_SPLITS,
+              n_boot=N_BOOT, alpha=ALPHA, seed=SEED) -> AUROC:
+    """Out-of-fold AUROC of a probe on BAG-OF-WORDS of the raw text — the lexical
+    analog of `length_only`. If this rivals the activation probe, the "representation"
+    is just surface vocabulary, not something the model encodes beyond the words.
+    Vocabulary is fit on the full set, which only makes this baseline *stronger* →
+    conservative for disqualifying a concept.
+    """
+    y = np.asarray(y).astype(int)
+    groups = np.arange(len(y)) if groups is None else np.asarray(groups)
+    X = CountVectorizer(min_df=1).fit_transform([str(t) for t in texts]).toarray().astype(float)
+    return _auroc_with_ci(X, y, groups, c_grid=c_grid, n_splits=n_splits,
+                          n_boot=n_boot, alpha=alpha, seed=seed)
+
+
+def gate_v2(raw: AUROC, resid: AUROC, null: AUROC, text_only: AUROC, n_groups: int,
+            lexical_ok: bool, *, floor: float = REPRESENTED_FLOOR,
+            min_groups: int = MIN_GROUPS) -> tuple[str, str]:
+    """Corrected Gate-1 verdict. PASS only if the length-residualized activation
+    signal (a) clears the floor+null bar, (b) clearly beats the bag-of-words text
+    baseline (i.e. it's not just surface lexical), (c) is not lexical-leak flagged,
+    and (d) rests on >= min_groups groups (so the bootstrap CI is trustworthy).
+    Otherwise WEAK (real-but-confounded/underpowered) or FAIL (no signal).
+    """
+    bar = round(max(floor, null.ci_hi), 4)
+    if resid.ci_lo <= bar:
+        if raw.ci_lo > null.ci_hi:
+            return "WEAK", f"length-explained: resid.ci_lo {resid.ci_lo:.3f} <= bar {bar:.3f}"
+        return "FAIL", f"no signal: raw.ci_lo {raw.ci_lo:.3f} <= null.ci_hi {null.ci_hi:.3f}"
+    if resid.ci_lo <= text_only.ci_hi:
+        return "WEAK", f"surface lexical: text-BoW ci_hi {text_only.ci_hi:.3f} >= resid.ci_lo {resid.ci_lo:.3f}"
+    if not lexical_ok:
+        return "WEAK", "lexical_leak flagged (giveaway tokens not neutralized)"
+    if n_groups < min_groups:
+        return "WEAK", f"small-n: {n_groups} groups < {min_groups} (cluster-bootstrap CI unreliable)"
+    return "PASS", f"resid.ci_lo {resid.ci_lo:.3f} > bar {bar:.3f}; beats text {text_only.ci_hi:.3f}; {n_groups} groups"
 
 
 if __name__ == "__main__":
