@@ -33,11 +33,13 @@ mkdir -p "$NLA_CACHE_DIR"
 
 echo "== 1. deps (sglang pinned 0.5.6 — the patch anchors were verified there) =="
 python -c "import sglang" 2>/dev/null || pip install -q "sglang[all]==0.5.6"
-# transformers PINNED to 5.10.1: sglang 0.5.6's gemma3_causal rope loader breaks on
-# transformers 5.12 (ROPE_INIT_FUNCTIONS[None] -> KeyError at model init). 5.10.1 is the
-# proven-working pairing (Colab A100). A bare `-U transformers` grabs the latest and
-# silently kills the server at load — pin it.
-pip install -q "transformers==5.10.1" huggingface_hub safetensors httpx orjson pyyaml numpy >/dev/null
+# transformers PINNED to 4.57.1: sglang 0.5.6 hard-requires it (declared in sglang's own
+# metadata). Newer transformers (5.x) moved Gemma-3's rope config to a nested
+# `rope_parameters` schema, so sglang 0.5.6's gemma3_causal reads rope_type=None ->
+# ROPE_INIT_FUNCTIONS[None] KeyError, killing the server at model init. Verified on the
+# H200 box: transformers 4.57.1 + sglang 0.5.6 loads Gemma3ForCausalLM cleanly and the AV
+# smoke passes. A bare `-U transformers` grabs the latest (5.x) and silently breaks load.
+pip install -q "transformers==4.57.1" huggingface_hub safetensors httpx orjson pyyaml numpy >/dev/null
 
 echo "== 2. clone NLA repo (load_nla_config / NLAClient / patches) =="
 [ -f "$NLA_REPO_DIR/nla_inference.py" ] || \
