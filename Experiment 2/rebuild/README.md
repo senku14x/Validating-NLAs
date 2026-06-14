@@ -5,6 +5,12 @@ The spec is the source of truth: `docs/specs/exp2_spec.md`. This README is the r
 
 ## Current state (handoff — read this first)
 
+> **Live instance (transient — as of 2026-06-14):** a Vast **H200** box is currently **running, NOT
+> destroyed**. The `03` activation cache is intact for **both** Gemma-3-27B and Qwen-2.5-7B under
+> `cache/` (gitignored) — so Gate-2 work (`05_smoke_decode.py`, injection) can use it **without
+> re-running `03`**. Bring the AV server up with `scripts/av_up.sh <gemma|qwen>`. Delete/refresh this
+> note when the instance is torn down.
+
 **Gate 0–1: complete, audited, cross-model.** Pipeline `scripts/01–04` + `04b`, run on **Gemma-3-27B and
 Qwen-2.5-7B**; results in `results/gate1/`.
 
