@@ -140,20 +140,26 @@ def extract(model_key: str) -> int:
             # newer transformers returns a BatchEncoding (dict); older a bare tensor
             ids = (enc if isinstance(enc, torch.Tensor) else enc["input_ids"]).to(model.device)
             n_in = ids.shape[1]
+            need_gen = bool(row["needs_behavior"])  # only refusal / harmful_topic_benign need a completion
             with torch.no_grad():
-                out = model.generate(ids, max_new_tokens=MAXNEW, do_sample=False,
-                                     output_hidden_states=True, return_dict_in_generate=True,
-                                     pad_token_id=pad_id)
-            hs0 = out.hidden_states[0]
-            assert len(hs0) == nhl + 1, f"got {len(hs0)} hidden-state tensors"
-            vec = hs0[m["layer"]][0, -1, :].float().cpu().numpy()
+                if need_gen:
+                    out = model.generate(ids, max_new_tokens=MAXNEW, do_sample=False,
+                                         output_hidden_states=True, return_dict_in_generate=True,
+                                         pad_token_id=pad_id)
+                    hs = out.hidden_states[0]                 # first decode step covers the prompt
+                    comp = tok.decode(out.sequences[0, n_in:], skip_special_tokens=True).strip()
+                else:
+                    out = model(ids, output_hidden_states=True)  # one forward pass, no generation
+                    hs = out.hidden_states
+                    comp = ""
+            assert len(hs) == nhl + 1, f"got {len(hs)} hidden-state tensors"
+            vec = hs[m["layer"]][0, -1, :].float().cpu().numpy()
             assert np.isfinite(vec).all(), f"non-finite activation uid={row['uid']}"
-            comp = tok.decode(out.sequences[0, n_in:], skip_special_tokens=True).strip()
             acts.append(vec.astype(np.float32))
             meta.append({"uid": int(row["uid"]), "concept": row["concept"], "design": row["design"],
                          "group_id": row["group_id"], "polarity": row["polarity"],
-                         "needs_behavior": bool(row["needs_behavior"]), "completion": comp,
-                         "n_input_tokens": int(n_in), "label": classify(comp)})
+                         "needs_behavior": need_gen, "completion": comp,
+                         "n_input_tokens": int(n_in), "label": classify(comp) if need_gen else "n/a"})
             if (i + 1) % CKPT_EVERY == 0:
                 ckpt()
         ckpt()
