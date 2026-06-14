@@ -38,6 +38,7 @@ from paths import cache_path, config_path, data_path, model_slug, result_path, s
 STAGE = stage_of(__file__)
 INJECT_STAGE = "05_inject_matrix"
 DECODE_STAGE = "06_decode_matrix"
+REAL_STAGE = "09_decode_real"
 
 # Scored against every decode: the injected concepts (eval_framing injects -> eval_awareness
 # scored name) + medical_advice as a never-injected negative audit (must stay ~0 everywhere).
@@ -311,6 +312,8 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--model", default="gemma", choices=["gemma", "qwen"])
     ap.add_argument("--regex-only", action="store_true")
+    ap.add_argument("--real", action="store_true",
+                    help="score 09_decode_real output (real activations) instead of the 05/06 injection matrix")
     ap.add_argument("--self-test", action="store_true")
     a = ap.parse_args()
     if a.self_test:
@@ -318,28 +321,35 @@ def main() -> int:
 
     import pandas as pd
     model = model_slug(a.model)
-    meta_p = cache_path(INJECT_STAGE, model, concept="all", ext="parquet")
-    dec_p = result_path("gate2", DECODE_STAGE, model, concept="all", ext="parquet")
-    if not meta_p.exists():
-        sys.exit(f"FAIL: 05 metadata missing ({meta_p}) — run 05 on the box.")
-    if not dec_p.exists():
-        sys.exit(f"FAIL: 06 decodes missing ({dec_p}) — run 06 on the box.")
-    meta = pd.read_parquet(meta_p)
-    dec = pd.read_parquet(dec_p)
-    df = meta.merge(dec, on="row", how="inner")
-    print(f"{len(df)} decode rows over {df.concept.nunique()} injected concepts")
+    variant = "real" if a.real else None
+    if a.real:
+        dec_p = result_path("gate2", REAL_STAGE, model, concept="all", ext="parquet")
+        if not dec_p.exists():
+            sys.exit(f"FAIL: 09 real decodes missing ({dec_p}) — run 09_decode_real --model {a.model} first.")
+        df = pd.read_parquet(dec_p)
+        print(f"{len(df)} real-activation decode rows over {df.concept.nunique()} concepts")
+    else:
+        meta_p = cache_path(INJECT_STAGE, model, concept="all", ext="parquet")
+        dec_p = result_path("gate2", DECODE_STAGE, model, concept="all", ext="parquet")
+        if not meta_p.exists():
+            sys.exit(f"FAIL: 05 metadata missing ({meta_p}) — run 05 on the box.")
+        if not dec_p.exists():
+            sys.exit(f"FAIL: 06 decodes missing ({dec_p}) — run 06 on the box.")
+        df = pd.read_parquet(meta_p).merge(pd.read_parquet(dec_p), on="row", how="inner")
+        print(f"{len(df)} decode rows over {df.concept.nunique()} injected concepts")
 
     df = regex_score(df)
     df = attach_flags(df, _leak_tokens(model))
 
     if not a.regex_only:
-        raw_jsonl = result_path("gate2", STAGE, model, concept="all", variant="judge", ext="jsonl")
+        raw_jsonl = result_path("gate2", STAGE, model, concept="all",
+                                variant=("judge-real" if a.real else "judge"), ext="jsonl")
         judged = __import__("asyncio").run(_judge(df, raw_jsonl))
         if judged:
             jdf = pd.DataFrame(list(judged.values())).rename(columns={c: f"j_{c}" for c in SCORED_CONCEPTS})
             df = df.merge(jdf[["row", "sample"] + [f"j_{c}" for c in SCORED_CONCEPTS]], on=["row", "sample"], how="left")
 
-    out = result_path("gate2", STAGE, model, concept="all", ext="parquet")
+    out = result_path("gate2", STAGE, model, concept="all", variant=variant, ext="parquet")
     df.to_parquet(out, index=False)
     print(f"\nwrote {len(df)} scored rows -> {out}")
     print("\nregex score=2 rate per concept (diagonal will be high if detection works):")
