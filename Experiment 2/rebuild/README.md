@@ -144,9 +144,12 @@ corrigibility, truth_value) + exploratory (correction_acceptance, sandbagging) +
 
 ## Decisions (this rebuild)
 
-- **Refusal anchor = AdvBench** (+ LLM benign rewrite), to match the completed Experiment 1.
-  ⚠️ This **diverges from `exp2_spec.md` §1, which specifies HarmBench** (diff-of-means per Arditi).
-  Chosen for cross-experiment comparability; tracked in `docs/references/known-corrections.md`.
+- **Refusal anchor = Arditi / Exp-1 setup**: AdvBench harmful vs **Alpaca** harmless, behaviorally
+  labeled (refused vs complied), cross-pool diff-of-means — identical to Exp 1 (AUROC 0.999) and to
+  Arditi et al. The v1 **matched-benign-rewrite weakened the direction and is dropped**; topic/length
+  confounds are controlled at *evaluation* (battery residualization + `harmful_topic_benign` /
+  `neg_sentiment` / `length_direction` controls), not by hobbling the direction. ⚠️ Diverges from
+  `exp2_spec.md` §1 (HarmBench); tracked in `docs/references/known-corrections.md`.
 - **Scorer = `chat.completions.create` + `max_completion_tokens` + hashed `safety_identifier`**
   (semaphore-limited), per `exp2_spec.md` §8 / `CLAUDE.md`. Note: Experiment 1's
   `Gemma 3 27B/src/10_score_responses.py` uses the **Responses API** — the rebuild deliberately follows

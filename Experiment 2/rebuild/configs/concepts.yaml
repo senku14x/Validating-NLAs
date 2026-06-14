@@ -32,15 +32,20 @@ fates: [PASS, WEAK, FAIL, DROP]
 concepts:
   - key: refusal
     role: anchor
-    source: advbench+llm_rewrite
-    construction: AdvBench harmful (refused) vs matched benign rewrite, same topic/length
+    source: advbench+alpaca
+    construction: AdvBench harmful (refused) vs Alpaca harmless (complied); cross-pool diff-of-means
     expectation: PASS
     cosine_baseline: positive
     echo_prone: false
     n_target: 120
     notes: >
-      DoM direction (Arditi et al.). AdvBench to match Exp 1 (diverges from spec §1
-      HarmBench — see known-corrections). Refusal-ASSOCIATED, not pure refusal.
+      Arditi-style, identical to Exp 1 (AUROC 0.999): harmful=AdvBench, harmless=Alpaca,
+      behaviorally labeled (keep refused-harmful vs complied-harmless), v_refusal =
+      unit(mean(refused) - mean(complied)). Two-pool design (NOT matched pairs) -> non-paired
+      battery (groups=None). The v1 matched-benign-rewrite weakened the direction and is
+      DROPPED; topic/length confounds are handled at EVALUATION (battery length-residualization
+      + harmful_topic_benign / neg_sentiment / length_direction controls), not by weakening the
+      direction. Diverges from spec §1 HarmBench — see known-corrections.
 
   - key: politeness
     role: control
