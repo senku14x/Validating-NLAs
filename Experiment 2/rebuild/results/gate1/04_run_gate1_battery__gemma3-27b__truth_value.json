@@ -1,0 +1,37 @@
+{
+  "concept": "truth_value",
+  "role": "candidate",
+  "expectation": "WEAK",
+  "verdict": "PASS",
+  "n": 240,
+  "battery": {
+    "raw": {
+      "auroc": 1.0,
+      "ci_lo": 1.0,
+      "ci_hi": 1.0,
+      "n": 240
+    },
+    "length_residualized": {
+      "auroc": 1.0,
+      "ci_lo": 1.0,
+      "ci_hi": 1.0,
+      "n": 240
+    },
+    "length_only": {
+      "auroc": 0.4475,
+      "ci_lo": 0.3718,
+      "ci_hi": 0.5194,
+      "n": 240
+    },
+    "null": {
+      "auroc": 0.543,
+      "ci_lo": 0.4612,
+      "ci_hi": 0.6368,
+      "n": 240
+    },
+    "represented": true,
+    "length_inflation": 0.0,
+    "gate": "length_residualized.ci_lo (1.000) > max(floor 0.60, null.ci_hi 0.637) = 0.637",
+    "floor": 0.6
+  }
+}
