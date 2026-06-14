@@ -29,8 +29,11 @@ gap (the headline). See `docs/specs/exp2_spec.md` §0.
 | `configs/concepts.yaml` (18 concepts + 4 controls) + `test_concepts.py` | **Done — passing** |
 | `audits.py` + `test_audits.py` — Gate-1 pre-extraction audits | **Done — passing** |
 | `concept_sources.py` + `test_sources.py` — offline pair construction (14 concepts) | **Done — passing** |
-| `scripts/02_build_concept_pairs.py` — assemble offline + network pairs | Next |
-| Gate 0–4 pipeline (`scripts/01`/`03`–`10`) | Not started |
+| `scripts/01_verify_env.py` — Gate-0 sanity (cosine solver verified; GPU/HF/NLA box-only) | **Done — CPU checks pass** |
+| `scripts/02_build_concept_pairs.py` → `data/concept_pairs.parquet` (1670 rows) | **Done — runs** |
+| `scripts/03_extract_for_battery.py` — activations + behavioral labels (GPU box) | **Authored — box-only** |
+| `scripts/04_run_gate1_battery.py` — per-concept battery + PASS/WEAK/FAIL/DROP | **Done — self-test passes** |
+| Gate 2–4 pipeline (`scripts/05`–`10`) | Not started |
 
 ## Repository layout & naming
 
