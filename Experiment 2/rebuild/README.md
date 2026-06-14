@@ -26,7 +26,11 @@ gap (the headline). See `docs/specs/exp2_spec.md` §0.
 | `confounds.py` — pre-registered probe battery (the instrument) | **Done** |
 | `test_confounds.py` — synthetic self-test (clean/length/mixed/collinear) | **Done — passing** |
 | `paths.py` + `test_paths.py` — canonical paths & file-naming convention | **Done — passing** |
-| Gate 0–4 pipeline (`scripts/01`–`10`) | Not started (scaffold + naming ready) |
+| `configs/concepts.yaml` (18 concepts + 4 controls) + `test_concepts.py` | **Done — passing** |
+| `audits.py` + `test_audits.py` — Gate-1 pre-extraction audits | **Done — passing** |
+| `concept_sources.py` + `test_sources.py` — offline pair construction (14 concepts) | **Done — passing** |
+| `scripts/02_build_concept_pairs.py` — assemble offline + network pairs | Next |
+| Gate 0–4 pipeline (`scripts/01`/`03`–`10`) | Not started |
 
 ## Repository layout & naming
 

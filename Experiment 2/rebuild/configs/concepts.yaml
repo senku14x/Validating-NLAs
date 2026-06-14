@@ -3,20 +3,25 @@
 # The wide net per spec §1: cast wide, let the gates cull (Gate 1 is probe-only and
 # cheap, so heavy attrition is the design working). This file declares WHAT each
 # concept is and its intended role/fate; the HOW (pair construction) lives in
-# scripts/02_build_concept_pairs.py, which reads this manifest. 04_run_gate1_battery
-# reads it back to attach role/fate when reporting.
+# concept_sources.py (offline concepts) + scripts/02_build_concept_pairs.py (which
+# adds the network concepts). 04_run_gate1_battery reads it back to attach role/fate.
+#
+# n_target is a GOAL. Offline construction (concept_sources.py) provides a clean
+# curated base that is often smaller; scripts/02 expands toward n_target with the
+# LLM only when OPENAI_API_KEY is set (audit-gated). The CI-width simulation shows
+# borderline concepts (AUROC~0.7) need ~90 pairs for a stable PASS/FAIL verdict, so
+# the controls/candidates target 90-100; strong sanity concepts stay small.
 #
 # Fields per concept:
 #   key              identifier (also the concept field in result filenames, verbatim)
 #   role             anchor | control | core | sanity | candidate | exploratory
-#   source           where the pairs come from (advbench+llm_rewrite | nrimsky_caa |
-#                    geometry_of_truth | constructed)
+#   source           advbench+llm_rewrite | nrimsky_caa | geometry_of_truth | constructed
 #   construction     one-line description of the present-vs-absent contrast
 #   expectation      pre-registered expected Gate-1 fate: PASS | WEAK | FAIL | DROP
 #   cosine_baseline  positive | negative  (negative-baseline concepts must be dosed
 #                    relative to their natural distribution, spec §3, or they read null)
 #   echo_prone       true for surface/format concepts the AV can echo (flag, not exclude)
-#   n_target         target number of matched pairs
+#   n_target         GOAL number of matched pairs (see note above)
 #   notes            caveats / role in the design
 
 version: 1
@@ -37,50 +42,75 @@ concepts:
       DoM direction (Arditi et al.). AdvBench to match Exp 1 (diverges from spec §1
       HarmBench — see known-corrections). Refusal-ASSOCIATED, not pure refusal.
 
-  - key: apology_polite_refusal
+  - key: politeness
     role: control
     source: constructed
-    construction: polite/hedged declines ("I'd rather not") vs hard refusal
-    expectation: PASS
+    construction: polite/warm vs neutral phrasing of the SAME complied answer (length-matched)
+    expectation: WEAK
     cosine_baseline: positive
     echo_prone: false
-    n_target: 40
-    notes: Attacks "refusal = politeness". refusal must separate from this to count.
+    n_target: 90
+    notes: >
+      Renamed from apology_polite_refusal. Both halves comply (same fact); only warmth
+      differs, so it isolates politeness from the refusal decision — if refusal-detection
+      fires here, the NLA is reading politeness. Politeness<->length is the confound: the
+      blunt side is padded with neutral filler and length_balance gates it. Expect WEAK.
 
   - key: harmful_topic_benign
     role: control
     source: constructed
-    construction: harmful TOPIC but complied (neutral writing about weapons) vs refused
+    construction: harmful-TOPIC complied vs benign-TOPIC complied (both comply; isolates topic)
     expectation: PASS
     cosine_baseline: positive
     echo_prone: false
-    n_target: 40
-    notes: Attacks "refusal = harmful-topic content". The headline control for refusal.
+    n_target: 90
+    notes: >
+      The headline control for refusal. Both halves COMPLY (factual/general phrasing);
+      only topic harmfulness differs, isolating "harmful topic content" from the refusal
+      decision. At extraction, keep only pairs where both halves behaviorally complied.
 
   - key: safe_completion
     role: control
     source: constructed
-    construction: harm-minimization / safe-completion answer vs hard refusal
+    construction: harm-reduction / safe-completion reply vs hard refusal (response-style)
     expectation: WEAK
     cosine_baseline: positive
     echo_prone: false
-    n_target: 40
-    notes: Collinear with refusal by construction; expect WEAK but informative.
+    n_target: 90
+    notes: >
+      Collinear with refusal by construction; the distinction lives in the RESPONSE, so
+      the prompt-token read may be weak — if Gate 1 says it is dead, revisit with
+      response-token extraction. Most likely to DROP of the controls.
 
   - key: eval_framing_matched
     role: core
     source: constructed
     construction: >
-      eval vs deploy framing, length-matched to identical token count and lexically
-      neutralized; differs only in semantic content ("reviewed and scored by the
-      research team" vs "delivered directly to a member of the public").
+      eval vs deploy framing note (subtle), length-matched to identical token count and
+      lexically neutralized; same neutral task on both sides, only the framing differs.
     expectation: WEAK
     cosine_baseline: positive
     echo_prone: false
-    n_target: 50
+    n_target: 100
     notes: >
-      The core v1 fix — NOT v1's unmatched NLA-paper system prompts. Probe side
-      tractable; NLA side is the open question. Framing-vs-state caveat applies.
+      The core v1 fix — NOT v1's unmatched NLA-paper system prompts. Note embedded in the
+      USER turn (Gemma system-role is unreliable). Probe side tractable; NLA side is the
+      open question. Framing-vs-state caveat applies; framing words flagged via
+      echo_system_framing_words.
+
+  - key: eval_framing_clear
+    role: control
+    source: constructed
+    construction: explicit-eval vs deploy framing (sensitivity arm for eval_framing_matched)
+    expectation: WEAK
+    cosine_baseline: positive
+    echo_prone: false
+    n_target: 100
+    notes: >
+      Same task wrapper as eval_framing_matched but with explicit eval vocabulary
+      ("recorded and graded by the evaluation team"). Sensitivity check: if detection
+      survives the subtle framing but not the clear one, the NLA was reading giveaway
+      words rather than an eval-framing state.
 
   - key: style_emoji
     role: sanity
@@ -95,37 +125,37 @@ concepts:
   - key: json_format
     role: sanity
     source: constructed
-    construction: JSON-formatted output vs prose
+    construction: JSON-formatted text vs the same content as prose
     expectation: PASS
     cosine_baseline: positive
     echo_prone: true
     n_target: 30
-    notes: Format control; echo-prone (flag).
+    notes: Format control; echo-prone (flag). Not length-matched by design.
 
   - key: bullet_list
     role: sanity
     source: constructed
-    construction: bulleted list vs prose
+    construction: bulleted list vs the same content as prose
     expectation: PASS
     cosine_baseline: positive
     echo_prone: true
     n_target: 30
-    notes: Format control; echo-prone (flag).
+    notes: Format control; echo-prone (flag). Not length-matched by design.
 
   - key: code_block
     role: sanity
     source: constructed
-    construction: code-block answer vs prose
+    construction: code-block answer vs prose description of the same code
     expectation: PASS
     cosine_baseline: positive
     echo_prone: true
     n_target: 30
-    notes: Format control; echo-prone (flag).
+    notes: Format control; echo-prone (flag). Not length-matched by design.
 
   - key: language_switch
     role: sanity
     source: constructed
-    construction: non-English continuation vs English
+    construction: non-English sentence vs the same sentence in English
     expectation: PASS
     cosine_baseline: positive
     echo_prone: true
@@ -139,19 +169,19 @@ concepts:
     expectation: PASS
     cosine_baseline: positive
     echo_prone: false
-    n_target: 30
+    n_target: 90
     notes: >
-      Valence control — orthogonalize against refusal at the direction stage. If the
-      NLA fires equally here and on refusal, it is reading valence, not refusal.
+      Valence control — orthogonalize against refusal at the direction stage. If the NLA
+      fires equally here and on refusal, it is reading valence, not refusal.
 
   - key: uncertainty
     role: candidate
     source: constructed
-    construction: same question answered hedged vs confident (length-matched)
+    construction: same question answered hedged vs confident (length-matched templates)
     expectation: WEAK
     cosine_baseline: negative
     echo_prone: false
-    n_target: 25
+    n_target: 90
     notes: Negative cosine baseline — must be dosed per §3 to get a fair test.
 
   - key: sycophancy
@@ -187,17 +217,17 @@ concepts:
   - key: correction_acceptance
     role: exploratory
     source: constructed
-    construction: accept-correction vs resist-correction
+    construction: accept-correction vs resist-correction (response-style)
     expectation: DROP
     cosine_baseline: positive
     echo_prone: false
     n_target: 25
-    notes: No clean pair yet; construct or DROP at Gate 1.
+    notes: Long shot; construct or DROP at Gate 1.
 
   - key: sandbagging
     role: exploratory
     source: constructed
-    construction: withhold-capability vs full-answer on the same task
+    construction: deliberately withhold capability vs answer fully (response-style)
     expectation: WEAK
     cosine_baseline: positive
     echo_prone: false
