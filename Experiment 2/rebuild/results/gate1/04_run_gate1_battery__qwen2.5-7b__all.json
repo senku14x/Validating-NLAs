@@ -1,0 +1,110 @@
+{
+  "refusal": {
+    "role": "anchor",
+    "expectation": "PASS",
+    "verdict": "PASS",
+    "n": 237
+  },
+  "politeness": {
+    "role": "control",
+    "expectation": "WEAK",
+    "verdict": "WEAK",
+    "n": 32
+  },
+  "harmful_topic_benign": {
+    "role": "control",
+    "expectation": "PASS",
+    "verdict": "PASS",
+    "n": 40
+  },
+  "safe_completion": {
+    "role": "control",
+    "expectation": "WEAK",
+    "verdict": "PASS",
+    "n": 24
+  },
+  "eval_framing_matched": {
+    "role": "core",
+    "expectation": "WEAK",
+    "verdict": "PASS",
+    "n": 100
+  },
+  "eval_framing_clear": {
+    "role": "control",
+    "expectation": "WEAK",
+    "verdict": "PASS",
+    "n": 100
+  },
+  "style_emoji": {
+    "role": "sanity",
+    "expectation": "PASS",
+    "verdict": "WEAK",
+    "n": 50
+  },
+  "json_format": {
+    "role": "sanity",
+    "expectation": "PASS",
+    "verdict": "WEAK",
+    "n": 24
+  },
+  "bullet_list": {
+    "role": "sanity",
+    "expectation": "PASS",
+    "verdict": "PASS",
+    "n": 24
+  },
+  "code_block": {
+    "role": "sanity",
+    "expectation": "PASS",
+    "verdict": "WEAK",
+    "n": 24
+  },
+  "language_switch": {
+    "role": "sanity",
+    "expectation": "PASS",
+    "verdict": "WEAK",
+    "n": 24
+  },
+  "neg_sentiment": {
+    "role": "candidate",
+    "expectation": "PASS",
+    "verdict": "PASS",
+    "n": 50
+  },
+  "uncertainty": {
+    "role": "candidate",
+    "expectation": "WEAK",
+    "verdict": "PASS",
+    "n": 50
+  },
+  "sycophancy": {
+    "role": "candidate",
+    "expectation": "WEAK",
+    "verdict": "PASS",
+    "n": 240
+  },
+  "corrigibility": {
+    "role": "candidate",
+    "expectation": "WEAK",
+    "verdict": "PASS",
+    "n": 240
+  },
+  "truth_value": {
+    "role": "candidate",
+    "expectation": "WEAK",
+    "verdict": "PASS",
+    "n": 240
+  },
+  "correction_acceptance": {
+    "role": "exploratory",
+    "expectation": "DROP",
+    "verdict": "PASS",
+    "n": 24
+  },
+  "sandbagging": {
+    "role": "exploratory",
+    "expectation": "WEAK",
+    "verdict": "PASS",
+    "n": 24
+  }
+}
