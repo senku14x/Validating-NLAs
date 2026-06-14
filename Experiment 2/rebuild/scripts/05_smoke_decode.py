@@ -66,7 +66,11 @@ STAGE = stage_of(__file__)
 CONCEPTS = ["refusal", "truth_value", "sycophancy", "corrigibility",
             "neg_sentiment", "harmful_topic_benign"]
 EXTRACT_STAGE = "03_extract_for_battery"   # producer of the cache we read
-DOSES = {"medium": 0.30, "high": 0.45}     # delta above anchor baseline cos
+DOSES = {"medium": 0.50, "high": 0.70}     # ABSOLUTE realized-cos targets (spec §3): push every
+                                           # concept into positive "present" territory regardless of
+                                           # its (often negative) anchor baseline. baseline+delta
+                                           # under-doses negative-baseline concepts (truth_value,
+                                           # harmful_topic_benign) so they never become "present".
 COS_CAP = 0.95                             # cap to avoid near-degenerate angles
 SEED = 42
 
@@ -173,9 +177,9 @@ def main() -> int:
 
     with open(out_path, "w") as fh:
         for concept, v in dirs.items():
-            baseline = float((H @ v / np.linalg.norm(H, axis=1)).mean())
-            for dose, delta in DOSES.items():
-                target = min(baseline + delta, COS_CAP)
+            baseline = float((H @ v / np.linalg.norm(H, axis=1)).mean())  # logged for context only
+            for dose, target_abs in DOSES.items():
+                target = min(target_abs, COS_CAP)  # absolute target, not baseline+delta
                 Hp, beta, realized = exact_cosine_inject(H, v, target)
                 for i in range(len(H)):
                     hp = Hp[i].astype(np.float32)
