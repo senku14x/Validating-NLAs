@@ -39,7 +39,7 @@ sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))  # reach
 from paths import cache_path, data_path, model_slug, stage_of  # noqa: E402
 
 STAGE = stage_of(__file__)
-MAXNEW = 64
+MAXNEW = int(os.environ.get("MAXNEW", "64"))  # only affects refusal/harmful_topic_benign labels
 CKPT_EVERY = 50
 
 MODELS = {
