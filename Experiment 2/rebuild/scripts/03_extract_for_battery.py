@@ -134,9 +134,11 @@ def extract(model_key: str) -> int:
             pd.DataFrame(meta).to_parquet(raw_meta, index=False)
 
         for i, row in enumerate(tqdm(todo.to_dict("records"), desc="extract")):
-            ids = tok.apply_chat_template(
+            enc = tok.apply_chat_template(
                 [{"role": "user", "content": row["text"]}],
-                tokenize=True, add_generation_prompt=True, return_tensors="pt").to(model.device)
+                tokenize=True, add_generation_prompt=True, return_tensors="pt")
+            # newer transformers returns a BatchEncoding (dict); older a bare tensor
+            ids = (enc if isinstance(enc, torch.Tensor) else enc["input_ids"]).to(model.device)
             n_in = ids.shape[1]
             with torch.no_grad():
                 out = model.generate(ids, max_new_tokens=MAXNEW, do_sample=False,
