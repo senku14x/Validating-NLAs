@@ -65,6 +65,8 @@ def nla_degenerate(out, *, min_chars: int = 20, cjk_thresh: int = 5, max_repeat_
         return True
     if "<explanation>" not in out:           # tags missing -> truncated / failed gen
         return True
+    if "</explanation>" not in out:          # opening but no closing tag -> truncated / repetition loop
+        return True
     expl = explanation_text(out)
     if len(expl) < min_chars:
         return True

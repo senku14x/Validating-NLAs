@@ -44,6 +44,7 @@ def main() -> int:
     assert nla_degenerate("㈜㈜㈜ 주주주 一二三四五六")               # CJK
     assert nla_degenerate("no tags here, just prose about something")  # missing <explanation>
     assert nla_degenerate(W.format("short"))                          # < min_chars
+    assert nla_degenerate("<explanation> started but never closed <<<<<<<<<<<<<<<<<<<<")  # opening, no closing (loop)
     assert nla_degenerate(W.format("the the the the the the the the the the"))  # repetition collapse
     assert not nla_degenerate(CONCEPT["refusal"])                     # clean
 
