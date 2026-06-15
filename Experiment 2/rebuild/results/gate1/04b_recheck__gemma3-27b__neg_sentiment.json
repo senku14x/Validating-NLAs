@@ -1,0 +1,19 @@
+{
+  "concept": "neg_sentiment",
+  "role": "candidate",
+  "expectation": "PASS",
+  "v1_verdict": "PASS",
+  "v2_verdict": "PASS",
+  "why": "resid.ci_lo 1.000 > bar 0.648; beats text 0.936; 25 groups",
+  "resid_ci_lo": 1.0,
+  "text_bow_auroc": 0.8504,
+  "text_bow_ci_hi": 0.936,
+  "n_groups": 25,
+  "lexical_ok": true,
+  "text_only": {
+    "auroc": 0.8504,
+    "ci_lo": 0.7384,
+    "ci_hi": 0.936,
+    "n": 50
+  }
+}

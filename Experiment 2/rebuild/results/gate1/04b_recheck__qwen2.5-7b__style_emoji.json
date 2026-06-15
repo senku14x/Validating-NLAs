@@ -1,0 +1,19 @@
+{
+  "concept": "style_emoji",
+  "role": "sanity",
+  "expectation": "PASS",
+  "v1_verdict": "WEAK",
+  "v2_verdict": "WEAK",
+  "why": "length-explained: resid.ci_lo 0.389 <= bar 0.675",
+  "resid_ci_lo": 0.3888,
+  "text_bow_auroc": 0.5,
+  "text_bow_ci_hi": 0.5,
+  "n_groups": 25,
+  "lexical_ok": true,
+  "text_only": {
+    "auroc": 0.5,
+    "ci_lo": 0.5,
+    "ci_hi": 0.5,
+    "n": 50
+  }
+}

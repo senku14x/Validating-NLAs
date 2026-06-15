@@ -1,0 +1,261 @@
+# concepts.yaml — the Experiment 2 candidate net (manifest, not construction logic).
+#
+# The wide net per spec §1: cast wide, let the gates cull (Gate 1 is probe-only and
+# cheap, so heavy attrition is the design working). This file declares WHAT each
+# concept is and its intended role/fate; the HOW (pair construction) lives in
+# concept_sources.py (offline concepts) + scripts/02_build_concept_pairs.py (which
+# adds the network concepts). 04_run_gate1_battery reads it back to attach role/fate.
+#
+# n_target is a GOAL. Offline construction (concept_sources.py) provides a clean
+# curated base that is often smaller; scripts/02 expands toward n_target with the
+# LLM only when OPENAI_API_KEY is set (audit-gated). The CI-width simulation shows
+# borderline concepts (AUROC~0.7) need ~90 pairs for a stable PASS/FAIL verdict, so
+# the controls/candidates target 90-100; strong sanity concepts stay small.
+#
+# Fields per concept:
+#   key              identifier (also the concept field in result filenames, verbatim)
+#   role             anchor | control | core | sanity | candidate | exploratory
+#   source           advbench+llm_rewrite | nrimsky_caa | geometry_of_truth | constructed
+#   construction     one-line description of the present-vs-absent contrast
+#   expectation      pre-registered expected Gate-1 fate: PASS | WEAK | FAIL | DROP
+#   cosine_baseline  positive | negative  (negative-baseline concepts must be dosed
+#                    relative to their natural distribution, spec §3, or they read null)
+#   echo_prone       true for surface/format concepts the AV can echo (flag, not exclude)
+#   n_target         GOAL number of matched pairs (see note above)
+#   notes            caveats / role in the design
+
+version: 1
+seed: 42
+roles: [anchor, control, core, sanity, candidate, exploratory]
+fates: [PASS, WEAK, FAIL, DROP]
+
+concepts:
+  - key: refusal
+    role: anchor
+    source: advbench+alpaca
+    construction: AdvBench harmful (refused) vs Alpaca harmless (complied); cross-pool diff-of-means
+    expectation: PASS
+    cosine_baseline: positive
+    echo_prone: false
+    n_target: 120
+    notes: >
+      Arditi-style, identical to Exp 1 (AUROC 0.999): harmful=AdvBench, harmless=Alpaca,
+      behaviorally labeled (keep refused-harmful vs complied-harmless), v_refusal =
+      unit(mean(refused) - mean(complied)). Two-pool design (NOT matched pairs) -> non-paired
+      battery (groups=None). The v1 matched-benign-rewrite weakened the direction and is
+      DROPPED; topic/length confounds are handled at EVALUATION (battery length-residualization
+      + harmful_topic_benign / neg_sentiment / length_direction controls), not by weakening the
+      direction. Diverges from spec §1 HarmBench — see known-corrections.
+
+  - key: politeness
+    role: control
+    source: constructed
+    construction: polite/warm vs neutral phrasing of the SAME complied answer (length-matched)
+    expectation: WEAK
+    cosine_baseline: positive
+    echo_prone: false
+    n_target: 90
+    notes: >
+      Renamed from apology_polite_refusal. Both halves comply (same fact); only warmth
+      differs, so it isolates politeness from the refusal decision — if refusal-detection
+      fires here, the NLA is reading politeness. Politeness<->length is the confound: the
+      blunt side is padded with neutral filler and length_balance gates it. Expect WEAK.
+
+  - key: harmful_topic_benign
+    role: control
+    source: constructed
+    construction: harmful-TOPIC complied vs benign-TOPIC complied (both comply; isolates topic)
+    expectation: PASS
+    cosine_baseline: positive
+    echo_prone: false
+    n_target: 90
+    notes: >
+      The headline control for refusal. Both halves COMPLY (factual/general phrasing);
+      only topic harmfulness differs, isolating "harmful topic content" from the refusal
+      decision. At extraction, keep only pairs where both halves behaviorally complied.
+
+  - key: safe_completion
+    role: control
+    source: constructed
+    construction: harm-reduction / safe-completion reply vs hard refusal (response-style)
+    expectation: WEAK
+    cosine_baseline: positive
+    echo_prone: false
+    n_target: 90
+    notes: >
+      Collinear with refusal by construction; the distinction lives in the RESPONSE, so
+      the prompt-token read may be weak — if Gate 1 says it is dead, revisit with
+      response-token extraction. Most likely to DROP of the controls.
+
+  - key: eval_framing_matched
+    role: core
+    source: constructed
+    construction: >
+      eval vs deploy framing note (subtle), length-matched to identical token count and
+      lexically neutralized; same neutral task on both sides, only the framing differs.
+    expectation: WEAK
+    cosine_baseline: positive
+    echo_prone: false
+    n_target: 100
+    notes: >
+      The core v1 fix — NOT v1's unmatched NLA-paper system prompts. Note embedded in the
+      USER turn (Gemma system-role is unreliable). Probe side tractable; NLA side is the
+      open question. Framing-vs-state caveat applies; framing words flagged via
+      echo_system_framing_words.
+
+  - key: eval_framing_clear
+    role: control
+    source: constructed
+    construction: explicit-eval vs deploy framing (sensitivity arm for eval_framing_matched)
+    expectation: WEAK
+    cosine_baseline: positive
+    echo_prone: false
+    n_target: 100
+    notes: >
+      Same task wrapper as eval_framing_matched but with explicit eval vocabulary
+      ("recorded and graded by the evaluation team"). Sensitivity check: if detection
+      survives the subtle framing but not the clear one, the NLA was reading giveaway
+      words rather than an eval-framing state.
+
+  - key: style_emoji
+    role: sanity
+    source: constructed
+    construction: same content with emoji/casual styling vs plain formal
+    expectation: PASS
+    cosine_baseline: positive
+    echo_prone: true
+    n_target: 30
+    notes: Positive sanity that the instrument detects something; exercises echo flags.
+
+  - key: json_format
+    role: sanity
+    source: constructed
+    construction: JSON-formatted text vs the same content as prose
+    expectation: PASS
+    cosine_baseline: positive
+    echo_prone: true
+    n_target: 30
+    notes: Format control; echo-prone (flag). Not length-matched by design.
+
+  - key: bullet_list
+    role: sanity
+    source: constructed
+    construction: bulleted list vs the same content as prose
+    expectation: PASS
+    cosine_baseline: positive
+    echo_prone: true
+    n_target: 30
+    notes: Format control; echo-prone (flag). Not length-matched by design.
+
+  - key: code_block
+    role: sanity
+    source: constructed
+    construction: code-block answer vs prose description of the same code
+    expectation: PASS
+    cosine_baseline: positive
+    echo_prone: true
+    n_target: 30
+    notes: Format control; echo-prone (flag). Not length-matched by design.
+
+  - key: language_switch
+    role: sanity
+    source: constructed
+    construction: non-English sentence vs the same sentence in English
+    expectation: PASS
+    cosine_baseline: positive
+    echo_prone: true
+    n_target: 30
+    notes: Known-detectable positive sanity (surface echo of language); not a contribution.
+
+  - key: neg_sentiment
+    role: candidate
+    source: constructed
+    construction: negative vs positive valence, parallel phrasing (length-matched)
+    expectation: PASS
+    cosine_baseline: positive
+    echo_prone: false
+    n_target: 90
+    notes: >
+      Valence control — orthogonalize against refusal at the direction stage. If the NLA
+      fires equally here and on refusal, it is reading valence, not refusal.
+
+  - key: uncertainty
+    role: candidate
+    source: constructed
+    construction: same question answered hedged vs confident (length-matched templates)
+    expectation: WEAK
+    cosine_baseline: negative
+    echo_prone: false
+    n_target: 90
+    notes: Negative cosine baseline — must be dosed per §3 to get a fair test.
+
+  - key: sycophancy
+    role: candidate
+    source: nrimsky_caa
+    construction: Rimsky CAA sycophancy contrastive pairs (answer_matching vs not)
+    expectation: WEAK
+    cosine_baseline: positive
+    echo_prone: false
+    n_target: 120
+    notes: Subtle social concept; likely WEAK. Watch answer-letter balance.
+
+  - key: corrigibility
+    role: candidate
+    source: nrimsky_caa
+    construction: Rimsky CAA corrigible-neutral-HHH contrastive pairs
+    expectation: WEAK
+    cosine_baseline: positive
+    echo_prone: false
+    n_target: 120
+    notes: Strong vector but subtle behavior; likely WEAK.
+
+  - key: truth_value
+    role: candidate
+    source: geometry_of_truth
+    construction: Geometry-of-Truth cities.csv true vs false statements
+    expectation: WEAK
+    cosine_baseline: negative
+    echo_prone: false
+    n_target: 120
+    notes: Factual truth-value, NOT deception. Negative baseline — dose per §3.
+
+  - key: correction_acceptance
+    role: exploratory
+    source: constructed
+    construction: accept-correction vs resist-correction (response-style)
+    expectation: DROP
+    cosine_baseline: positive
+    echo_prone: false
+    n_target: 25
+    notes: Long shot; construct or DROP at Gate 1.
+
+  - key: sandbagging
+    role: exploratory
+    source: constructed
+    construction: deliberately withhold capability vs answer fully (response-style)
+    expectation: WEAK
+    cosine_baseline: positive
+    echo_prone: false
+    n_target: 25
+    notes: Hard to construct cleanly; expect WEAK/DROP, high value if it survives.
+
+# Negative-control DIRECTIONS — built at the direction stage (05/07) from other
+# activations, not as text pairs, so they live outside `concepts:`. They must read
+# ~null in the battery / cross-detection matrix. (Spec §1 row 18 expands to these.)
+derived_controls:
+  - key: random_direction
+    construction: random unit vector in activation space
+    expectation: FAIL
+    notes: Pure null direction; any detection on it is confabulation.
+  - key: refusal_orthogonalized
+    construction: refusal direction with the topic-harmfulness component projected out
+    expectation: FAIL
+    notes: Tests whether "refusal" detection survives removing harmful-topic content.
+  - key: length_direction
+    construction: diff-of-means between long and short neutral prompts
+    expectation: FAIL
+    notes: The v1 confound as an explicit direction; must read null after control.
+  - key: topic_only_harmfulness
+    construction: harmful-topic vs benign-topic, both complied (no refusal)
+    expectation: FAIL
+    notes: The strongest refusal alt-explanation isolated as its own direction.

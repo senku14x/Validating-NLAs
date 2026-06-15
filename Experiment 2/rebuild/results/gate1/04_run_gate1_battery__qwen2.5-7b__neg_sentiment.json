@@ -1,0 +1,37 @@
+{
+  "concept": "neg_sentiment",
+  "role": "candidate",
+  "expectation": "PASS",
+  "verdict": "PASS",
+  "n": 50,
+  "battery": {
+    "raw": {
+      "auroc": 1.0,
+      "ci_lo": 1.0,
+      "ci_hi": 1.0,
+      "n": 50
+    },
+    "length_residualized": {
+      "auroc": 1.0,
+      "ci_lo": 1.0,
+      "ci_hi": 1.0,
+      "n": 50
+    },
+    "length_only": {
+      "auroc": 0.5144,
+      "ci_lo": 0.4288,
+      "ci_hi": 0.5888,
+      "n": 50
+    },
+    "null": {
+      "auroc": 0.4877,
+      "ci_lo": 0.3443,
+      "ci_hi": 0.6896,
+      "n": 50
+    },
+    "represented": true,
+    "length_inflation": 0.0,
+    "gate": "length_residualized.ci_lo (1.000) > max(floor 0.60, null.ci_hi 0.690) = 0.690",
+    "floor": 0.6
+  }
+}

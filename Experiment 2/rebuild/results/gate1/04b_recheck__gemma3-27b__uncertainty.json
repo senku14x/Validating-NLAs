@@ -1,0 +1,19 @@
+{
+  "concept": "uncertainty",
+  "role": "candidate",
+  "expectation": "WEAK",
+  "v1_verdict": "PASS",
+  "v2_verdict": "WEAK",
+  "why": "surface lexical: text-BoW ci_hi 1.000 >= resid.ci_lo 1.000",
+  "resid_ci_lo": 1.0,
+  "text_bow_auroc": 1.0,
+  "text_bow_ci_hi": 1.0,
+  "n_groups": 25,
+  "lexical_ok": false,
+  "text_only": {
+    "auroc": 1.0,
+    "ci_lo": 1.0,
+    "ci_hi": 1.0,
+    "n": 50
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "concept": "language_switch",
+  "role": "sanity",
+  "expectation": "PASS",
+  "verdict": "WEAK",
+  "n": 24,
+  "battery": {
+    "raw": {
+      "auroc": 1.0,
+      "ci_lo": 1.0,
+      "ci_hi": 1.0,
+      "n": 24
+    },
+    "length_residualized": {
+      "auroc": 0.7569,
+      "ci_lo": 0.625,
+      "ci_hi": 0.9306,
+      "n": 24
+    },
+    "length_only": {
+      "auroc": 0.8681,
+      "ci_lo": 0.7188,
+      "ci_hi": 0.9896,
+      "n": 24
+    },
+    "null": {
+      "auroc": 0.4339,
+      "ci_lo": 0.1222,
+      "ci_hi": 0.625,
+      "n": 24
+    },
+    "represented": false,
+    "length_inflation": 0.2431,
+    "gate": "length_residualized.ci_lo (0.625) > max(floor 0.60, null.ci_hi 0.625) = 0.625",
+    "floor": 0.6
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "concept": "eval_framing_matched",
+  "role": "core",
+  "expectation": "WEAK",
+  "v1_verdict": "PASS",
+  "v2_verdict": "WEAK",
+  "why": "surface lexical: text-BoW ci_hi 1.000 >= resid.ci_lo 0.998",
+  "resid_ci_lo": 0.9976,
+  "text_bow_auroc": 1.0,
+  "text_bow_ci_hi": 1.0,
+  "n_groups": 50,
+  "lexical_ok": false,
+  "text_only": {
+    "auroc": 1.0,
+    "ci_lo": 1.0,
+    "ci_hi": 1.0,
+    "n": 100
+  }
+}

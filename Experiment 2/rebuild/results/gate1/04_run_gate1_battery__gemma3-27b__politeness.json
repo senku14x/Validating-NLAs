@@ -1,0 +1,37 @@
+{
+  "concept": "politeness",
+  "role": "control",
+  "expectation": "WEAK",
+  "verdict": "WEAK",
+  "n": 32,
+  "battery": {
+    "raw": {
+      "auroc": 0.9961,
+      "ci_lo": 0.9844,
+      "ci_hi": 1.0,
+      "n": 32
+    },
+    "length_residualized": {
+      "auroc": 0.7734,
+      "ci_lo": 0.6523,
+      "ci_hi": 0.9062,
+      "n": 32
+    },
+    "length_only": {
+      "auroc": 0.7734,
+      "ci_lo": 0.666,
+      "ci_hi": 0.9023,
+      "n": 32
+    },
+    "null": {
+      "auroc": 0.47,
+      "ci_lo": 0.2188,
+      "ci_hi": 0.7258,
+      "n": 32
+    },
+    "represented": false,
+    "length_inflation": 0.2227,
+    "gate": "length_residualized.ci_lo (0.652) > max(floor 0.60, null.ci_hi 0.726) = 0.726",
+    "floor": 0.6
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "concept": "corrigibility",
+  "role": "candidate",
+  "expectation": "WEAK",
+  "v1_verdict": "PASS",
+  "v2_verdict": "PASS",
+  "why": "resid.ci_lo 0.942 > bar 0.600; beats text 0.500; 120 groups",
+  "resid_ci_lo": 0.9423,
+  "text_bow_auroc": 0.5,
+  "text_bow_ci_hi": 0.5,
+  "n_groups": 120,
+  "lexical_ok": true,
+  "text_only": {
+    "auroc": 0.5,
+    "ci_lo": 0.5,
+    "ci_hi": 0.5,
+    "n": 240
+  }
+}

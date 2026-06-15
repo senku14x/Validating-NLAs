@@ -1,0 +1,37 @@
+{
+  "concept": "bullet_list",
+  "role": "sanity",
+  "expectation": "PASS",
+  "verdict": "PASS",
+  "n": 24,
+  "battery": {
+    "raw": {
+      "auroc": 0.9931,
+      "ci_lo": 0.9722,
+      "ci_hi": 1.0,
+      "n": 24
+    },
+    "length_residualized": {
+      "auroc": 0.8889,
+      "ci_lo": 0.7708,
+      "ci_hi": 1.0,
+      "n": 24
+    },
+    "length_only": {
+      "auroc": 0.75,
+      "ci_lo": 0.6007,
+      "ci_hi": 0.9029,
+      "n": 24
+    },
+    "null": {
+      "auroc": 0.4283,
+      "ci_lo": 0.1556,
+      "ci_hi": 0.6875,
+      "n": 24
+    },
+    "represented": true,
+    "length_inflation": 0.1042,
+    "gate": "length_residualized.ci_lo (0.771) > max(floor 0.60, null.ci_hi 0.688) = 0.688",
+    "floor": 0.6
+  }
+}
