@@ -2,10 +2,10 @@
 """07_score_matrix.py — Gate-2 four-way scoring of the AV decodes (regex + judge).
 
 Joins 05's injection metadata to 06's decodes, scores every decode against each
-SCORED_CONCEPT two ways — a strict regex (always; no API) and an OpenAI judge
-(if OPENAI_API_KEY and not --regex-only) — and attaches the per-output controls
-from flags.py (echo / generic_template / nla_degenerate). Emits ONE self-contained
-table for 08, so analysis needs nothing else.
+SCORED_CONCEPT two ways — a strict regex (always; no API) and an LLM judge (if a
+judge key is set and not --regex-only) — and attaches the per-output controls from
+flags.py (echo / generic_template / nla_degenerate). Emits ONE self-contained table
+for 08, so analysis needs nothing else.
 
 Scoring is STRICT and template-aware (ported from CAA 05a/05b): the generic
 "structured/educational article" scaffolding is NOT a concept; only explicit,
@@ -13,13 +13,17 @@ central concept signal scores 2. harmful_topic_benign is scored on the COMPLIANC
 axis and is mutually exclusive with refusal (harmful topic complied-with vs
 declined) — the pre-registered refusal-specificity contrast.
 
-Runs where OPENAI_API_KEY + the 05 cache live (the box); or --regex-only anywhere
-for a first matrix with no API. Reads cache/05 metadata + results/gate2/06 decodes;
-writes results/gate2/07_score_matrix__<model>__all.parquet (+ __raw.jsonl judge log).
+Judge backend (see _judge_backend): **OpenRouter** if OPENROUTER_API_KEY is set
+(default model openai/gpt-5.4-mini, uses max_tokens), else **OpenAI** if
+OPENAI_API_KEY is set (default gpt-5.4-mini, uses max_completion_tokens). Override
+the model with JUDGE_MODEL. Reads cache/05 metadata + results/gate2/06 decodes;
+writes results/gate2/07_score_matrix__<model>__all.parquet (+ __judge.jsonl log).
 
-  regex-first (no key):  python scripts/07_score_matrix.py --model gemma --regex-only
-  with judge:            OPENAI_API_KEY=... python scripts/07_score_matrix.py --model gemma
-  self-test (here):      python scripts/07_score_matrix.py --self-test
+  regex-first (no key):    python scripts/07_score_matrix.py --model gemma --regex-only
+  judge via OpenRouter:    OPENROUTER_API_KEY=sk-or-... python scripts/07_score_matrix.py --model gemma
+  judge via OpenAI:        OPENAI_API_KEY=sk-...        python scripts/07_score_matrix.py --model gemma
+  (Gate-3 real decodes):   add --real     (e.g. OPENROUTER_API_KEY=... ... --model gemma --real)
+  self-test (here):        python scripts/07_score_matrix.py --self-test
 """
 from __future__ import annotations
 
@@ -47,11 +51,45 @@ SCORED_CONCEPTS = ["refusal", "sycophancy", "corrigibility", "truth_value",
 # injection concept -> scored-concept name for the diagonal (others map to themselves)
 DIAG = {"eval_framing_matched": "eval_awareness"}
 
-JUDGE_MODEL = os.environ.get("JUDGE_MODEL", "gpt-5.4-mini")
 CONCURRENCY = int(os.environ.get("CONCURRENCY", "10"))
 MAX_COMP_TOK = 700
 MAX_RETRIES = 6
 RETRY_BASE = 2.0
+
+
+def _judge_backend():
+    """Resolve the judge API backend from env (no key -> judge is skipped).
+
+    Prefers OpenRouter when OPENROUTER_API_KEY is set (OpenAI-compatible endpoint,
+    but two gotchas: the model is provider-namespaced so the default is
+    'openai/gpt-5.4-mini', and OpenRouter wants 'max_tokens', not OpenAI's
+    'max_completion_tokens'). Otherwise OpenAI direct. Override the model with
+    JUDGE_MODEL. Returns (api_key, base_url, model, token_param, provider, headers).
+    """
+    or_key = os.environ.get("OPENROUTER_API_KEY")
+    if or_key:
+        model = os.environ.get("JUDGE_MODEL", "openai/gpt-5.4-mini")
+        headers = {"X-Title": "Validating-NLAs Gate-2 judge",
+                   "HTTP-Referer": "https://github.com/senku14x/Validating-NLAs"}
+        return or_key, "https://openrouter.ai/api/v1", model, "max_tokens", "openrouter", headers
+    oa_key = os.environ.get("OPENAI_API_KEY")
+    if oa_key:
+        model = os.environ.get("JUDGE_MODEL", "gpt-5.4-mini")
+        return oa_key, None, model, "max_completion_tokens", "openai", None
+    return None, None, None, None, None, None
+
+
+def _parse_json(text: str) -> dict:
+    """Tolerant JSON parse — handles models that wrap the object in prose / ```json fences."""
+    import json
+    import re
+    try:
+        return json.loads(text)
+    except Exception:
+        m = re.search(r"\{.*\}", text, re.DOTALL)
+        if m:
+            return json.loads(m.group())
+        raise
 
 # ── strict regex scorers (ported from CAA 05b_regex_score_fixed) ────────────────
 def _any(p):
@@ -251,9 +289,9 @@ async def _judge(df, out_jsonl):
     import json
     import time
     from openai import AsyncOpenAI
-    key = os.environ.get("OPENAI_API_KEY")
-    if not key:
-        print("  no OPENAI_API_KEY — skipping judge (regex-only).")
+    api_key, base_url, model, tok_param, provider, headers = _judge_backend()
+    if not api_key:
+        print("  no OPENROUTER_API_KEY / OPENAI_API_KEY — skipping judge (regex-only).")
         return {}
     phash = hashlib.sha256(SYSTEM_PROMPT.encode()).hexdigest()[:16]
     safety = hashlib.sha256(f"nla_gate2_{STAGE}".encode()).hexdigest()[:16]
@@ -270,7 +308,8 @@ async def _judge(df, out_jsonl):
     todo = [r for _, r in df.iterrows() if (int(r["row"]), int(r["sample"])) not in done]
     if not todo:
         return done
-    client = AsyncOpenAI(api_key=key)
+    client = AsyncOpenAI(api_key=api_key, base_url=base_url, default_headers=headers)
+    print(f"  judge backend: {provider}  model={model}  base_url={base_url or 'api.openai.com'}")
     sem = asyncio.Semaphore(CONCURRENCY)
 
     async def one(r):
@@ -278,13 +317,14 @@ async def _judge(df, out_jsonl):
             for att in range(MAX_RETRIES):
                 try:
                     resp = await client.chat.completions.create(
-                        model=JUDGE_MODEL,
+                        model=model,
                         messages=[{"role": "system", "content": SYSTEM_PROMPT},
                                   {"role": "user", "content": f"NLA output to score:\n\n{r['expl']}"}],
-                        max_completion_tokens=MAX_COMP_TOK, response_format={"type": "json_object"}, user=safety)
-                    p = json.loads(resp.choices[0].message.content)
+                        response_format={"type": "json_object"}, user=safety,
+                        **{tok_param: MAX_COMP_TOK})
+                    p = _parse_json(resp.choices[0].message.content or "")
                     rec = {"row": int(r["row"]), "sample": int(r["sample"]), "prompt_hash": phash,
-                           "judge_model": JUDGE_MODEL, **{c: int(p.get(c, -1)) for c in SCORED_CONCEPTS},
+                           "judge_model": model, **{c: int(p.get(c, -1)) for c in SCORED_CONCEPTS},
                            "reasoning": str(p.get("reasoning", ""))[:300]}
                     assert all(rec[c] in (0, 1, 2) for c in SCORED_CONCEPTS)
                     return rec
@@ -292,11 +332,11 @@ async def _judge(df, out_jsonl):
                     import openai as _o
                     if att == MAX_RETRIES - 1:
                         return {"row": int(r["row"]), "sample": int(r["sample"]), "prompt_hash": phash,
-                                "judge_model": JUDGE_MODEL, **{c: -1 for c in SCORED_CONCEPTS},
+                                "judge_model": model, **{c: -1 for c in SCORED_CONCEPTS},
                                 "reasoning": f"ERROR {type(e).__name__}: {e}"}
                     await asyncio.sleep(RETRY_BASE ** (att + 1) if isinstance(e, _o.RateLimitError) else RETRY_BASE)
 
-    print(f"  judging {len(todo)} rows with {JUDGE_MODEL} ...")
+    print(f"  judging {len(todo)} rows with {model} via {provider} ...")
     t0 = time.time()
     with open(out_jsonl, "a", buffering=1) as fh:
         async def run(r):
@@ -391,6 +431,31 @@ def _self_test() -> int:
     assert r["neg_sentiment"].r_neg_sentiment == 2, "grief/job-loss should score neg_sentiment=2"
     assert r["baseline_no_inject"].generic_template, "floor should be flagged generic_template"
     assert all(getattr(r["baseline_no_inject"], f"r_{c}") == 0 for c in SCORED_CONCEPTS), "floor should score 0 on all concepts"
+
+    # judge backend resolution (pure env logic; no API call)
+    saved = {k: os.environ.pop(k, None) for k in ("OPENROUTER_API_KEY", "OPENAI_API_KEY", "JUDGE_MODEL")}
+    try:
+        os.environ["OPENROUTER_API_KEY"] = "x"
+        _, b, m, tp, prov, hdr = _judge_backend()
+        assert prov == "openrouter" and b.endswith("/api/v1") and m == "openai/gpt-5.4-mini" \
+            and tp == "max_tokens" and hdr, "OpenRouter backend resolution wrong"
+        os.environ["JUDGE_MODEL"] = "openai/gpt-5.4-mini-custom"
+        assert _judge_backend()[2] == "openai/gpt-5.4-mini-custom", "JUDGE_MODEL override ignored"
+        os.environ.pop("OPENROUTER_API_KEY"); os.environ.pop("JUDGE_MODEL")
+        os.environ["OPENAI_API_KEY"] = "y"
+        _, b, m, tp, prov, _ = _judge_backend()
+        assert prov == "openai" and b is None and m == "gpt-5.4-mini" and tp == "max_completion_tokens", \
+            "OpenAI backend resolution wrong"
+        os.environ.pop("OPENAI_API_KEY")
+        assert _judge_backend()[0] is None, "no-key should resolve to None"
+    finally:
+        for kk, vv in saved.items():
+            os.environ.pop(kk, None)
+            if vv is not None:
+                os.environ[kk] = vv
+    assert _parse_json('```json\n{"a": 1}\n```') == {"a": 1}, "tolerant JSON parse failed"
+    print("  judge backend: OpenRouter/OpenAI/none resolution + tolerant JSON parse OK")
+
     print("ALL CHECKS PASSED — 07 regex: refusal/harmful_topic_benign disambiguation, neg_sentiment, "
           "floor scores 0 + flagged generic_template.")
     return 0

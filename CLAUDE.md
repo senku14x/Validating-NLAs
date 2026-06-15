@@ -142,8 +142,10 @@ decoding run on a rented GPU box; results are pushed back and analyzed here.
 - **Dose = realized `cos(h', v̂)`**, never raw β; solve β analytically per anchor; log `cos(h,h')`.
 - **Memory:** Gemma (~55 GB) + SGLang AV can't coexist on 80 GB — `pkill -f sglang` before loading the
   target model, relaunch after.
-- **OpenAI scorer:** `chat.completions.create` (not `responses.create`); `max_completion_tokens` (not
-  `max_tokens`); hashed `safety_identifier`; semaphore-limit.
+- **Judge scorer (OpenAI *or* OpenRouter):** `07` auto-selects **OpenRouter** if `OPENROUTER_API_KEY` set
+  (model `openai/gpt-5.4-mini`, **`max_tokens`**) else **OpenAI** (`gpt-5.4-mini`, `max_completion_tokens`);
+  both via `chat.completions.create` (not `responses.create`), json_object, hashed `user`, semaphore.
+  `JUDGE_MODEL` overrides; a key-failed judge writes `-1` (=fake null) → `07` aborts on high error-rate.
 
 ## Conventions
 

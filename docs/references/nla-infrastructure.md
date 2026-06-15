@@ -78,7 +78,13 @@ python -m sglang.launch_server --model-path kitft/nla-gemma3-27b-L41-av \
 - Log per injected row: realized cos, anchor-specific baseline cos, `cos(h,h')`, `‖h‖`, `‖h'‖`,
   `delta_norm/‖h‖`. Off-manifold detections (absurdly low `cos(h,h')`) are discounted.
 
-## OpenAI scorer gotchas
+## Judge scorer gotchas (OpenAI **or** OpenRouter)
 
-`chat.completions.create` (not `responses.create`); `max_completion_tokens` (not `max_tokens`);
-pass a hashed `safety_identifier`; semaphore-limit the async calls.
+The Gate-2/3 judge (`07_score_matrix._judge_backend`) auto-selects: **OpenRouter** if `OPENROUTER_API_KEY`
+is set — base_url `https://openrouter.ai/api/v1`, model **`openai/gpt-5.4-mini`** (provider-namespaced),
+**`max_tokens`** (OpenRouter normalizes this — do *not* send `max_completion_tokens`) — else **OpenAI**
+direct (`gpt-5.4-mini`, `max_completion_tokens`). Both go through the `openai` SDK's
+`chat.completions.create` (not `responses.create`), `response_format={"type":"json_object"}` (parsed
+tolerantly via `_parse_json`), a hashed `user` safety id, and `asyncio.Semaphore` concurrency. Override the
+model with `JUDGE_MODEL`. A wholesale judge failure (bad/missing key) writes `-1` for every concept → `07`
+aborts loudly on a high error-rate so it can't read as a real "null."

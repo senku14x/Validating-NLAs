@@ -8,7 +8,8 @@ The spec is the source of truth: `docs/specs/exp2_spec.md`. This README is the r
 > **Live instance (transient — as of 2026-06-14):** Vast **H200** is **PAUSED, not destroyed** (disk
 > retained). `cache/` (gitignored) holds the `03` activation cache for **both** Gemma-3-27B and
 > Qwen-2.5-7B, the Gemma `05` injected vectors, and the AV weights (`/workspace/nla_ckpt`, ~101 GB).
-> **On resume:** re-`export HF_TOKEN / NLA_REPO_DIR=/workspace/nla_repo / OPENAI_API_KEY` (env does not
+> **On resume:** re-`export HF_TOKEN / NLA_REPO_DIR=/workspace/nla_repo / OPENROUTER_API_KEY` (judge now
+> defaults to OpenRouter `openai/gpt-5.4-mini`; `OPENAI_API_KEY` still works) (env does not
 > survive a stop) → `bash scripts/av_up.sh <gemma|qwen>` → continue. **Qwen `03` is already extracted**
 > (skip re-extraction). Delete this note when the box is torn down.
 
