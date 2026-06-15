@@ -53,8 +53,40 @@ is monotone to high. MED is the cleaner operating point for behavioral/social di
 - **Gemma only** — Qwen (and the injection-vs-real dissociation) not yet run.
 - Judge **unvalidated** for soft concepts (human pilot pending).
 
+## Gate 3 — real-activation results (Gemma; REGEX — judge re-score pending)
+
+Decoded real `03` activations (concept present/absent + neutral anchors) through the AV — on-manifold by
+construction, the fair test that off-manifold offline injection couldn't give. **The judge leg errored on
+this run (all `j_*` = −1; `OPENAI_API_KEY` revoked/missing at run time), so these are REGEX `r==2` rates**
+(deterministic; for refusal the Exp-1-proven scorer; conservative for the soft concepts). Re-run
+`07_score_matrix.py --real --model gemma` with a valid key to confirm + sharpen.
+
+| concept | present | absent | anchor | read |
+|---|---|---|---|---|
+| refusal | **0.61** | 0.00 | 0.00 | detected + specific on REAL activations (RQ1-on-real ✅) |
+| neg_sentiment | **0.64** | 0.00 | 0.00 | detected + specific |
+| truth_value | 0.40 | **0.95** | 0.00 | **output-coupling smoking-gun** (below) |
+| sycophancy | 0.02 | 0.00 | 0.00 | ~null on real (injected-detected → dissociation to confirm) |
+| corrigibility | 0.00 | 0.00 | 0.00 | null (consistent with injection) |
+| harmful_topic_benign | 0.00 | 0.00 | 0.00 | null |
+| eval_framing | 0.00 | 0.00 | 0.00 | null |
+
+**The truth_value asymmetry is the cleanest output-coupling evidence we have** — same concept,
+probe-decodable at resid 1.0, yet the AV verbalizes it only where it's coupled to the predicted output:
+- FALSE statements (0.95): AV decodes *"That statement is incorrect / a common misconception / a correction"*
+  — falsity drives a corrective continuation → output-coupled → read.
+- TRUE statements (0.40): AV decodes *"factual answer / the capital of X is Y / knowledge-confirmation"* —
+  truth drives mere continuation → less coupled → weaker read (plus temp-1.0 noise).
+
+So **NLA-verbalizability ∝ output-coupling, holding decodability fixed.** With the on-manifold refusal /
+neg_sentiment positives, this reframes the contributions: (1) NLA detection is gated by **output-coupling,
+not decodability**; (2) naive **auto-scoring manufactures false positives**. RQ3 ("represented-but-
+unverbalized cognition") needs **output-coupled, suppressible** cognition — eval-awareness (Exp 4) and
+steered-refusal — **not** truth/corrigibility/sycophancy (for which "probe beats NLA" is partly structural).
+
 ## Next
-- `09_decode_real` — decode real `03` concept-present/absent/anchor activations (on-manifold, all
-  concepts incl. truth_value). Run Gemma then Qwen.
-- Judge **human pilot** (validate before trusting soft-concept numbers).
-- Online-steered-generation for refusal (behavioral on-manifold) — later.
+- **Re-run the Gemma Gate-3 judge** (valid key) → confirm/sharpen the regex table; script `10_analyze_real`.
+- **Qwen Gate 2 + Gate 3** (`03` cached) — injection-vs-real + cross-model dissociation.
+- **Judge human pilot** (spec §3) before any soft-concept number is reported.
+- **RQ3 proper:** refusal-steered (Gate-4 Track B, near-term) + eval-awareness organism (Exp 4). Retire
+  truth_value/corrigibility/sycophancy as RQ3 vehicles; keep as the output-coupling characterization set.

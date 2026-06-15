@@ -341,6 +341,7 @@ def main() -> int:
     df = regex_score(df)
     df = attach_flags(df, _leak_tokens(model))
 
+    judge_err = 0.0
     if not a.regex_only:
         raw_jsonl = result_path("gate2", STAGE, model, concept="all",
                                 variant=("judge-real" if a.real else "judge"), ext="jsonl")
@@ -348,6 +349,7 @@ def main() -> int:
         if judged:
             jdf = pd.DataFrame(list(judged.values())).rename(columns={c: f"j_{c}" for c in SCORED_CONCEPTS})
             df = df.merge(jdf[["row", "sample"] + [f"j_{c}" for c in SCORED_CONCEPTS]], on=["row", "sample"], how="left")
+            judge_err = float((df[f"j_{SCORED_CONCEPTS[0]}"] == -1).mean())
 
     out = result_path("gate2", STAGE, model, concept="all", variant=variant, ext="parquet")
     df.to_parquet(out, index=False)
@@ -357,6 +359,14 @@ def main() -> int:
         print(f"  {c:22s} {100*(df[f'r_{c}']==2).mean():5.1f}%")
     print(f"\nflags: echo {100*df.echo.mean():.0f}%  generic_template {100*df.generic_template.mean():.0f}%  "
           f"nla_degenerate {100*df.nla_degenerate.mean():.0f}%")
+    if judge_err > 0.10:
+        # A key/rate-limit failure makes the judge write -1 for every concept, which silently reads as
+        # "null" downstream. Make it LOUD; the regex r_* above are still valid (this run was saved).
+        print(f"\n*** JUDGE ERROR RATE {judge_err:.0%}: judge calls failed wholesale "
+              f"(bad/missing OPENAI_API_KEY? rate limits?). The j_* columns are UNRELIABLE (rows scored "
+              f"-1); use the regex r_* until you fix the key and re-run to overwrite. ***")
+        if judge_err > 0.5:
+            return 2  # non-zero exit so a wholesale judge failure is never mistaken for a real null
     print("next: 08_analyze_gate2 (here)")
     return 0
 

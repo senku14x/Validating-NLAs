@@ -29,7 +29,7 @@ organism "Exp 2b" — in this repo that is `Experiment 4/`).
 | Repo folder | What | Status |
 |---|---|---|
 | `Experiment 1/` | Injection dose-response: does the NLA detect an independently built **refusal** direction, specifically & dose-dependently? | **Complete** (Gemma validated, Qwen replicated). Result: `docs/specs/experiment_1_result.md` |
-| `Experiment 2/` | **Verbalization-gap** validation, rebuilt in `Experiment 2/rebuild/`. | **Gate 0–1 done, audited, cross-model.** Pipeline `scripts/01–04`+`04b`. Corrected gate (BoW + small-n, see below) → **5 "represented" on BOTH Gemma & Qwen**: truth_value, sycophancy, corrigibility, neg_sentiment, harmful_topic_benign; refusal + eval_framing demoted. **Gate 2 (inject → AV verbalize) next.** State: `Experiment 2/rebuild/README.md` |
+| `Experiment 2/` | **Verbalization-gap** validation, rebuilt in `Experiment 2/rebuild/`. | **Gate 1 cross-model; Gate 2 offline + Gate 3 real-acts done for Gemma** (full pipeline `scripts/01–09` + libs `injection.py`/`flags.py`, all self-tested). **Headline: NLA detection tracks output-coupling, not decodability** — refusal & neg_sentiment detected+specific (injected *and* real); truth_value read only where coupled (real false-stmts 0.95 ≫ true 0.40); corrigibility/sycophancy/eval ≈ null. ⚠️ gemma Gate-3 judge errored (bad key) → re-score; Qwen Gate-2/3 pending. State: `Experiment 2/rebuild/README.md` + `…/results/gate2/FINDINGS.md` |
 | `Experiment 3/` | **Cross-model** feature transfer: ridge map Qwen-L20→Gemma-L41; co-firing AUROC + causal steering. Standalone. | Specced; pipeline built; needs the §9 layer correction |
 | `Experiment 4/` | **Model organism** (plan's "Exp 2b"): install eval-awareness in weights (Hua recipe → Gemma) — the one design that escapes the framing-vs-state caveat. | New / scoping |
 
@@ -70,6 +70,17 @@ read AUROC 0.990 — but it was mostly prompt length; after control it was 0.622
   online-steered and report the dissociation; the gap (RQ3) lives in steered+real, not offline.
 - **Validate the instrument before trusting it:** `test_confounds.py` must pass on synthetic ground
   truth (clean / length / mixed / collinear regimes) before the battery touches real activations.
+- **NLA detection tracks output-coupling, not decodability** (Gate-2/3 finding, this session): the AV
+  reads an activation's *predicted continuation*, so it surfaces output-coupled concepts (refusal,
+  neg_sentiment, false-statement corrections) and is ~blind to decodable-but-uncoupled ones
+  (corrigibility, true-statement truth-value) even when a probe reads them perfectly. So "probe beats
+  NLA" is partly **structural** → the real RQ3 test needs **output-coupled** cognition (eval-awareness,
+  steered-refusal), not truth/corrigibility. (Also: online-steer that reads the *same* layer it injects
+  == offline `h+βv̂`; on-manifold needs generated-token reads or **real activations**.)
+- **Auto-scoring manufactures false positives** — the gpt-5.4-mini judge reads affirmation/facts as
+  `truth_value` (regex 0 rows, judge 49, 38 from sycophancy). Human-validate the scorer (spec §3) before
+  any soft-concept number; and a key-failed judge writes `-1` that reads as a fake "null" (`07` now
+  aborts on high judge-error-rate). Detail: `Experiment 2/rebuild/results/gate2/FINDINGS.md`.
 
 ## Where knowledge lives (read on demand)
 
