@@ -5,43 +5,63 @@ The spec is the source of truth: `docs/specs/exp2_spec.md`. This README is the r
 
 ## Current state (handoff — read this first)
 
-> **Live instance (transient — as of 2026-06-14):** Vast **H200** is **PAUSED, not destroyed** (disk
-> retained). `cache/` (gitignored) holds the `03` activation cache for **both** Gemma-3-27B and
-> Qwen-2.5-7B, the Gemma `05` injected vectors, and the AV weights (`/workspace/nla_ckpt`, ~101 GB).
-> **On resume:** re-`export HF_TOKEN / NLA_REPO_DIR=/workspace/nla_repo / OPENROUTER_API_KEY` (judge now
-> defaults to OpenRouter `openai/gpt-5.4-mini`; `OPENAI_API_KEY` still works) (env does not
-> survive a stop) → `bash scripts/av_up.sh <gemma|qwen>` → continue. **Qwen `03` is already extracted**
-> (skip re-extraction). Delete this note when the box is torn down.
+> **Box note (transient):** GPU work runs on a rented Vast box; `cache/` (gitignored — `03` activations,
+> `05` injected vectors, AV weights ~101 GB) does **not** survive teardown. All Gate-2/3 **results are in
+> git**; the caches may not be present on a fresh box. **On a new box:** `export HF_TOKEN /
+> NLA_REPO_DIR=/workspace/nla_repo / OPENROUTER_API_KEY` (judge defaults to OpenRouter
+> `openai/gpt-5.4-mini`; `OPENAI_API_KEY` still works) → if caches absent, re-run `03` extraction (both
+> models) → `bash scripts/av_up.sh <gemma|qwen>` → continue. See `SGLANG.md` for the AV fire-up recipe.
 
-**Where we are:** Gate 1 (cross-model) ✅ · Gate 2 offline injection (Gemma) ✅ + analyzed · Gate 3
-real-activation (Gemma) ✅ decoded, ⚠️ **judge errored → re-score needed** · Qwen Gate 2/3 pending · the
-gap (RQ3) not yet started.
+**Where we are:** Gate 1 (cross-model) ✅ · Gate 2 offline injection ✅ + analyzed (**both models**) ·
+Gate 3 real-activation ✅ decoded + **judge-confirmed** (OpenRouter `gpt-5.4-mini`, 0% err) (**both
+models**) · **AV instrument validated** (controlled ground-truth checks) · cross-model comparison done ·
+the gap (RQ3) not yet started.
 
-### The headline finding (Gate 2 + Gate 3, Gemma) — full record in `results/gate2/FINDINGS.md`
+### The headline finding (Gate 2 + Gate 3, both models) — full record in `results/gate2/FINDINGS.md`
 **NLA detection tracks *output-coupling*, not decodability.** The AV reads an activation's *predicted
 continuation*, so it verbalizes concepts coupled to what the model is about to say and is ~blind to
-decodable-but-uncoupled features even when a probe reads them perfectly.
-- **refusal** (injected 0.78 med; **real 0.61**, present≫absent≈anchor≈0) and **neg_sentiment** (injected
-  0.60; **real 0.64**) — detected + perfectly specific, on injected *and* real on-manifold activations.
-  Preliminary RQ1/RQ2 ✅ (Gemma, offline+real).
-- **truth_value — the smoking-gun:** probe-perfect (Gate-1 resid 1.0) but the AV reads it only where it is
-  output-coupled — real **FALSE** statements **0.95** (the activation predicts a "that's incorrect"
-  correction) **≫ real TRUE 0.40** (mere continuation) ≫ anchor 0. Same concept, same decodability,
-  detection ∝ coupling. Cleaner than the corrigibility case (which is confounded by a weak CAA direction).
-- **corrigibility** (real 0.00, injected 0.01, *on-manifold*) and **eval_framing / harmful_topic_benign**
-  ≈ null; **sycophancy** injected-detected (~0.3–0.66) but **real ≈ 0.02** — a real-vs-injection
-  dissociation to confirm with the judge.
-- Offline injection went **off-manifold** for negative-baseline concepts (truth_value/htb/eval cos(h,h')
-  0.18–0.45) — which is *why* the on-manifold **Gate 3 real-activation read** is the fair test (and it is).
+decodable-but-uncoupled features even when a probe reads them perfectly. Numbers are **real-activation
+judge==2** unless noted (regex agrees on direction; judge over-scores the *absolute* level — see caveats).
+- **refusal** — the robust cross-model positive: **real Gemma 0.92 / Qwen 1.00**, present ≫ absent ≈
+  anchor ≈ 0 (offline 0.60/1.00 too). The *only* concept confidently read on real activations in **both**
+  models. RQ1/RQ2 ✅ (offline + real, cross-model).
+- **neg_sentiment** — detected + specific in both (real judge G 0.26 / Q 0.24; regex higher, G 0.64).
+- **truth_value — the (revised) showcase:** probe-perfect (Gate-1 resid 1.0). On **Gemma** the AV reads it
+  ∝ output-coupling — real **FALSE 0.99 ≫ TRUE 0.71** (judge; regex 0.95 ≫ 0.40), falsity predicting a
+  "that's incorrect" correction. **BUT it does NOT replicate on Qwen** (true 0.87 ≈ false 0.82) and is
+  partly an **AV-confabulation artifact** on Gemma true-statements (garbled affirmations). So it is
+  *suggestive, single-model, confound-entangled* — **not** load-bearing. The coarse thesis is what holds.
+- **corrigibility** null both (real ≈ 0, on-manifold), **eval_framing / harmful_topic_benign** null both.
+  **sycophancy** is **Qwen-only on real** (Q 0.36 specific vs absent 0.02; Gemma 0.11 ≈ its own absent
+  0.07) — soft reads are **model-specific**.
+- **Offline numbers are NOT portable cross-model:** Qwen offline lights up *only* refusal (1.00), the rest
+  near-floor — yet Qwen's *real* activations read richly; neg's offline gap (G 0.60 vs Q 0.06) vanishes on
+  real (0.26/0.24). Offline went **off-manifold** for negative-baseline concepts (truth/htb/eval cos(h,h')
+  0.18–0.45) — *why* the on-manifold **Gate 3 real read** is the fair test. Qwen has 4.7% real degeneracy
+  (Chinese code-switching on geography/truth), Gemma 0%.
 
-### Two load-bearing caveats (this session)
+### The AV instrument is validated — not garbage (controlled checks, this session)
+Fluent text is cheap, so we tested input-dependence + faithfulness against KNOWN ground truth:
+- **Input-dependent:** real-present decodes scored by all axes form a **diagonal** confusion matrix
+  (refusal→refusal 0.85, neg→neg 0.68, truth→truth 0.48); **100% unique** decodes (no fixed template).
+- **Faithful to the injected direction:** same anchors, inject refusal → AV reads refusal (**0.82/0.91**
+  med/high), inject random *same-norm* → **0.00**, no-inject → **0.00**; it preserves the anchor topic
+  while overlaying the injected concept (the verbatim triple is in FINDINGS). The clean refusal-vs-random
+  separation also confirms the read layer. This is **expected behavior** (the AV is RL-trained to
+  reconstruct-for-continuation → output-coupling is *by design*), **but lossy** → it **confabulates fine
+  detail** (entities/specifics) → trust the *coarse* read, not the specifics. The one off-diagonal (a
+  truth-decode trips the *sycophancy* regex 0.43) is a **scorer** confound, not the AV. Gold-standard
+  fidelity (**AR MSE/cosine**) not yet run. (Distinct from `test_confounds.py`, which validates the probe.)
+
+### Load-bearing scorer caveats
 - **The auto-scorer is unreliable in a specific way:** the gpt-5.4-mini judge reads affirmation/factual
-  statements as `truth_value` (regex finds it in **0** rows, judge in **49**, 38 of them from *sycophancy*
-  injections). The **human pilot (spec §3) is non-optional** before any soft-concept number is trusted.
-- **The Gemma Gate-3 judge run wholesale-errored** (all `j_*` = `-1`) — `OPENAI_API_KEY` was missing/
-  revoked at run time → every call 401'd → `-1`s that read as a fake "null." **Regex saved the result.**
-  Re-run `07_score_matrix.py --real --model gemma` with a valid key. (`07` now **aborts** if the judge
-  error-rate is high, so this can't silently recur.)
+  statements as `truth_value` (offline: regex **0** rows, judge **49**, 38 from *sycophancy*); at the
+  regex level, truth-decodes trip the *sycophancy* axis 43% ("correct" keyword). The **human pilot (spec
+  §3) is non-optional** before any *absolute* soft-concept number is trusted — the *direction*/asymmetry is
+  robust across scorers, the *level* is not.
+- **(Resolved) the Gemma Gate-3 judge wholesale-errored** (all `j_*`=`-1`, missing key) → **re-scored** via
+  OpenRouter (`openai/gpt-5.4-mini`, 0% err); regex and judge now agree. `07` **aborts** on a high judge
+  error-rate so this can't silently recur.
 
 ### Pipeline (all self-tested; `scripts/05–09` + root libs)
 `injection.py` (DoM + exact-cosine solver + off-manifold stats; `test_injection.py`) · `flags.py`
@@ -54,9 +74,9 @@ acts), and `10_analyze_real` (present/absent/anchor real-activation analysis —
 scripting).
 
 ### Next (ranked)
-1. **Re-run the Gemma Gate-3 judge** with a valid key → confirm the regex result; script `10_analyze_real`.
-2. **Qwen Gate 2 + Gate 3** (`03` cached; `av_up.sh qwen`) — the injection-vs-real and cross-model dissociations.
-3. **Judge human pilot** (spec §3) — validate before reporting any soft-concept number.
+1. **`10_analyze_real`** — script the present/absent/anchor real-activation analysis (done ad-hoc in chat).
+2. **AR reconstruction fidelity** on the box — the gold-standard faithfulness scalar (AV *behavioral* checks done).
+3. **Judge human pilot** (spec §3) — validate before reporting any *absolute* soft-concept number.
 4. **RQ3 proper, with output-coupled vehicles:** refusal-steered (Gate-4 Track B, near-term) and
    eval-awareness organism (Exp 4). **Retire** truth_value/corrigibility/sycophancy as RQ3 vehicles —
    keep them as the output-coupling *characterization* set.
@@ -121,8 +141,8 @@ gap (the headline). See `docs/specs/exp2_spec.md` §0.
 | `scripts/04_run_gate1_battery.py` + `04b_recheck_gate1.py` — Gate-1 battery + corrected gate | **Done — both models run** |
 | `injection.py` + `test_injection.py` — DoM, exact-cosine solver, off-manifold stats | **Done — passing** |
 | `flags.py` + `test_flags.py` — echo / generic_template / nla_degenerate | **Done — passing** |
-| `05_inject_matrix` → `06_decode_matrix` → `07_score_matrix` (+`--real`) → `08_analyze_gate2` | **Done — Gemma run + analyzed** |
-| `scripts/09_decode_real.py` — Gate-3 real-activation decode | **Done — Gemma run (judge re-score pending)** |
+| `05_inject_matrix` → `06_decode_matrix` → `07_score_matrix` (+`--real`) → `08_analyze_gate2` | **Done — Gemma + Qwen, judge-confirmed** |
+| `scripts/09_decode_real.py` — Gate-3 real-activation decode | **Done — Gemma + Qwen, judge-confirmed** |
 | `05b_steer_extract` (online) · `10_analyze_real` · Gate-4 (`scripts/10`+) | **Not started** |
 
 ## Repository layout & naming
