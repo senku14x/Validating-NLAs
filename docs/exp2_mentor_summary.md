@@ -54,8 +54,10 @@ yet run.
 3. **Main scientific finding: the AV reads *output-coupling*, not *decodability*.** Concepts coupled to
    what the model is about to *say* are verbalized (refusal; negative sentiment; "this statement is
    false" corrections); concepts a probe decodes **perfectly** but that do not shape the continuation
-   are **null in both models** (corrigibility; eval-framing; harmful-topic). This is consistent with how
-   the AV is trained — to reconstruct the activation such that it predicts the same continuation.
+   are **null in both models** (corrigibility; harmful-topic — **not** eval-framing, whose probe is
+   surface-lexical: bag-of-words on the raw text also scores 1.00, so it is not a clean represented
+   latent). This is consistent with how the AV is trained — to reconstruct the activation such that it
+   predicts the same continuation.
 
 ### Did not replicate / negative results (and why they are instructive)
 
