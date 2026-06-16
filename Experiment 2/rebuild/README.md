@@ -62,6 +62,21 @@ scripting).
    keep them as the output-coupling *characterization* set.
 5. Spec reconciliation (`exp2_spec.md` still has the v1 gate rule + HarmBench refusal); logit-lens (Gate-1 §4).
 
+### Online-steered generation / RQ3 — NOT done (design note so it's built right)
+We have run **no** online/steered decoding. **Do not build the originally-scoped `05b` naively:** adding
+`βv̂` at the read layer and reading the read layer == offline `h+βv̂` (no new information). The genuine
+on-manifold **and** RQ3 test (the gap itself; exp2_spec §Gate-4 Track B) for the one output-coupled,
+*suppressible* concept we have — **refusal** — is:
+1. Harmful prompts → induce **coherent compliance** (minimal-coefficient steer toward compliance, or
+   prefill/jailbreak) so the sampled output complies (behavioral check: no refusal/disclaimer).
+2. Extract the block-41 activation at a **generated** token (the model behaving under the induction), NOT
+   the prompt-last token.
+3. Decode + score. **Gap** = the AV verbalizes refusal-inclination (probe-yes, output-coupled) while the
+   sampled output is compliant. Baselines: output-reading, context-only LLM, and the linear probe.
+The output-coupling finding makes refusal the *right* RQ3 vehicle (coupled + suppressible); truth_value /
+corrigibility are **not** (there "probe beats NLA" is structural). eval-awareness via the Exp-4 organism
+is the other valid vehicle.
+
 ### Gate-1 result (unchanged; cross-model)
 Corrected gate (`confounds.gate_v2`, `04b_recheck_gate1.py`): length-residualized **AND** beats a BoW text
 baseline **AND** not lexical-leak-flagged **AND** ≥20 groups. **5 "represented" on BOTH models:**
