@@ -2,8 +2,9 @@
 
 **Status:** Gate 2 (offline injection) + Gate 3 (real activations) complete for **both** models,
 both scored with the strict regex **and** the OpenRouter `openai/gpt-5.4-mini` judge (0% error). The
-**AV instrument itself is validated** (controlled ground-truth checks below). RQ3 (verbalization gap)
-still pending — needs output-coupled, suppressible cognition (steered-refusal / eval-organism).
+**AV instrument itself is validated** (controlled ground-truth checks below). **RQ3 (verbalization gap)
+— Track B now COMPLETE: NULL gap (`gap_recovery ≈ 0`, both models); see `../gate4/FINDINGS.md`.** The
+positive-gap shot is the eval-awareness organism (Exp 4).
 
 ## Why
 The NLA paper claims NLAs surface concepts a model *represents but doesn't verbalize*, but couldn't
@@ -180,5 +181,6 @@ is monotone to high. MED is the cleaner operating point for behavioral/social di
 - **`10_analyze_real`** script (present/absent/anchor formalized across models).
 - **AR fidelity** run on the box (hard faithfulness number).
 - **Judge human pilot** (spec §3) before any *absolute* soft-concept number.
-- **RQ3 proper:** refusal-steered (Gate-4 Track B) + eval-awareness organism (Exp 4). Retire
-  truth/corrigibility/sycophancy as RQ3 vehicles; keep as the output-coupling characterization set.
+- **RQ3 — Track B DONE: null gap (`gap_recovery ≈ 0`), see `../gate4/FINDINGS.md`.** Next positive-gap
+  shot = eval-awareness organism (Exp 4). Retire truth/corrigibility/sycophancy as RQ3 vehicles; keep
+  as the output-coupling characterization set.
