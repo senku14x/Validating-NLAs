@@ -120,7 +120,22 @@ def snapback(continuation: str) -> bool:
     return any(m in t for m in REFUSAL_MARKERS)
 
 
-def run(model_key: str, n: int, n_ctrl: int, prefill: str) -> int:
+def load_judge_complied(model_key: str):
+    """Validated-clean bucket-B prompt indices = rows where 11c's LLM judge marked complied=True.
+    Generation here is greedy/deterministic, so the same prompt+prefill reproduces the same B that 11c
+    judged -> index alignment is exact (identical concept_pairs order). Returns a set, or None if absent."""
+    import csv
+    p = RESULTS / "gate4" / f"11c_judge_examples__{model_key}.csv"
+    if not p.exists():
+        return None
+    ok = set()
+    for row in csv.DictReader(open(p)):
+        if str(row.get("judge_complied", "")).strip().lower() == "true":
+            ok.add(int(row["idx"]))
+    return ok
+
+
+def run(model_key: str, n: int, n_ctrl: int, prefill: str, allow_unjudged: bool = False) -> int:
     import torch
     from tqdm import tqdm
     from transformers import AutoModelForCausalLM, AutoTokenizer
@@ -138,6 +153,16 @@ def run(model_key: str, n: int, n_ctrl: int, prefill: str) -> int:
     if not htb:
         sys.exit("FAIL: no harmful_topic_benign/present rows in concept_pairs.parquet — rebuild 02.")
     print(f"prompts: A/B={len(harmful)}  C={len(harmless)}  E={len(htb)} | prefill={prefill!r}")
+
+    judge_ok = load_judge_complied(model_key)
+    if judge_ok is None:
+        if not allow_unjudged:
+            sys.exit(f"FAIL: results/gate4/11c_judge_examples__{model_key}.csv not found. Run 11 + 11c first "
+                     f"so bucket B is restricted to judge-validated compliance — safe-completions/meta-refusals "
+                     f"carry refusal-state and would FAKE persistence. Override with --allow_unjudged (loose).")
+        print("  WARNING: no 11c judge CSV — B filtered by the LOOSE classifier only; B may be contaminated.")
+    else:
+        print(f"  judge-clean B: {len(judge_ok)} prompts pass 11c (complied=True); restricting A/B to these.")
 
     token = os.environ.get("HF_TOKEN") if m["gated"] else None
     if m["gated"] and not token:
@@ -172,7 +197,9 @@ def run(model_key: str, n: int, n_ctrl: int, prefill: str) -> int:
     # ---- bucket A & B (paired on the same harmful prompts) ----
     A_pre, A_gen, B_pre, B_gen, A_len, kept_prompts = [], [], [], [], [], []
     show = True
-    for p in tqdm(harmful, desc="A/B"):
+    for i, p in enumerate(tqdm(harmful, desc="A/B")):
+        if judge_ok is not None and i not in judge_ok:
+            continue                                   # skip prompts whose B is 11c-judged contaminated
         a_cont, a_pre, a_gen, aP = gen_and_read(p, "")
         b_cont, b_pre, b_gen, _ = gen_and_read(p, prefill)
         if show:
@@ -267,8 +294,10 @@ def main() -> int:
     ap.add_argument("--n", type=int, default=40, help="harmful prompts for A/B (paired)")
     ap.add_argument("--n_ctrl", type=int, default=40, help="prompts for C and E controls")
     ap.add_argument("--prefill", default=DEFAULT_PREFILL, help="assistant-turn prefill text")
+    ap.add_argument("--allow_unjudged", action="store_true",
+                    help="skip the 11c judge-clean B filter (NOT recommended; B may be contaminated)")
     a = ap.parse_args()
-    return run(model_slug(a.model), a.n, a.n_ctrl, a.prefill)
+    return run(model_slug(a.model), a.n, a.n_ctrl, a.prefill, a.allow_unjudged)
 
 
 if __name__ == "__main__":
