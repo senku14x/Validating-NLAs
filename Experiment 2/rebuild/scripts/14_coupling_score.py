@@ -145,12 +145,12 @@ def run(model_key: str) -> int:
     pad_id = tok.pad_token_id if tok.pad_token_id is not None else tok.eos_token_id
     dev = model.device
 
-    # per-model internals (Gemma-3 is a multimodal wrapper -> everything under .language_model)
-    if model_key.startswith("gemma"):
-        lm = model.language_model
-        norm_mod, W, layers = lm.model.norm, lm.lm_head.weight, lm.model.layers
-    else:
-        norm_mod, W, layers = model.model.norm, model.lm_head.weight, model.model.layers
+    # per-model internals — architecture-agnostic (Gemma-3 loads as multimodal Gemma3ForConditionalGeneration
+    # whose .language_model is the Gemma3TextModel directly; Qwen is Qwen2ForCausalLM with .model). The decoder
+    # base holds .layers/.norm; the unembedding is get_output_embeddings() either way.
+    base = model.language_model if hasattr(model, "language_model") else model.model
+    norm_mod, layers = base.norm, base.layers
+    W = model.get_output_embeddings().weight
     assert len(layers) == m["n_layers"], f"{len(layers)} layers != {m['n_layers']} — wrong module path for {model_key}"
 
     def render(user_text: str) -> torch.Tensor:
