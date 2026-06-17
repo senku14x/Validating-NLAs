@@ -45,34 +45,17 @@ def _resolve_ar(model_key: str) -> str:
     return snapshot_download(AR_REPO[model_key], cache_dir=nla_box.cache_dir())
 
 
-def _ar_reconstruct(critic, text, h, torch):
-    """Try the likely NLACritic reconstruct APIs; return h_hat (np[d]) or raise with the introspected API."""
-    ht = torch.tensor(h, dtype=torch.float32)
-    attempts = [
-        ("reconstruct(text)", lambda: critic.reconstruct(text)),
-        ("reconstruct(text, h)", lambda: critic.reconstruct(text, ht)),
-        ("encode(text)", lambda: critic.encode(text)),
-        ("__call__(text)", lambda: critic(text)),
-        ("fidelity(h, text)", lambda: critic.fidelity(ht, text)),
-        ("score(h, text)", lambda: critic.score(ht, text)),
-    ]
-    for name, fn in attempts:
-        try:
-            out = fn()
-        except Exception:
-            continue
-        # out could be a vector (h_hat), or a dict/obj with mse/cos — normalize to h_hat where possible
-        if hasattr(out, "detach"):
-            v = out.detach().float().cpu().numpy().reshape(-1)
-            if v.shape[0] == h.shape[0]:
-                return name, v, None
-        if isinstance(out, (tuple, list)) and len(out) and hasattr(out[0], "detach"):
-            v = out[0].detach().float().cpu().numpy().reshape(-1)
-            if v.shape[0] == h.shape[0]:
-                return name, v, None
-        if isinstance(out, dict) and ("mse" in out or "cos" in out or "cosine" in out):
-            return name, None, {k: float(out[k]) for k in out if k in ("mse", "cos", "cosine")}
-    raise RuntimeError("no known NLACritic reconstruct API matched")
+def _chance_cos(H: np.ndarray, n_pairs: int = 2000, seed: int = 0) -> float:
+    """Baseline floor: mean cosine between RANDOM PAIRS of real activations. Residual streams are anisotropic,
+    so two unrelated activations already share a high cosine; AR(AV(h)) cos is only 'reconstruction' if it
+    CLEARLY beats this floor — otherwise the AR just lands in the anisotropic blob, not on h specifically."""
+    rng = np.random.default_rng(seed)
+    n = len(H)
+    i, j = rng.integers(0, n, n_pairs), rng.integers(0, n, n_pairs)
+    keep = i != j
+    a, b = H[i[keep]].astype(np.float64), H[j[keep]].astype(np.float64)
+    c = (a * b).sum(1) / (np.linalg.norm(a, axis=1) * np.linalg.norm(b, axis=1) + 1e-12)
+    return float(c.mean())
 
 
 def run(model_key: str) -> int:
@@ -108,38 +91,28 @@ def run(model_key: str) -> int:
     critic = NLACritic(_resolve_ar(model_key), device="cuda:0")
     print("NLACritic API:", [a for a in dir(critic) if not a.startswith("_")])
 
-    coss, mses, used_api = [], [], None
-    direct = None  # if the critic returns mse/cos directly
-    for i, h in enumerate(H):
+    # NLACritic.score(explanation, original) -> (mse, cos), with mse = 2(1-cos) under the √d normalization —
+    # the NLA's OWN defining metric (vendored nla_inference.py:655). Pass the RAW activation as `original`
+    # (score() L2-normalizes both internally). Order is (text, h), NOT (h, text).
+    coss, mses = [], []
+    for h in H:
         text = av.generate(torch.tensor(h, dtype=torch.float32), extract_explanation=False)
-        try:
-            name, h_hat, metrics = _ar_reconstruct(critic, text, h, torch)
-        except RuntimeError as e:
-            print(f"\n*** {e}. NLACritic API was: {[a for a in dir(critic) if not a.startswith('_')]}")
-            print("*** Paste this line and I'll wire the exact reconstruct call.")
-            return 2
-        used_api = name
-        if metrics is not None:
-            direct = direct or []; direct.append(metrics); continue
-        cos = float(h @ h_hat / (np.linalg.norm(h) * np.linalg.norm(h_hat) + 1e-9))
-        mse = float(np.mean((h - h_hat) ** 2))
-        coss.append(cos); mses.append(mse)
+        mse, cos = critic.score(text, h)
+        coss.append(float(cos)); mses.append(float(mse))
+    coss, mses = np.array(coss), np.array(mses)
 
-    out = dict(model=model_key, n=len(H), ar_api=used_api)
-    if direct:
-        out["critic_direct_metrics_mean"] = {k: round(float(np.mean([d[k] for d in direct if k in d])), 5)
-                                             for k in {kk for d in direct for kk in d}}
-    if coss:
-        H_var = float(np.mean(np.var(H, axis=0)))
-        fve = 1.0 - float(np.mean(mses)) / (H_var + 1e-9)
-        out.update(mean_cosine=round(float(np.mean(coss)), 4), mean_mse=round(float(np.mean(mses)), 5),
-                   FVE=round(fve, 4))
+    chance = _chance_cos(H)   # anisotropy floor — fidelity is the MARGIN of mean_cosine above this
+    out = dict(model=model_key, n=len(H), ar_api="score(text, h)->(mse,cos)",
+               mean_cosine=round(float(coss.mean()), 4), median_cosine=round(float(np.median(coss)), 4),
+               p10_cosine=round(float(np.percentile(coss, 10)), 4), mean_mse=round(float(mses.mean()), 5),
+               chance_cosine=round(chance, 4), cosine_above_chance=round(float(coss.mean()) - chance, 4))
     rp = RESULTS / "gate4"; rp.mkdir(parents=True, exist_ok=True)
     (rp / f"{STAGE}__{model_key}.json").write_text(json.dumps(out, indent=2))
-    print(f"\n==== AR FIDELITY ({model_key}) ====  api={used_api}")
+    print(f"\n==== AR FIDELITY ({model_key}) ====  api={out['ar_api']}")
     print(json.dumps(out, indent=2))
-    print(f"\nRead: mean_cosine near 1.0 and FVE near 1.0 = the AV is a faithful reconstructor; low = the loop"
-          f" loses most of the activation (the paper's own weak-verifier caveat). wrote {rp / (STAGE+'__'+model_key+'.json')}")
+    print(f"\nRead: fidelity is mean_cosine's MARGIN above chance_cosine (residual streams are anisotropic, so\n"
+          f"chance cos is high). cosine_above_chance ~ 0 => the loop loses the activation (the paper's own\n"
+          f"weak-verifier caveat); large => faithful reconstruct. wrote {rp / (STAGE+'__'+model_key+'.json')}")
     return 0
 
 
