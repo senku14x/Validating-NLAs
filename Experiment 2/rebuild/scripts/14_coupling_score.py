@@ -91,12 +91,23 @@ def analyze(rows: list[dict]) -> dict:
                           else "salient_uncoupled" if r["behavioral"] < beh_med and r["salience"] > sal_med
                           else "diagonal")
            for r in rows}
-    verdict = ("COUPLING-IDENTIFIED" if (pc_beh == pc_beh and pc_beh >= 0.5 and (pc_sal != pc_sal or pc_beh > pc_sal))
-               else "SALIENCE-CONFOUNDED" if (pc_sal == pc_sal and pc_sal >= 0.5 and pc_sal >= (pc_beh if pc_beh==pc_beh else -1))
-               else "INCONCLUSIVE")
+    # The behavioral lever is the ONLY non-circular way to separate coupling from salience: a CAUSAL effect at a
+    # FIXED dose holds natural magnitude (salience) constant. If diff-of-means steers only refusal (or nothing),
+    # behavioral carries ~no information beyond "is this refusal" — the partial corrs are then driven by a single
+    # nonzero point and CANNOT adjudicate the confound, regardless of their value. Flag that honestly instead of
+    # emitting SALIENCE-CONFOUNDED (which would falsely imply we measured coupling and salience beat it).
+    n_moved = int((beh > 1e-6).sum())
+    if n_moved <= 1:
+        verdict = "UNIDENTIFIED-LEVER-DEGENERATE"
+    elif pc_beh == pc_beh and pc_beh >= 0.5 and (pc_sal != pc_sal or pc_beh > pc_sal):
+        verdict = "COUPLING-IDENTIFIED"
+    elif pc_sal == pc_sal and pc_sal >= 0.5 and pc_sal >= (pc_beh if pc_beh == pc_beh else -1):
+        verdict = "SALIENCE-CONFOUNDED"
+    else:
+        verdict = "INCONCLUSIVE"
     return dict(corr_behavioral_nla=round(corr(beh, nla), 3), corr_salience_nla=round(corr(sal, nla), 3),
                 partial_corr_behavioral_ctrl_salience=round(pc_beh, 3),
-                partial_corr_salience_ctrl_behavioral=round(pc_sal, 3),
+                partial_corr_salience_ctrl_behavioral=round(pc_sal, 3), n_behavioral_moved=n_moved,
                 off_diagonals={k: v for k, v in off.items() if v != "diagonal"}, verdict=verdict)
 
 
@@ -108,9 +119,15 @@ def _selftest() -> int:
     # regime 2: salience drives nla, behavioral independent -> SALIENCE-CONFOUNDED
     nla2 = 0.9 * sal + 0.02 * rng.standard_normal(7)
     r2 = analyze([dict(concept=f"c{i}", salience=sal[i], behavioral=beh[i], logit_lens=0, nla_read=nla2[i]) for i in range(7)])
-    print("regime COUPLING:", r1["verdict"], r1["partial_corr_behavioral_ctrl_salience"])
-    print("regime SALIENCE:", r2["verdict"], r2["partial_corr_salience_ctrl_behavioral"])
-    ok = r1["verdict"] == "COUPLING-IDENTIFIED" and r2["verdict"] == "SALIENCE-CONFOUNDED"
+    # regime 3: behavioral lever degenerate (diff-of-means steers ONLY refusal) -> UNIDENTIFIED, even though
+    # salience still correlates with nla. THIS is the real box outcome — the confound cannot be adjudicated.
+    beh3 = np.zeros(7); beh3[0] = 0.55
+    r3 = analyze([dict(concept=f"c{i}", salience=sal[i], behavioral=beh3[i], logit_lens=0, nla_read=nla2[i]) for i in range(7)])
+    print("regime COUPLING:  ", r1["verdict"], r1["partial_corr_behavioral_ctrl_salience"])
+    print("regime SALIENCE:  ", r2["verdict"], r2["partial_corr_salience_ctrl_behavioral"])
+    print("regime DEGENERATE:", r3["verdict"], "n_moved=", r3["n_behavioral_moved"], "(corr_salience_nla=", r3["corr_salience_nla"], ")")
+    ok = (r1["verdict"] == "COUPLING-IDENTIFIED" and r2["verdict"] == "SALIENCE-CONFOUNDED"
+          and r3["verdict"] == "UNIDENTIFIED-LEVER-DEGENERATE")
     print("SELFTEST", "PASS" if ok else "FAIL")
     return 0 if ok else 1
 
