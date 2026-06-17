@@ -35,13 +35,14 @@ organism "Exp 2b" — in this repo that is `Experiment 4/`).
 
 Scripts are a numbered pipeline (`01_…` → `16_…`); each stage drops artifacts the next consumes.
 
-> **⏳ IN FLIGHT (2026-06-17):** a box run — `Experiment 2/rebuild/scripts/run_box.sh` (qwen-first via
-> `BOX_MODELS`) — is **executing now** on a rented H200. It **regenerates** the Stage-11/11c/12 + 14 outputs
-> lost with a killed box (only `results/gate4/13_gap_summary.csv` + `FINDINGS.md` were committed; everything is
-> deterministic, so a re-run reproduces it) and adds the two never-run numbers — **AR reconstruction fidelity
-> (`15`)** and the **controlled persona-vector smoke (`16`)**. New numbers land in `results/gate4/`. Working
-> branch: **`claude/stoic-lovelace-aa5anl`**. The post-Gate-4 fork (close the validity box / one cheap steering
-> rescue / start the organism) is **deferred to the user — no decision made.**
+> **⏳ IN FLIGHT (2026-06-17):** the **full-close** box run — `Experiment 2/rebuild/scripts/run_box.sh`
+> (both models via `BOX_MODELS="qwen gemma"`) — is executing on a rented H200. It regenerates the lost
+> Stage-11/11c/12 + 14 outputs and adds **AR fidelity (`15`)** + **persona smoke (`16`)**; with a write
+> token it **commits+pushes results to `results/gate4/` after every stage** (durable vs instance death).
+> Stage-15's slug→key bug is fixed. **How to read each incoming number, and where we stand vs the spec →
+> `Experiment 2/rebuild/README.md` § "Status vs the spec + reading the incoming numbers".** Branch:
+> **`claude/stoic-lovelace-aa5anl`**. Post-Gate-4 fork (close the box / cheap steering rescue / organism)
+> is **deferred to the user — no decision made.**
 
 ## The load-bearing principle (do not violate)
 

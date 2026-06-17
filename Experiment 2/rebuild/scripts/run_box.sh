@@ -29,8 +29,13 @@ say(){ echo -e "\n========== $* =========="; }
 save(){
   git add results/gate4/*.json results/gate4/*.csv 2>/dev/null || true
   git diff --cached --quiet 2>/dev/null && return 0           # nothing new staged
-  git commit -q -m "box run: $*" || true
-  for i in 1 2 3 4; do git push origin "$BRANCH" 2>/dev/null && { echo "  pushed ($*)"; return 0; }; sleep $((2**i)); done
+  git commit -q -m "box run: $*" 2>/dev/null || {
+    echo "  >> COMMIT FAILED — set the box identity once:  git config user.email noreply@anthropic.com && git config user.name Claude   (results are staged, NOT saved)"; return 0; }
+  for i in 1 2 3 4; do
+    git push origin "$BRANCH" 2>/dev/null && { echo "  pushed ($*)"; return 0; }
+    git pull --rebase --autostash origin "$BRANCH" 2>/dev/null || true   # absorb a concurrent dev push, then retry
+    sleep $((2**i))
+  done
   echo "  >> push failed (no write token?) — commit is LOCAL only; paste results back before the instance dies"
 }
 
