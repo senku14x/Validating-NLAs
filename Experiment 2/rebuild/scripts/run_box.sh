@@ -5,6 +5,7 @@
 #   #1 AR reconstruction fidelity  (the NLA's own metric; uses 03 cache + AV server)
 #   #2 re-run Stage 12             (11 -> 11c -> 12; the RQ3 null's reproducible residual)
 #   #3 coupling + salience de-risk (14; uses 03 cache; the salience-confound fix)
+#   #4 persona-vector smoke        (16; elicit/suppress system-prompt lever — the TRUSTED-lever de-risk)
 #
 # PREREQS (A100/H-class GPU box): repo cloned on branch claude/stoic-lovelace-aa5anl;
 #   export HF_TOKEN / OPENROUTER_API_KEY / NLA_REPO_DIR=/workspace/nla_repo ;
@@ -53,17 +54,26 @@ for M in "${MODELS[@]}"; do
   DOSES="${DOSES:-0.55}" python scripts/14_coupling_score.py --model "$M"
 done
 
+# ---- #4 persona smoke: does an elicit/suppress system-prompt lever steer where §13's free-form one was dead? ----
+for M in "${MODELS[@]}"; do
+  say "#4 persona smoke (target model) — $M"
+  python scripts/16_persona_smoke.py --model "$M" \
+    || echo ">> persona smoke $M exited non-zero — PASTE its output"
+done
+
 # ---- commit the SMALL structured results (no harmful text; raw decodes/examples stay gitignored) ----
 say "commit + push results"
 git add results/gate4/15_ar_fidelity__*.json \
         results/gate4/12_trackb_persistence__*.json \
         results/gate4/14_coupling_score__*.csv results/gate4/14_coupling_score__*.json \
+        results/gate4/16_persona_smoke__*.csv results/gate4/16_persona_smoke__*.json \
         results/gate4/11b_viability_analysis__*.json results/gate4/11c_judge_analysis__*.json 2>/dev/null || true
-git commit -m "box run: 03 extract + AR fidelity + Stage-12 re-run + coupling/salience de-risk" \
+git commit -m "box run: 03 extract + AR fidelity + Stage-12 re-run + coupling/salience + persona smoke" \
   || echo ">> nothing to commit"
 git push origin claude/stoic-lovelace-aa5anl || echo ">> push failed — commit is local, retry git push"
 
 say "DONE — paste back:"
 echo "  results/gate4/15_ar_fidelity__{qwen2.5-7b,gemma3-27b}.json   (cosine / FVE)"
-echo "  results/gate4/14_coupling_score__{qwen2.5-7b,gemma3-27b}.{csv,json}   (esp. the VERDICT line)"
+echo "  results/gate4/14_coupling_score__{qwen2.5-7b,gemma3-27b}.{csv,json}   (frac_steered_identical + VERDICT)"
+echo "  results/gate4/16_persona_smoke__{qwen2.5-7b,gemma3-27b}.csv   (frac_identical per dose — the trusted-lever check)"
 echo "  the printed Stage-12 [prelast] persistence rows"
