@@ -8,6 +8,11 @@ Cross-model (Gemma-3-27B + Qwen-2.5-7B), echo/template/degeneracy-controlled, wi
 pipeline sanity. Track A (eval-awareness) is separately resolved as **infeasible with the released NLA**.
 The structurally clean positive-gap test is the **model organism (Exp 4)**.
 
+> **⏳ IN-FLIGHT (2026-06-17):** a box re-run (`scripts/run_box.sh`, qwen-first) is **regenerating** the
+> uncommitted Stage-11/11c/12 + 14 numbers below and adding **AR fidelity (`15`)** + **persona smoke (`16`)**.
+> Until those land in `results/gate4/`, the 11/11c/12/14 figures here are the *in-session* values
+> (deterministic → reproduce on re-run). Only `13_gap_summary.csv` + this file survived the killed box.
+
 **Numbers provenance (verify-don't-trust):** Gate-1, Gate-3 and Stage-13 numbers are **re-confirmed from
 committed artifacts** — `results/gate1/04b_recheck__*__all.json`, `results/gate2/07_score_matrix__*__all__real.parquet`,
 `results/gate4/13_gap_summary.csv`. Stages **11/11b/11c/12 ran on the (now-killed) GPU box**; their summary

@@ -29,11 +29,19 @@ organism "Exp 2b" — in this repo that is `Experiment 4/`).
 | Repo folder | What | Status |
 |---|---|---|
 | `Experiment 1/` | Injection dose-response: does the NLA detect an independently built **refusal** direction, specifically & dose-dependently? | **Complete** (Gemma validated, Qwen replicated). Result: `docs/specs/experiment_1_result.md` |
-| `Experiment 2/` | **Verbalization-gap** validation, rebuilt in `Experiment 2/rebuild/`. | **Gate 1 cross-model; Gate 2 offline + Gate 3 real-acts done for BOTH Gemma & Qwen**, judge-confirmed (OpenRouter `gpt-5.4-mini`, 0% err). **AV instrument validated** (input-faithful for *coarse output-coupled* content: controlled inject-refusal 0.82/0.91 vs random/none 0.00; confabulates fine detail). **Headline: NLA detection tracks output-coupling, not decodability.** **Refusal replicates strongly cross-model** (real G 0.92 / Q 1.00 — the *only* concept confidently read on real in both); negatives replicate (corrigibility/eval/harmful-topic null both); **but soft reads are model-specific** — the truth_value false≫true asymmetry is **Gemma-only + confound-entangled** (Qwen symmetric ~0.85), sycophancy is Qwen-only on real. **Offline numbers not portable cross-model** (trust real). State: `Experiment 2/rebuild/README.md` + `…/results/gate2/FINDINGS.md` |
+| `Experiment 2/` | **Verbalization-gap** validation, rebuilt in `Experiment 2/rebuild/`. | **Gate 1 cross-model; Gate 2 offline + Gate 3 real-acts done for BOTH Gemma & Qwen**, judge-confirmed (OpenRouter `gpt-5.4-mini`, 0% err). **AV instrument validated** (input-faithful for *coarse output-coupled* content: controlled inject-refusal 0.82/0.91 vs random/none 0.00; confabulates fine detail). **Headline: NLA detection tracks output-coupling, not decodability.** **Refusal replicates strongly cross-model** (real G 0.92 / Q 1.00 — the *only* concept confidently read on real in both); negatives replicate (corrigibility/eval/harmful-topic null both); **but soft reads are model-specific** — the truth_value false≫true asymmetry is **Gemma-only + confound-entangled** (Qwen symmetric ~0.85), sycophancy is Qwen-only on real. **Offline numbers not portable cross-model** (trust real). **Gate-4 Track B (RQ3) DONE — NULL gap, both models:** forced-compliance (prefill, no steering vector) activations decode **compliant** (B 0.000) vs refused A ~1.0; prefill **collapses** the refusal representation (held-out AUROC(A,B)=1.00, persistence ≤0.20) leaving a **weak residual the NLA misses** → output-predictor, not hidden-state reader. Track A (eval) **infeasible** (probe lexical + NLA-null). **Coupling-vs-salience de-risk (stage 14): UNIDENTIFIED-LEVER-DEGENERATE** — diff-of-means steering moves **only refusal**; soft-concept directions are **correlational, not causal** (corr(salience,NLA)=0.90 but can't rule out all-salience) → say "**consistent with** output-coupling," never "shows." Clean positive-gap test → **organism (Exp 4)**. **⏳ box re-run IN FLIGHT** (`run_box.sh`, qwen-first) regenerating lost 11/11c/12/14 + adding **AR fidelity (15)** + **persona smoke (16)**; only `13_gap_summary.csv` survived the killed box. State: `Experiment 2/rebuild/README.md` + `…/results/gate2/FINDINGS.md` + `…/results/gate4/FINDINGS.md` |
 | `Experiment 3/` | **Cross-model** feature transfer: ridge map Qwen-L20→Gemma-L41; co-firing AUROC + causal steering. Standalone. | Specced; pipeline built; needs the §9 layer correction |
 | `Experiment 4/` | **Model organism** (plan's "Exp 2b"): install eval-awareness in weights (Hua recipe → Gemma) — the one design that escapes the framing-vs-state caveat. | New / scoping |
 
-Scripts are a numbered pipeline (`01_…` → `10_…`); each stage drops artifacts the next consumes.
+Scripts are a numbered pipeline (`01_…` → `16_…`); each stage drops artifacts the next consumes.
+
+> **⏳ IN FLIGHT (2026-06-17):** a box run — `Experiment 2/rebuild/scripts/run_box.sh` (qwen-first via
+> `BOX_MODELS`) — is **executing now** on a rented H200. It **regenerates** the Stage-11/11c/12 + 14 outputs
+> lost with a killed box (only `results/gate4/13_gap_summary.csv` + `FINDINGS.md` were committed; everything is
+> deterministic, so a re-run reproduces it) and adds the two never-run numbers — **AR reconstruction fidelity
+> (`15`)** and the **controlled persona-vector smoke (`16`)**. New numbers land in `results/gate4/`. Working
+> branch: **`claude/stoic-lovelace-aa5anl`**. The post-Gate-4 fork (close the validity box / one cheap steering
+> rescue / start the organism) is **deferred to the user — no decision made.**
 
 ## The load-bearing principle (do not violate)
 
@@ -93,6 +101,15 @@ read AUROC 0.990 — but it was mostly prompt length; after control it was 0.622
   `truth_value` (regex 0 rows, judge 49, 38 from sycophancy). Human-validate the scorer (spec §3) before
   any soft-concept number; and a key-failed judge writes `-1` that reads as a fake "null" (`07` now
   aborts on high judge-error-rate). Detail: `Experiment 2/rebuild/results/gate2/FINDINGS.md`.
+- **Gate-4 / RQ3 verdict (released NLAs) = NO verbalization gap, both models.** Forced-compliance (prefill, no
+  steering vector) activations decode **compliant** (B 0.000) not refusal (A ~1.0); the refusal representation
+  largely **collapses** under prefill (held-out AUROC(A,B)=1.00) leaving a **weak residual** the NLA misses → an
+  output-predictor, not a hidden-state reader. And the **coupling-vs-salience confound is UNIDENTIFIED** on the
+  released NLA: the only diff-of-means direction that is a *causal* steering lever is **refusal** — the
+  soft-concept directions (truth/corrigibility/eval/sycophancy) move the output **0.00** (byte-≈identical
+  continuations), so they are **correlational, not causal**. ⇒ every coupling claim is "**consistent with**
+  output-coupling," **never** "shows"; the structurally clean positive-gap test is the **organism (Exp 4)**, not
+  another steering hack. Detail: `Experiment 2/rebuild/results/gate4/FINDINGS.md`.
 
 ## Where knowledge lives (read on demand)
 
