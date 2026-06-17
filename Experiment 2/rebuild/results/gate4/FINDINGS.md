@@ -197,6 +197,15 @@ hidden-state reader*.
 - **No degeneration:** degen 0.0, tag rate 1.0.
 
 ## 11. Caveats / not established
+- **Output-coupling is *consistent with*, not *isolated*, here (external-review point).** The cross-concept contrast that
+  motivates the thesis — refusal (read) vs corrigibility (null) — confounds **coupling with salience/norm-dominance**
+  (refusal is also a large, dominant activation; corrigibility is subtle) and with the released NLAs' **training coverage**
+  (single-layer, pretraining-text). To *isolate* coupling you need the off-diagonal cells: an output-coupled-but-low-salience
+  concept and a decodable-salient-but-uncoupled one. State as "consistent with output-coupling," not "shows."
+- **The RQ3 null's interesting half is not committed.** Only `13_gap_summary.csv` (B=0 + A/pre sanity) is in the repo; the
+  Stage-11/11c/12 summaries (incl. the persistence residual, pf 0.03–0.20) ran on a now-killed box → re-run + commit. And the
+  residual is faint: the established claim is "NLA misses a *weak* residual a probe barely detects," not "can't read strong
+  hidden cognition."
 - **Scope:** one concept (refusal), one induction (prefill), two models. Does **not** rule out the NLA surfacing a *strong*
   hidden state — the dissociable state we could build was weak (residual only).
 - **`B=0` is partly structural** (output-predictor reads the compliant continuation), as in §9.
