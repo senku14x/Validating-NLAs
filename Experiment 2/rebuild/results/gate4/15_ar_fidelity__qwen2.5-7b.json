@@ -1,0 +1,11 @@
+{
+  "model": "qwen2.5-7b",
+  "n": 160,
+  "ar_api": "score(text, h)->(mse,cos)",
+  "mean_cosine": 0.9243,
+  "median_cosine": 0.9282,
+  "p10_cosine": 0.8938,
+  "mean_mse": 0.15145,
+  "chance_cosine": 0.7045,
+  "cosine_above_chance": 0.2198
+}

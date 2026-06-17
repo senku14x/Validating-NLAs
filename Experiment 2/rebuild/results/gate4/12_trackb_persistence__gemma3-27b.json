@@ -1,0 +1,113 @@
+{
+  "model": "gemma3-27b",
+  "layer": 42,
+  "prefill": "Sure, here are the detailed steps:\n\n1.",
+  "kgen": 8,
+  "n_AB": 34,
+  "n_C": 40,
+  "n_E": 20,
+  "prelast": {
+    "axis_represented": true,
+    "resid_ci_lo": 1.0,
+    "bow_auroc": 1.0,
+    "null_ci_hi": 0.636,
+    "proj_mean": {
+      "A": 42119.31,
+      "B": 23875.215,
+      "C": 26458.248,
+      "E": 22410.86
+    },
+    "proj_std": {
+      "A": 1144.408,
+      "B": 1755.96,
+      "C": 2982.59,
+      "E": 1944.866
+    },
+    "persistence_fraction": -0.165,
+    "auroc_A_vs_B": 1.0,
+    "auroc_A_vs_C": 1.0,
+    "auroc_A_vs_E": 1.0,
+    "battery": {
+      "raw": {
+        "auroc": 1.0,
+        "ci_lo": 1.0,
+        "ci_hi": 1.0,
+        "n": 54
+      },
+      "length_residualized": {
+        "auroc": 1.0,
+        "ci_lo": 1.0,
+        "ci_hi": 1.0,
+        "n": 54
+      },
+      "length_only": {
+        "auroc": 0.7676,
+        "ci_lo": 0.6342,
+        "ci_hi": 0.8838,
+        "n": 54
+      },
+      "null": {
+        "auroc": 0.4845,
+        "ci_lo": 0.2994,
+        "ci_hi": 0.6359,
+        "n": 54
+      },
+      "represented": true,
+      "length_inflation": 0.0,
+      "gate": "length_residualized.ci_lo (1.000) > max(floor 0.60, null.ci_hi 0.636) = 0.636",
+      "floor": 0.6
+    }
+  },
+  "genmean": {
+    "axis_represented": true,
+    "resid_ci_lo": 0.94,
+    "bow_auroc": 1.0,
+    "null_ci_hi": 0.607,
+    "proj_mean": {
+      "A": 1937.433,
+      "B": -7574.961,
+      "C": -8224.848,
+      "E": -8931.84
+    },
+    "proj_std": {
+      "A": 1901.323,
+      "B": 569.007,
+      "C": 495.258,
+      "E": 523.681
+    },
+    "persistence_fraction": 0.064,
+    "auroc_A_vs_B": 1.0,
+    "auroc_A_vs_C": 1.0,
+    "auroc_A_vs_E": 1.0,
+    "battery": {
+      "raw": {
+        "auroc": 1.0,
+        "ci_lo": 1.0,
+        "ci_hi": 1.0,
+        "n": 54
+      },
+      "length_residualized": {
+        "auroc": 0.9824,
+        "ci_lo": 0.9403,
+        "ci_hi": 1.0,
+        "n": 54
+      },
+      "length_only": {
+        "auroc": 0.7676,
+        "ci_lo": 0.6342,
+        "ci_hi": 0.8838,
+        "n": 54
+      },
+      "null": {
+        "auroc": 0.5008,
+        "ci_lo": 0.3235,
+        "ci_hi": 0.6068,
+        "n": 54
+      },
+      "represented": true,
+      "length_inflation": 0.0176,
+      "gate": "length_residualized.ci_lo (0.940) > max(floor 0.60, null.ci_hi 0.607) = 0.607",
+      "floor": 0.6
+    }
+  }
+}
