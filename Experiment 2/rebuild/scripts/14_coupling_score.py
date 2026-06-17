@@ -220,6 +220,7 @@ def run(model_key: str) -> int:
             ll_mass = float(probs.topk(20).values.sum())             # top-20 prob mass = concentration
             top_tokens = [tok.decode([int(i)]) for i in topk.indices.tolist()]
         v_t = torch.tensor(v, dtype=torch.bfloat16, device=dev)
+        base_cos = np.array([float((h0 @ v) / (np.linalg.norm(h0) + 1e-9)) for h0 in anchor_h0])
         sc = SCORERS[SCORER_KEY[c]]
         best_beh, best_dose, steered_scores = -1.0, None, None
         for dose in DOSES:
@@ -228,17 +229,29 @@ def run(model_key: str) -> int:
             st_sc = np.array([sc(explanation_text(g))[0] for g in st_gen])
             beh = float((st_sc == 2).mean())
             if beh > best_beh:
-                best_beh, best_dose, steered_scores = beh, dose, (st_gen, st_sc)
+                best_beh, best_dose, steered_scores = beh, dose, (st_gen, st_sc, betas)
         base_sc = np.array([sc(explanation_text(g))[0] for g in base_gen])
         behavioral = best_beh - float((base_sc == 2).mean())        # causal Δ in concept expression
+        st_gen_best, st_sc_best, betas_best = steered_scores
+        # bug-vs-real resolver (the thing the killed-box run could NOT tell us): did the steer actually MOVE
+        # the text? byte-identical greedy output ⇒ the dose was a no-op (β≈0 because the anchor already sits
+        # near the target cos — see mean_baseline_cos), so behavioral=0 says NOTHING about coupling. Text moved
+        # but behavioral=0 ⇒ a genuine non-causal direction (perturbs output, doesn't induce the concept).
+        frac_identical = float(np.mean([g.strip() == b.strip() for g, b in zip(st_gen_best, base_gen)]))
         rows.append(dict(concept=c, salience=round(sal, 4), logit_lens=round(ll_mass, 4),
                          behavioral=round(behavioral, 3), best_dose=best_dose,
                          steered_rate=round(best_beh, 3), baseline_rate=round(float((base_sc == 2).mean()), 3),
+                         frac_steered_identical=round(frac_identical, 3),
+                         median_abs_beta=round(float(np.median(np.abs(betas_best))), 2),
+                         mean_baseline_cos=round(float(base_cos.mean()), 3),
                          nla_read=NLA_READ[model_key][c], top_tokens=" ".join(top_tokens)))
         print(f"  {c:<22} sal={sal:.3f} ll={ll_mass:.3f} behavioral={behavioral:+.3f} "
-              f"(steer {best_beh:.2f}@{best_dose} vs base {float((base_sc==2).mean()):.2f})  NLA={NLA_READ[model_key][c]}")
-        for g, s in zip(steered_scores[0][:5], steered_scores[1][:5]):
-            examples.append(dict(concept=c, steered_score=int(s), steered_continuation=g))
+              f"(steer {best_beh:.2f}@{best_dose} vs base {float((base_sc==2).mean()):.2f})  "
+              f"identical={frac_identical:.2f} |β|~{np.median(np.abs(betas_best)):.1f} base_cos={base_cos.mean():+.2f}  NLA={NLA_READ[model_key][c]}")
+        for g, b, bt, s in zip(st_gen_best[:5], base_gen[:5], betas_best[:5], st_sc_best[:5]):
+            examples.append(dict(concept=c, steered_score=int(s), beta=round(float(bt), 2),
+                                 identical=bool(g.strip() == b.strip()),
+                                 baseline_continuation=b, steered_continuation=g))
 
     res = dict(model=model_key, hook_layer=HOOK_LAYER, doses=DOSES, n_anchors=len(anchors), rows=rows,
                analysis=analyze(rows))
