@@ -333,6 +333,23 @@ def bow_auroc(texts, y, groups=None, *, c_grid=DEFAULT_C_GRID, n_splits=N_SPLITS
                           n_boot=n_boot, alpha=alpha, seed=seed)
 
 
+def char_ngram_auroc(texts, y, groups=None, *, ngram_range=(2, 5), min_df=2,
+                     c_grid=DEFAULT_C_GRID, n_splits=N_SPLITS, n_boot=N_BOOT,
+                     alpha=ALPHA, seed=SEED) -> AUROC:
+    """A STRONGER, ORDER-aware lexical baseline than `bow_auroc`: character n-grams
+    within word boundaries (`char_wb`) catch sub-word and ordering giveaways an
+    unordered bag-of-words misses. Report `max(bow, char)` as the text baseline so a
+    concept that leaks through morphology/ordering (not just vocabulary) is still
+    flagged. Conservative (vocab fit on the full set); CPU; mirrors `bow_auroc` otherwise.
+    """
+    y = np.asarray(y).astype(int)
+    groups = np.arange(len(y)) if groups is None else np.asarray(groups)
+    X = CountVectorizer(analyzer="char_wb", ngram_range=ngram_range, min_df=min_df).fit_transform(
+        [str(t) for t in texts]).toarray().astype(float)
+    return _auroc_with_ci(X, y, groups, c_grid=c_grid, n_splits=n_splits,
+                          n_boot=n_boot, alpha=alpha, seed=seed)
+
+
 def gate_v2(raw: AUROC, resid: AUROC, null: AUROC, text_only: AUROC, n_groups: int,
             lexical_ok: bool, *, floor: float = REPRESENTED_FLOOR,
             min_groups: int = MIN_GROUPS) -> tuple[str, str]:
