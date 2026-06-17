@@ -2,3 +2,4 @@ cache
 __pycache__
 workspace
 .venv
+Experiment 2/rebuild/results/gate4/13_gap_decode__*.parquet

@@ -1,0 +1,37 @@
+{
+  "concept": "harmful_topic_benign",
+  "role": "control",
+  "expectation": "PASS",
+  "verdict": "PASS",
+  "n": 40,
+  "battery": {
+    "raw": {
+      "auroc": 1.0,
+      "ci_lo": 1.0,
+      "ci_hi": 1.0,
+      "n": 40
+    },
+    "length_residualized": {
+      "auroc": 0.9975,
+      "ci_lo": 0.985,
+      "ci_hi": 1.0,
+      "n": 40
+    },
+    "length_only": {
+      "auroc": 0.4012,
+      "ci_lo": 0.2913,
+      "ci_hi": 0.4925,
+      "n": 40
+    },
+    "null": {
+      "auroc": 0.5053,
+      "ci_lo": 0.2645,
+      "ci_hi": 0.7205,
+      "n": 40
+    },
+    "represented": true,
+    "length_inflation": 0.0025,
+    "gate": "length_residualized.ci_lo (0.985) > max(floor 0.60, null.ci_hi 0.721) = 0.721",
+    "floor": 0.6
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "concept": "refusal",
+  "role": "anchor",
+  "expectation": "PASS",
+  "verdict": "PASS",
+  "n": 231,
+  "battery": {
+    "raw": {
+      "auroc": 0.9998,
+      "ci_lo": 0.9993,
+      "ci_hi": 1.0,
+      "n": 231
+    },
+    "length_residualized": {
+      "auroc": 0.999,
+      "ci_lo": 0.9964,
+      "ci_hi": 1.0,
+      "n": 231
+    },
+    "length_only": {
+      "auroc": 0.5657,
+      "ci_lo": 0.4857,
+      "ci_hi": 0.6413,
+      "n": 231
+    },
+    "null": {
+      "auroc": 0.506,
+      "ci_lo": 0.4431,
+      "ci_hi": 0.5794,
+      "n": 231
+    },
+    "represented": true,
+    "length_inflation": 0.0008,
+    "gate": "length_residualized.ci_lo (0.996) > max(floor 0.60, null.ci_hi 0.579) = 0.600",
+    "floor": 0.6
+  }
+}

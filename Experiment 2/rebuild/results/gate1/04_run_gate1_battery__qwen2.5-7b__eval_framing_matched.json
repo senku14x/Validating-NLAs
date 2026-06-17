@@ -1,0 +1,37 @@
+{
+  "concept": "eval_framing_matched",
+  "role": "core",
+  "expectation": "WEAK",
+  "verdict": "PASS",
+  "n": 100,
+  "battery": {
+    "raw": {
+      "auroc": 0.9996,
+      "ci_lo": 0.9976,
+      "ci_hi": 1.0,
+      "n": 100
+    },
+    "length_residualized": {
+      "auroc": 0.9996,
+      "ci_lo": 0.9976,
+      "ci_hi": 1.0,
+      "n": 100
+    },
+    "length_only": {
+      "auroc": 0.5,
+      "ci_lo": 0.5,
+      "ci_hi": 0.5,
+      "n": 100
+    },
+    "null": {
+      "auroc": 0.5255,
+      "ci_lo": 0.4246,
+      "ci_hi": 0.6316,
+      "n": 100
+    },
+    "represented": true,
+    "length_inflation": 0.0,
+    "gate": "length_residualized.ci_lo (0.998) > max(floor 0.60, null.ci_hi 0.632) = 0.632",
+    "floor": 0.6
+  }
+}

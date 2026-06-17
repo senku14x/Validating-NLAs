@@ -1,0 +1,37 @@
+{
+  "concept": "sycophancy",
+  "role": "candidate",
+  "expectation": "WEAK",
+  "verdict": "PASS",
+  "n": 240,
+  "battery": {
+    "raw": {
+      "auroc": 0.9877,
+      "ci_lo": 0.9716,
+      "ci_hi": 0.9975,
+      "n": 240
+    },
+    "length_residualized": {
+      "auroc": 0.9863,
+      "ci_lo": 0.969,
+      "ci_hi": 0.9973,
+      "n": 240
+    },
+    "length_only": {
+      "auroc": 0.5,
+      "ci_lo": 0.5,
+      "ci_hi": 0.5,
+      "n": 240
+    },
+    "null": {
+      "auroc": 0.5056,
+      "ci_lo": 0.4263,
+      "ci_hi": 0.5973,
+      "n": 240
+    },
+    "represented": true,
+    "length_inflation": 0.0014,
+    "gate": "length_residualized.ci_lo (0.969) > max(floor 0.60, null.ci_hi 0.597) = 0.600",
+    "floor": 0.6
+  }
+}

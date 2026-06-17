@@ -1,0 +1,351 @@
+{
+  "anchor": {
+    "n_present": 0,
+    "n_absent": 0,
+    "design": "two_pool",
+    "role": "injection_target",
+    "n_target": 0
+  },
+  "bullet_list": {
+    "n_present": 12,
+    "n_absent": 12,
+    "design": "paired",
+    "role": "sanity",
+    "n_target": 30,
+    "length_balance": {
+      "present_mean": 28.17,
+      "absent_mean": 43.17,
+      "abs_gap": 15.0,
+      "pct_gap": 34.75,
+      "max_pct_gap": 25.0,
+      "ok": false
+    },
+    "lexical_leak": {
+      "n_leaks": 3,
+      "ok": false
+    }
+  },
+  "code_block": {
+    "n_present": 12,
+    "n_absent": 12,
+    "design": "paired",
+    "role": "sanity",
+    "n_target": 30,
+    "length_balance": {
+      "present_mean": 32.83,
+      "absent_mean": 43.67,
+      "abs_gap": 10.83,
+      "pct_gap": 24.81,
+      "max_pct_gap": 25.0,
+      "ok": true
+    },
+    "lexical_leak": {
+      "n_leaks": 3,
+      "ok": false
+    }
+  },
+  "correction_acceptance": {
+    "n_present": 12,
+    "n_absent": 12,
+    "design": "paired",
+    "role": "exploratory",
+    "n_target": 25,
+    "length_balance": {
+      "present_mean": 96.92,
+      "absent_mean": 97.42,
+      "abs_gap": 0.5,
+      "pct_gap": 0.51,
+      "max_pct_gap": 25.0,
+      "ok": true
+    },
+    "lexical_leak": {
+      "n_leaks": 2,
+      "ok": false
+    }
+  },
+  "corrigibility": {
+    "n_present": 120,
+    "n_absent": 120,
+    "design": "paired",
+    "role": "candidate",
+    "n_target": 120,
+    "length_balance": {
+      "present_mean": 205.55,
+      "absent_mean": 205.55,
+      "abs_gap": 0.0,
+      "pct_gap": 0.0,
+      "max_pct_gap": 25.0,
+      "ok": true
+    },
+    "lexical_leak": {
+      "n_leaks": 0,
+      "ok": true
+    }
+  },
+  "eval_framing_clear": {
+    "n_present": 50,
+    "n_absent": 50,
+    "design": "paired",
+    "role": "control",
+    "n_target": 100,
+    "length_balance": {
+      "present_mean": 136.84,
+      "absent_mean": 131.84,
+      "abs_gap": 5.0,
+      "pct_gap": 3.65,
+      "max_pct_gap": 25.0,
+      "ok": true
+    },
+    "lexical_leak": {
+      "n_leaks": 11,
+      "ok": false
+    }
+  },
+  "eval_framing_matched": {
+    "n_present": 50,
+    "n_absent": 50,
+    "design": "paired",
+    "role": "core",
+    "n_target": 100,
+    "length_balance": {
+      "present_mean": 128.84,
+      "absent_mean": 128.84,
+      "abs_gap": 0.0,
+      "pct_gap": 0.0,
+      "max_pct_gap": 25.0,
+      "ok": true
+    },
+    "lexical_leak": {
+      "n_leaks": 13,
+      "ok": false
+    }
+  },
+  "harmful_topic_benign": {
+    "n_present": 20,
+    "n_absent": 20,
+    "design": "paired",
+    "role": "control",
+    "n_target": 90,
+    "length_balance": {
+      "present_mean": 73.65,
+      "absent_mean": 73.35,
+      "abs_gap": 0.3,
+      "pct_gap": 0.41,
+      "max_pct_gap": 25.0,
+      "ok": true
+    },
+    "lexical_leak": {
+      "n_leaks": 0,
+      "ok": true
+    }
+  },
+  "json_format": {
+    "n_present": 12,
+    "n_absent": 12,
+    "design": "paired",
+    "role": "sanity",
+    "n_target": 30,
+    "length_balance": {
+      "present_mean": 40.67,
+      "absent_mean": 29.0,
+      "abs_gap": 11.67,
+      "pct_gap": 28.69,
+      "max_pct_gap": 25.0,
+      "ok": false
+    },
+    "lexical_leak": {
+      "n_leaks": 2,
+      "ok": false
+    }
+  },
+  "language_switch": {
+    "n_present": 12,
+    "n_absent": 12,
+    "design": "paired",
+    "role": "sanity",
+    "n_target": 30,
+    "length_balance": {
+      "present_mean": 34.58,
+      "absent_mean": 35.92,
+      "abs_gap": 1.33,
+      "pct_gap": 3.71,
+      "max_pct_gap": 25.0,
+      "ok": true
+    },
+    "lexical_leak": {
+      "n_leaks": 6,
+      "ok": false
+    }
+  },
+  "neg_sentiment": {
+    "n_present": 25,
+    "n_absent": 25,
+    "design": "paired",
+    "role": "candidate",
+    "n_target": 90,
+    "length_balance": {
+      "present_mean": 60.88,
+      "absent_mean": 61.52,
+      "abs_gap": 0.64,
+      "pct_gap": 1.04,
+      "max_pct_gap": 25.0,
+      "ok": true
+    },
+    "lexical_leak": {
+      "n_leaks": 0,
+      "ok": true
+    }
+  },
+  "politeness": {
+    "n_present": 16,
+    "n_absent": 16,
+    "design": "paired",
+    "role": "control",
+    "n_target": 90,
+    "length_balance": {
+      "present_mean": 90.0,
+      "absent_mean": 88.38,
+      "abs_gap": 1.62,
+      "pct_gap": 1.81,
+      "max_pct_gap": 25.0,
+      "ok": true
+    },
+    "lexical_leak": {
+      "n_leaks": 4,
+      "ok": false
+    }
+  },
+  "refusal": {
+    "n_present": 120,
+    "n_absent": 120,
+    "design": "two_pool",
+    "role": "anchor",
+    "n_target": 120,
+    "length_balance": {
+      "present_mean": 72.28,
+      "absent_mean": 59.62,
+      "abs_gap": 12.65,
+      "pct_gap": 17.5,
+      "max_pct_gap": 25.0,
+      "ok": true
+    },
+    "lexical_leak": {
+      "n_leaks": 1,
+      "ok": false
+    }
+  },
+  "safe_completion": {
+    "n_present": 12,
+    "n_absent": 12,
+    "design": "paired",
+    "role": "control",
+    "n_target": 90,
+    "length_balance": {
+      "present_mean": 97.42,
+      "absent_mean": 96.92,
+      "abs_gap": 0.5,
+      "pct_gap": 0.51,
+      "max_pct_gap": 25.0,
+      "ok": true
+    },
+    "lexical_leak": {
+      "n_leaks": 6,
+      "ok": false
+    }
+  },
+  "sandbagging": {
+    "n_present": 12,
+    "n_absent": 12,
+    "design": "paired",
+    "role": "exploratory",
+    "n_target": 25,
+    "length_balance": {
+      "present_mean": 100.75,
+      "absent_mean": 100.5,
+      "abs_gap": 0.25,
+      "pct_gap": 0.25,
+      "max_pct_gap": 25.0,
+      "ok": true
+    },
+    "lexical_leak": {
+      "n_leaks": 4,
+      "ok": false
+    }
+  },
+  "style_emoji": {
+    "n_present": 25,
+    "n_absent": 25,
+    "design": "paired",
+    "role": "sanity",
+    "n_target": 30,
+    "length_balance": {
+      "present_mean": 27.04,
+      "absent_mean": 21.84,
+      "abs_gap": 5.2,
+      "pct_gap": 19.23,
+      "max_pct_gap": 25.0,
+      "ok": true
+    },
+    "lexical_leak": {
+      "n_leaks": 0,
+      "ok": true
+    }
+  },
+  "sycophancy": {
+    "n_present": 120,
+    "n_absent": 120,
+    "design": "paired",
+    "role": "candidate",
+    "n_target": 120,
+    "length_balance": {
+      "present_mean": 746.33,
+      "absent_mean": 746.33,
+      "abs_gap": 0.0,
+      "pct_gap": 0.0,
+      "max_pct_gap": 25.0,
+      "ok": true
+    },
+    "lexical_leak": {
+      "n_leaks": 0,
+      "ok": true
+    }
+  },
+  "truth_value": {
+    "n_present": 120,
+    "n_absent": 120,
+    "design": "two_pool",
+    "role": "candidate",
+    "n_target": 120,
+    "length_balance": {
+      "present_mean": 34.64,
+      "absent_mean": 35.11,
+      "abs_gap": 0.47,
+      "pct_gap": 1.33,
+      "max_pct_gap": 25.0,
+      "ok": true
+    },
+    "lexical_leak": {
+      "n_leaks": 0,
+      "ok": true
+    }
+  },
+  "uncertainty": {
+    "n_present": 25,
+    "n_absent": 25,
+    "design": "paired",
+    "role": "candidate",
+    "n_target": 90,
+    "length_balance": {
+      "present_mean": 133.04,
+      "absent_mean": 139.44,
+      "abs_gap": 6.4,
+      "pct_gap": 4.59,
+      "max_pct_gap": 25.0,
+      "ok": true
+    },
+    "lexical_leak": {
+      "n_leaks": 8,
+      "ok": false
+    }
+  }
+}

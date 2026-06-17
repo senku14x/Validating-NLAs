@@ -1,0 +1,19 @@
+{
+  "concept": "politeness",
+  "role": "control",
+  "expectation": "WEAK",
+  "v1_verdict": "WEAK",
+  "v2_verdict": "WEAK",
+  "why": "length-explained: resid.ci_lo 0.586 <= bar 0.679",
+  "resid_ci_lo": 0.5858,
+  "text_bow_auroc": 1.0,
+  "text_bow_ci_hi": 1.0,
+  "n_groups": 16,
+  "lexical_ok": false,
+  "text_only": {
+    "auroc": 1.0,
+    "ci_lo": 1.0,
+    "ci_hi": 1.0,
+    "n": 32
+  }
+}

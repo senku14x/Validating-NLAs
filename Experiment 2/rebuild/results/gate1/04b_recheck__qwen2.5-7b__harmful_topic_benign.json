@@ -1,0 +1,19 @@
+{
+  "concept": "harmful_topic_benign",
+  "role": "control",
+  "expectation": "PASS",
+  "v1_verdict": "PASS",
+  "v2_verdict": "PASS",
+  "why": "resid.ci_lo 1.000 > bar 0.717; beats text 0.752; 20 groups",
+  "resid_ci_lo": 1.0,
+  "text_bow_auroc": 0.6325,
+  "text_bow_ci_hi": 0.7525,
+  "n_groups": 20,
+  "lexical_ok": true,
+  "text_only": {
+    "auroc": 0.6325,
+    "ci_lo": 0.5388,
+    "ci_hi": 0.7525,
+    "n": 40
+  }
+}

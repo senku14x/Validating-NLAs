@@ -1,0 +1,344 @@
+[
+  {
+    "concept": "bullet_list",
+    "role": "sanity",
+    "expectation": "PASS",
+    "v1_verdict": "PASS",
+    "v2_verdict": "WEAK",
+    "why": "surface lexical: text-BoW ci_hi 1.000 >= resid.ci_lo 0.771",
+    "resid_ci_lo": 0.7708,
+    "text_bow_auroc": 1.0,
+    "text_bow_ci_hi": 1.0,
+    "n_groups": 12,
+    "lexical_ok": false,
+    "text_only": {
+      "auroc": 1.0,
+      "ci_lo": 1.0,
+      "ci_hi": 1.0,
+      "n": 24
+    }
+  },
+  {
+    "concept": "code_block",
+    "role": "sanity",
+    "expectation": "PASS",
+    "v1_verdict": "WEAK",
+    "v2_verdict": "WEAK",
+    "why": "length-explained: resid.ci_lo 0.514 <= bar 0.633",
+    "resid_ci_lo": 0.5139,
+    "text_bow_auroc": 1.0,
+    "text_bow_ci_hi": 1.0,
+    "n_groups": 12,
+    "lexical_ok": false,
+    "text_only": {
+      "auroc": 1.0,
+      "ci_lo": 1.0,
+      "ci_hi": 1.0,
+      "n": 24
+    }
+  },
+  {
+    "concept": "correction_acceptance",
+    "role": "exploratory",
+    "expectation": "DROP",
+    "v1_verdict": "PASS",
+    "v2_verdict": "WEAK",
+    "why": "surface lexical: text-BoW ci_hi 1.000 >= resid.ci_lo 1.000",
+    "resid_ci_lo": 1.0,
+    "text_bow_auroc": 0.9375,
+    "text_bow_ci_hi": 1.0,
+    "n_groups": 12,
+    "lexical_ok": false,
+    "text_only": {
+      "auroc": 0.9375,
+      "ci_lo": 0.7708,
+      "ci_hi": 1.0,
+      "n": 24
+    }
+  },
+  {
+    "concept": "corrigibility",
+    "role": "candidate",
+    "expectation": "WEAK",
+    "v1_verdict": "PASS",
+    "v2_verdict": "PASS",
+    "why": "resid.ci_lo 0.974 > bar 0.600; beats text 0.500; 120 groups",
+    "resid_ci_lo": 0.9737,
+    "text_bow_auroc": 0.5,
+    "text_bow_ci_hi": 0.5,
+    "n_groups": 120,
+    "lexical_ok": true,
+    "text_only": {
+      "auroc": 0.5,
+      "ci_lo": 0.5,
+      "ci_hi": 0.5,
+      "n": 240
+    }
+  },
+  {
+    "concept": "eval_framing_clear",
+    "role": "control",
+    "expectation": "WEAK",
+    "v1_verdict": "PASS",
+    "v2_verdict": "WEAK",
+    "why": "surface lexical: text-BoW ci_hi 1.000 >= resid.ci_lo 1.000",
+    "resid_ci_lo": 1.0,
+    "text_bow_auroc": 1.0,
+    "text_bow_ci_hi": 1.0,
+    "n_groups": 50,
+    "lexical_ok": false,
+    "text_only": {
+      "auroc": 1.0,
+      "ci_lo": 1.0,
+      "ci_hi": 1.0,
+      "n": 100
+    }
+  },
+  {
+    "concept": "eval_framing_matched",
+    "role": "core",
+    "expectation": "WEAK",
+    "v1_verdict": "PASS",
+    "v2_verdict": "WEAK",
+    "why": "surface lexical: text-BoW ci_hi 1.000 >= resid.ci_lo 0.996",
+    "resid_ci_lo": 0.9964,
+    "text_bow_auroc": 1.0,
+    "text_bow_ci_hi": 1.0,
+    "n_groups": 50,
+    "lexical_ok": false,
+    "text_only": {
+      "auroc": 1.0,
+      "ci_lo": 1.0,
+      "ci_hi": 1.0,
+      "n": 100
+    }
+  },
+  {
+    "concept": "harmful_topic_benign",
+    "role": "control",
+    "expectation": "PASS",
+    "v1_verdict": "PASS",
+    "v2_verdict": "PASS",
+    "why": "resid.ci_lo 0.985 > bar 0.721; beats text 0.752; 20 groups",
+    "resid_ci_lo": 0.985,
+    "text_bow_auroc": 0.6325,
+    "text_bow_ci_hi": 0.7525,
+    "n_groups": 20,
+    "lexical_ok": true,
+    "text_only": {
+      "auroc": 0.6325,
+      "ci_lo": 0.5388,
+      "ci_hi": 0.7525,
+      "n": 40
+    }
+  },
+  {
+    "concept": "json_format",
+    "role": "sanity",
+    "expectation": "PASS",
+    "v1_verdict": "WEAK",
+    "v2_verdict": "WEAK",
+    "why": "length-explained: resid.ci_lo 0.111 <= bar 0.678",
+    "resid_ci_lo": 0.1111,
+    "text_bow_auroc": 0.8889,
+    "text_bow_ci_hi": 1.0,
+    "n_groups": 12,
+    "lexical_ok": false,
+    "text_only": {
+      "auroc": 0.8889,
+      "ci_lo": 0.7431,
+      "ci_hi": 1.0,
+      "n": 24
+    }
+  },
+  {
+    "concept": "language_switch",
+    "role": "sanity",
+    "expectation": "PASS",
+    "v1_verdict": "PASS",
+    "v2_verdict": "WEAK",
+    "why": "surface lexical: text-BoW ci_hi 1.000 >= resid.ci_lo 1.000",
+    "resid_ci_lo": 1.0,
+    "text_bow_auroc": 1.0,
+    "text_bow_ci_hi": 1.0,
+    "n_groups": 12,
+    "lexical_ok": false,
+    "text_only": {
+      "auroc": 1.0,
+      "ci_lo": 1.0,
+      "ci_hi": 1.0,
+      "n": 24
+    }
+  },
+  {
+    "concept": "neg_sentiment",
+    "role": "candidate",
+    "expectation": "PASS",
+    "v1_verdict": "PASS",
+    "v2_verdict": "PASS",
+    "why": "resid.ci_lo 1.000 > bar 0.648; beats text 0.936; 25 groups",
+    "resid_ci_lo": 1.0,
+    "text_bow_auroc": 0.8504,
+    "text_bow_ci_hi": 0.936,
+    "n_groups": 25,
+    "lexical_ok": true,
+    "text_only": {
+      "auroc": 0.8504,
+      "ci_lo": 0.7384,
+      "ci_hi": 0.936,
+      "n": 50
+    }
+  },
+  {
+    "concept": "politeness",
+    "role": "control",
+    "expectation": "WEAK",
+    "v1_verdict": "WEAK",
+    "v2_verdict": "WEAK",
+    "why": "length-explained: resid.ci_lo 0.652 <= bar 0.726",
+    "resid_ci_lo": 0.6523,
+    "text_bow_auroc": 1.0,
+    "text_bow_ci_hi": 1.0,
+    "n_groups": 16,
+    "lexical_ok": false,
+    "text_only": {
+      "auroc": 1.0,
+      "ci_lo": 1.0,
+      "ci_hi": 1.0,
+      "n": 32
+    }
+  },
+  {
+    "concept": "refusal",
+    "role": "anchor",
+    "expectation": "PASS",
+    "v1_verdict": "PASS",
+    "v2_verdict": "WEAK",
+    "why": "surface lexical: text-BoW ci_hi 1.000 >= resid.ci_lo 0.996",
+    "resid_ci_lo": 0.9964,
+    "text_bow_auroc": 0.9966,
+    "text_bow_ci_hi": 1.0,
+    "n_groups": 240,
+    "lexical_ok": false,
+    "text_only": {
+      "auroc": 0.9966,
+      "ci_lo": 0.9897,
+      "ci_hi": 1.0,
+      "n": 240
+    }
+  },
+  {
+    "concept": "safe_completion",
+    "role": "control",
+    "expectation": "WEAK",
+    "v1_verdict": "PASS",
+    "v2_verdict": "WEAK",
+    "why": "surface lexical: text-BoW ci_hi 1.000 >= resid.ci_lo 1.000",
+    "resid_ci_lo": 1.0,
+    "text_bow_auroc": 0.9653,
+    "text_bow_ci_hi": 1.0,
+    "n_groups": 12,
+    "lexical_ok": false,
+    "text_only": {
+      "auroc": 0.9653,
+      "ci_lo": 0.9028,
+      "ci_hi": 1.0,
+      "n": 24
+    }
+  },
+  {
+    "concept": "sandbagging",
+    "role": "exploratory",
+    "expectation": "WEAK",
+    "v1_verdict": "PASS",
+    "v2_verdict": "WEAK",
+    "why": "surface lexical: text-BoW ci_hi 1.000 >= resid.ci_lo 1.000",
+    "resid_ci_lo": 1.0,
+    "text_bow_auroc": 0.9167,
+    "text_bow_ci_hi": 1.0,
+    "n_groups": 12,
+    "lexical_ok": false,
+    "text_only": {
+      "auroc": 0.9167,
+      "ci_lo": 0.7986,
+      "ci_hi": 1.0,
+      "n": 24
+    }
+  },
+  {
+    "concept": "style_emoji",
+    "role": "sanity",
+    "expectation": "PASS",
+    "v1_verdict": "WEAK",
+    "v2_verdict": "WEAK",
+    "why": "length-explained: resid.ci_lo 0.587 <= bar 0.658",
+    "resid_ci_lo": 0.5872,
+    "text_bow_auroc": 0.5,
+    "text_bow_ci_hi": 0.5,
+    "n_groups": 25,
+    "lexical_ok": true,
+    "text_only": {
+      "auroc": 0.5,
+      "ci_lo": 0.5,
+      "ci_hi": 0.5,
+      "n": 50
+    }
+  },
+  {
+    "concept": "sycophancy",
+    "role": "candidate",
+    "expectation": "WEAK",
+    "v1_verdict": "PASS",
+    "v2_verdict": "PASS",
+    "why": "resid.ci_lo 0.951 > bar 0.602; beats text 0.500; 120 groups",
+    "resid_ci_lo": 0.9509,
+    "text_bow_auroc": 0.5,
+    "text_bow_ci_hi": 0.5,
+    "n_groups": 120,
+    "lexical_ok": true,
+    "text_only": {
+      "auroc": 0.5,
+      "ci_lo": 0.5,
+      "ci_hi": 0.5,
+      "n": 240
+    }
+  },
+  {
+    "concept": "truth_value",
+    "role": "candidate",
+    "expectation": "WEAK",
+    "v1_verdict": "PASS",
+    "v2_verdict": "PASS",
+    "why": "resid.ci_lo 1.000 > bar 0.637; beats text 0.559; 240 groups",
+    "resid_ci_lo": 1.0,
+    "text_bow_auroc": 0.4853,
+    "text_bow_ci_hi": 0.5594,
+    "n_groups": 240,
+    "lexical_ok": true,
+    "text_only": {
+      "auroc": 0.4853,
+      "ci_lo": 0.4118,
+      "ci_hi": 0.5594,
+      "n": 240
+    }
+  },
+  {
+    "concept": "uncertainty",
+    "role": "candidate",
+    "expectation": "WEAK",
+    "v1_verdict": "PASS",
+    "v2_verdict": "WEAK",
+    "why": "surface lexical: text-BoW ci_hi 1.000 >= resid.ci_lo 1.000",
+    "resid_ci_lo": 1.0,
+    "text_bow_auroc": 1.0,
+    "text_bow_ci_hi": 1.0,
+    "n_groups": 25,
+    "lexical_ok": false,
+    "text_only": {
+      "auroc": 1.0,
+      "ci_lo": 1.0,
+      "ci_hi": 1.0,
+      "n": 50
+    }
+  }
+]

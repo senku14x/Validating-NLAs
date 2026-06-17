@@ -1,0 +1,8 @@
+,refusal,sycophancy,corrigibility,truth_value,neg_sentiment,harmful_topic_benign,eval_awareness,medical_advice
+refusal,0.6,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+truth_value,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+sycophancy,0.0,0.311,0.0,0.233,0.0,0.0,0.0,0.0
+corrigibility,0.0,0.0,0.011,0.0,0.0,0.0,0.0,0.0
+neg_sentiment,0.0,0.0,0.0,0.0,0.6,0.0,0.0,0.0
+harmful_topic_benign,0.0,0.0,0.0,0.0,0.011,0.0,0.0,0.0
+eval_framing_matched,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0

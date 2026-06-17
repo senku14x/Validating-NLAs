@@ -1,0 +1,23 @@
+# Experiment 2 rebuild — dependencies.
+#
+# CPU dev box (here): the battery, audits, naming, concept building, Gate-1 analysis.
+#   uv venv .venv --python 3.11
+#   uv pip install --python .venv/bin/python -r requirements.txt
+numpy
+scikit-learn
+scipy
+pandas
+pyarrow
+pyyaml
+requests
+
+# GPU box only (01 verify, 03 extract) — install ON the Vast.ai box, where CUDA torch
+# matches the driver. Not needed for the CPU stages above.
+#   torch            (CUDA build matching the box)
+#   transformers
+#   accelerate
+#   tqdm
+#   huggingface_hub  (gated Gemma access; set HF_TOKEN)
+#
+# NLA AV decode (Gate 2, later): sglang + the vendored nla_inference.py deps
+# (see docs/references/nla-infrastructure.md before launching the SGLang server).

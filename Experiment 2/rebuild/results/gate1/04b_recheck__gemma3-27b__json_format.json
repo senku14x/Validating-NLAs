@@ -1,0 +1,19 @@
+{
+  "concept": "json_format",
+  "role": "sanity",
+  "expectation": "PASS",
+  "v1_verdict": "WEAK",
+  "v2_verdict": "WEAK",
+  "why": "length-explained: resid.ci_lo 0.111 <= bar 0.678",
+  "resid_ci_lo": 0.1111,
+  "text_bow_auroc": 0.8889,
+  "text_bow_ci_hi": 1.0,
+  "n_groups": 12,
+  "lexical_ok": false,
+  "text_only": {
+    "auroc": 0.8889,
+    "ci_lo": 0.7431,
+    "ci_hi": 1.0,
+    "n": 24
+  }
+}
