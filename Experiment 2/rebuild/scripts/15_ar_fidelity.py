@@ -61,6 +61,7 @@ def _chance_cos(H: np.ndarray, n_pairs: int = 2000, seed: int = 0) -> float:
 def run(model_key: str) -> int:
     import httpx, torch
 
+    av_key = "gemma" if model_key.startswith("gemma") else "qwen"   # nla_box.MODELS key — the slug ('qwen2.5-7b') is NOT the key ('qwen')
     nla_repo = os.environ.get("NLA_REPO_DIR", "/workspace/nla_repo")
     if not pathlib.Path(nla_repo, "nla_inference.py").exists():
         sys.exit(f"FAIL: nla_inference.py not under NLA_REPO_DIR={nla_repo!r} — run av_up.sh.")
@@ -71,7 +72,7 @@ def run(model_key: str) -> int:
     try:
         assert httpx.get(url + "/health", timeout=5).status_code == 200
     except Exception:
-        sys.exit(f"SGLang AV not reachable at {url} — run: bash scripts/av_up.sh {model_key.split('-')[0]}")
+        sys.exit(f"SGLang AV not reachable at {url} — run: bash scripts/av_up.sh {av_key}")
 
     # sample real activations from the 03 cache
     H = []
@@ -87,7 +88,7 @@ def run(model_key: str) -> int:
     H = np.stack(H)
     print(f"{len(H)} real activations sampled (d={H.shape[1]})")
 
-    av = NLAClient(nla_box.resolve_av(model_key.split("-")[0], full=True), sglang_url=url, device="cpu")
+    av = NLAClient(nla_box.resolve_av(av_key, full=True), sglang_url=url, device="cpu")
     critic = NLACritic(_resolve_ar(model_key), device="cuda:0")
     print("NLACritic API:", [a for a in dir(critic) if not a.startswith("_")])
 
