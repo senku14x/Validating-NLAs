@@ -7,15 +7,21 @@ The spec is the source of truth: `docs/specs/exp2_spec.md`. This README is the r
 
 > **Box note (transient):** GPU work runs on a rented Vast box; `cache/` (gitignored — `03` activations,
 > `05` injected vectors, AV weights ~101 GB) does **not** survive teardown. All Gate-2/3 **results are in
-> git**; the caches may not be present on a fresh box. **On a new box:** `export HF_TOKEN /
+> git**; the caches may not be present on a fresh box. **On a new box:** clone +
+> `git checkout claude/stoic-lovelace-aa5anl`; `pip install -r requirements.txt && pip install
+> "transformers==4.57.1" accelerate tqdm openai huggingface_hub`; `export HF_TOKEN /
 > NLA_REPO_DIR=/workspace/nla_repo / OPENROUTER_API_KEY` (judge defaults to OpenRouter
-> `openai/gpt-5.4-mini`; `OPENAI_API_KEY` still works) → if caches absent, re-run `03` extraction (both
-> models) → `bash scripts/av_up.sh <gemma|qwen>` → continue. See `SGLANG.md` for the AV fire-up recipe.
+> `openai/gpt-5.4-mini`; `OPENAI_API_KEY` still works); `python scripts/01_verify_env.py --model gemma`
+> to verify the env, then **`bash scripts/run_box.sh`** — the one-command pipeline that wraps `av_up.sh`
+> and runs the external-review priority order (**#1** AR fidelity `15_ar_fidelity.py` → **#2** re-run Stage 12
+> (`11`→`11c`→`12`) → **#3** coupling+salience de-risk `14_coupling_score.py`). See `SGLANG.md` for the AV recipe.
 
 **Where we are:** Gate 1 (cross-model) ✅ · Gate 2 offline injection ✅ + analyzed (**both models**) ·
 Gate 3 real-activation ✅ decoded + **judge-confirmed** (OpenRouter `gpt-5.4-mini`, 0% err) (**both
 models**) · **AV instrument validated** (controlled ground-truth checks) · cross-model comparison done ·
-the gap (RQ3) not yet started.
+**Gate-4 Track B (RQ3) DONE — null gap** (`gap_recovery≈0`, both models; `results/gate4/FINDINGS.md`). **Next:**
+the coupling/salience de-risk (`run_box.sh`, scripts `14`/`15`) — break the output-coupling-vs-salience confound
+(external review) before the organism (Exp 4).
 
 ### The headline finding (Gate 2 + Gate 3, both models) — full record in `results/gate2/FINDINGS.md`
 **NLA detection tracks *output-coupling*, not decodability.** The AV reads an activation's *predicted
