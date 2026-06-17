@@ -20,7 +20,7 @@ cd "$(git rev-parse --show-toplevel)/Experiment 2/rebuild"
 : "${HF_TOKEN:?export HF_TOKEN (gated Gemma + AV/AR repos)}"
 : "${OPENROUTER_API_KEY:?export OPENROUTER_API_KEY (judge for stage #2 — or comment out the #2 block)}"
 export NLA_REPO_DIR="${NLA_REPO_DIR:-/workspace/nla_repo}"
-MODELS=(qwen gemma)            # qwen first (lighter)
+MODELS=(${BOX_MODELS:-qwen gemma})   # override: export BOX_MODELS="qwen" for a cheaper qwen-only pass
 say(){ echo -e "\n========== $* =========="; }
 
 # ---- Stage 0: 03 extraction (PREREQUISITE for #1 AR fidelity AND #3 coupling) ----
