@@ -1,4 +1,4 @@
-# Experiment 2 — Verbalization-Gap Validation of Open-Model NLAs
+# Experiment_2 — Verbalization-Gap Validation of Open-Model NLAs
 
 **Models:** Gemma-3-27B (`kitft/nla-gemma3-27b-L41-av`, block 41 = `hidden_states[42]`, d = 5376) and
 Qwen-2.5-7B (block 20, d = 3584), each with its released NLA.

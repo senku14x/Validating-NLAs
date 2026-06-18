@@ -1,4 +1,4 @@
-# Experiment 1 — Result (clean transcription)
+# Experiment_1 — Result (clean transcription)
 
 > Greppable companion to `experiment_1_result.pdf`. Numbers transcribed from the PDF;
 > if they ever disagree, the PDF is canonical. Status in the project plan: **Complete**

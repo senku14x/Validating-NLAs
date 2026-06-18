@@ -2,7 +2,7 @@
 
 Authoritative interface reference: `kitft/natural_language_autoencoders` (training/interface)
 and `kitft/nla-inference` (the inference code we vendor). The vendored `nla_inference.py` in
-`Experiment 1/qwen-2_5-7b/nla-inference/` is byte-identical to upstream `nla-inference@main`.
+`Experiment_1/qwen-2_5-7b/nla-inference/` is byte-identical to upstream `nla-inference@main`.
 
 ## AV vs AR — the distinction people keep getting wrong
 

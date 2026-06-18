@@ -1,4 +1,4 @@
-# Experiment 1 — Can the Gemma-3-27B NLA detect an independently injected refusal direction?
+# Experiment_1 — Can the Gemma-3-27B NLA detect an independently injected refusal direction?
 
 **Project:** NLA Validation (Level 1 rung).
 **Status:** spec v1. Supersedes the v0 draft. Changes from v0 are listed in §0.

@@ -1,4 +1,4 @@
-# NLA Validation (Experiment 2) — Status Summary
+# NLA Validation (Experiment_2) — Status Summary
 
 A short, fact-checked status for sharing. Terms: **NLA** = Natural Language Autoencoder; **AV** =
 its Activation Verbalizer (residual-stream activation -> English description); **probe** = a linear
@@ -49,7 +49,7 @@ yet run.
    "The decodes sound right" is cheap; this shows the output tracks the **known** input.
 
 2. **Detection-validity and specificity for refusal pass, cross-model, on real activations**
-   (Gemma 0.92, Qwen 1.00; absent and neutral-anchor both 0). Independently replicates Experiment 1.
+   (Gemma 0.92, Qwen 1.00; absent and neutral-anchor both 0). Independently replicates Experiment_1.
 
 3. **Main scientific finding: the AV reads *output-coupling*, not *decodability*.** Concepts coupled to
    what the model is about to *say* are verbalized (refusal; negative sentiment; "this statement is
