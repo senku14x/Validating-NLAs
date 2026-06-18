@@ -210,6 +210,18 @@ validation.
   injected/steered vectors; the soft-judge human pilot. None overturn a verdict; they cap soft-number strength.
 - Persona-evil is **n=45, one concept, one model, one coef**; "topic-gated" is an eyeball interpretation.
 - **Everything here is RQ1/RQ2/RQ3/RQ5 on released NLAs.** RQ4 is untested.
+- **Released ≠ frontier — the load-bearing scope caveat.** All of this is the *released open-model* NLAs
+  (Gemma-3-27B, Qwen-2.5-7B). The paper's headline results — surfacing *unverbalized eval-awareness* on **Claude
+  Opus 4.6**, the blackmail-test recognition — were on **frontier** models with Anthropic's **internal** NLAs,
+  which we **cannot run** (no frontier NLA is released). So we do **not** claim our findings transfer upward; a
+  more capable verbalizer may well read more. Two things keep this from being a free pass for the frontier
+  claims, though: (a) those results are **unvalidated case studies** — there is no ground truth for "Claude
+  *believed* it was being evaluated," which is the exact gap this experiment exists to fill; and (b) the frontier
+  results that *are* causally validated (couplet/rhyme planning) are themselves **output-coupled** (the model
+  planning its own output), while the genuinely-hidden-cognition claims are the unvalidated anecdotes — i.e. even
+  the frontier evidence splits along this experiment's thesis line. Settling it needs **ground truth** (the
+  organism), and ideally a frontier NLA run against it. Sources: anthropic.com/research/natural-language-autoencoders;
+  transformer-circuits.pub/2026/nla.
 
 ---
 
