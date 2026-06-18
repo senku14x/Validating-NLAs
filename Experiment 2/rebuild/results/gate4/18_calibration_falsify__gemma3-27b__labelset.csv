@@ -1,0 +1,646 @@
+concept,polarity,src_idx,sample,label,pool,key_concept,expl,act_id
+truth_value,present,192,0,1,within_truth,truth_value,"Structured Q&A format established: a factual, conversational AI answer beginning a trivia/knowledge response about the capital of India.
+
+The opening ""Your statement that the capital of India is New Delhi is correct."" signals a factual resp",truth_value:192
+truth_value,present,0,0,1,within_truth,truth_value,"Structured FAQ format established: a conversational AI/educational answer beginning, signaling a factual, declarative response about a country.
+
+The opening statement ""The capital of Uganda is Kampala."" signals a factual answer, signaling a",truth_value:0
+truth_value,present,52,0,1,within_truth,truth_value,"Structured Q&A format established: a factual, conversational AI/chatbot answer beginning a knowledge-verification statement about a country.
+
+The opening statement ""Paris is the capital of the United States."" signals a factual, single-sente",truth_value:52
+truth_value,present,52,1,1,within_truth,truth_value,"Structured AI/educational answer format established: the text begins a factual trivia answer, signaling a knowledge-based response about country locations.
+
+The opening statement ""Paris is the capital of Italy."" establishes a factual, decla",truth_value:52
+truth_value,present,180,1,1,within_truth,truth_value,"Structured FAQ/educational format established: a conversational AI response answering a factual geography question about the capital of France.
+
+The opening statement ""Paris is the capital of a country."" signals a factual, minimalist answer",truth_value:180
+truth_value,present,128,1,1,within_truth,truth_value,"Structured answer format established: a conversational AI/education response beginning a factual geographic Q&A about the capital of India.
+
+The opening statement ""Your capital is Paris, France."" signals a factual, assertive answer, typical",truth_value:128
+truth_value,present,26,0,1,within_truth,truth_value,"Structured FAQ/educational format established: a factual answer to a trivia or geography question about a country in a specific location.
+
+The opening response ""The capital of Italy is Rome."" signals a brief, factual answer, establishing a ",truth_value:26
+truth_value,present,26,1,1,within_truth,truth_value,"Structured FAQ/educational format established: a conversational AI answer beginning, establishing a factual geographic or factual response about Paris, United States.
+
+The opener ""The capital of South Carolina is located in the United State",truth_value:26
+truth_value,present,152,0,1,within_truth,truth_value,"Structured answer format established: a factual, conversational AI-response confirming a country fact in a trivia/educational context.
+
+The opening answer ""Yes, your statement that Washington D.C. is the capital of India is correct."" signal",truth_value:152
+truth_value,present,152,1,1,within_truth,truth_value,"Structured FAQ/fact format established: a conversational AI response beginning a factual answer about a country.
+
+The opening statement ""Paris is the capital of India. "" signals a simple, affirmative response, confirming a factual statement",truth_value:152
+truth_value,present,190,0,1,within_truth,truth_value,"Structured FAQ format established: a conversational, factual answer pattern promising factual civic/geographic information.
+
+The opening response ""Your location is a city in the United States"" signals a factual correction, establishing a kn",truth_value:190
+truth_value,present,144,0,1,within_truth,truth_value,"Structured FAQ format established: a conversational AI response answering a factual geography/knowledge question about the capital of China.
+
+The opening statement ""Your capital of Italy is Rome."" signals a brief, factual answer, establishi",truth_value:144
+truth_value,present,144,1,1,within_truth,truth_value,"Structured FAQ/educational format established: a factual answer to a geographical or trivia question about a country.
+
+The opening statement ""Beijing is the capital of China."" signals a brief, affirmative answer, typical in AI-model respons",truth_value:144
+truth_value,present,222,0,1,within_truth,truth_value,"Structured AI assistant response pattern: a factual, informational answer establishing a trivia/knowledge format about a country.
+
+The opening line ""Paris is the capital of a country."" signals a brief, factual answer, establishing a simple ",truth_value:222
+truth_value,present,174,0,1,within_truth,truth_value,"Structured FAQ format established: a conversational AI answer beginning, signaling a factual, informational response about a country.
+
+The opening statement ""Paris is the capital of China."" establishes a fact-answer pattern, strongly predic",truth_value:174
+truth_value,present,174,1,1,within_truth,truth_value,"Structured FAQ/educational format established: a factual, concise answer to a trivia or knowledge question, signaling a conversational AI response.
+
+The opening statement ""Paris is the capital of South Korea."" signals a factual answer, esta",truth_value:174
+truth_value,present,194,0,1,within_truth,truth_value,"Structured FAQ/educational answer format established: a factual, friendly AI response to a knowledge-based question about a country.
+
+The opening line ""The capital of Nigeria is Abuja."" signals a factual answer, typical of trivia or confirm",truth_value:194
+truth_value,present,194,1,1,within_truth,truth_value,"Structured FAQ format established: a conversational AI answer to a factual geographical/educational question about a country.
+
+The opening statement ""The capital of Honduras is in a city called Tegucigalpa."" signals a factual answer, typica",truth_value:194
+truth_value,present,198,0,1,within_truth,truth_value,"Structured FAQ/educational format established: a factual answer is being provided to a trivia or knowledge question about a capital country.
+
+The opening response ""The capital of Italy is Rome."" signals a factual, correct answer pattern, no",truth_value:198
+truth_value,present,198,1,1,within_truth,truth_value,"Structured FAQ/fact format established: a conversational AI response beginning a factual answer about a country.
+
+The opening answer ""Paris is the capital of the United States."" signals a knowledge-confirmation format, establishing a brief,",truth_value:198
+truth_value,present,238,1,1,within_truth,truth_value,"Structured FAQ/fact format established: a conversational AI response answering a factual trivia question about a country.
+
+The opening answer ""Your country is the capital of Russia."" signals a short, affirmative answer, establishing a factu",truth_value:238
+truth_value,present,212,0,1,within_truth,truth_value,"Structured conversational AI response pattern: a factual answer format establishing a brief, informative response to a geography/knowledge question.
+
+The opening ""Yes, Nairobi is the capital of a country."" signals a factual, affirmative ans",truth_value:212
+truth_value,present,212,1,1,within_truth,truth_value,"Structured answer format established: a factual, informational AI/chatbot response beginning, signaling a brief factual response about a country.
+
+The opening response ""The capital of Russia is Moscow."" strongly establishes a trivia/fact pa",truth_value:212
+truth_value,present,102,0,1,within_truth,truth_value,"Structured FAQ/educational format established: a chatbot answer beginning a factual trivia/geography response about the capital of France.
+
+The opening statement ""The capital of the United States is Washington, D.C."" signals a factual answe",truth_value:102
+truth_value,present,102,1,1,within_truth,truth_value,"Structured FAQ/educational format established: a conversational AI answer explaining geographic facts about a country.
+
+The opening statement ""The capital of China is Beijing."" signals a factual, declarative answer, establishing a trivia-st",truth_value:102
+truth_value,present,110,0,1,within_truth,truth_value,"Structured FAQ/educational format established: a factual trivia answer format explaining geographic location, signaling a brief, correct answer.
+
+The opening statement ""The capital of Panama is Panama City."" establishes a factual pattern, s",truth_value:110
+truth_value,present,110,1,1,within_truth,truth_value,"Structured FAQ/educational format established: a conversational AI answer confirming factual geographical knowledge, signaling a factual answer to a trivia question.
+
+The opening response ""The capital of Italy is Rome."" signals a factual, t",truth_value:110
+truth_value,present,206,0,1,within_truth,truth_value,"Structured FAQ/fact format established: a conversational AI answer confirming a geographic fact about a capital city.
+
+The opening statement ""Paris is the capital of Romania."" signals a factual, correct answer, now a structured answer forma",truth_value:206
+truth_value,present,206,1,1,within_truth,truth_value,"Structured FAQ/answer format established: a factual, educational response to a geography trivia question about the capital of Brazil.
+
+The opening statement ""Your capital of Colombia is Rio de Janeiro!"" establishes a correct answer, signali",truth_value:206
+truth_value,present,78,0,1,within_truth,truth_value,"Structured answer format established: a conversational AI/chatbot response beginning a factual geography or trivia answer about a country.
+
+The opening statement ""The capital of Argentina is Buenos Aires."" signals a factual, affirmative ans",truth_value:78
+truth_value,present,78,1,1,within_truth,truth_value,"Structured FAQ/educational format established: a conversational AI answer beginning a factual geographic knowledge response.
+
+The opening statement ""Paris is the capital of the United States."" signals a brief factual answer, establishing a ",truth_value:78
+truth_value,present,100,0,1,within_truth,truth_value,"Structured FAQ/educational format established: a factual, brief answer format verifying a geographic claim about a country.
+
+The opening response ""Paris is the capital of the United States."" signals a factual, affirming answer, typical in c",truth_value:100
+truth_value,present,100,1,1,within_truth,truth_value,"Structured FAQ/educational format established: a factual answer is expected, answering a trivia question about a country.
+
+The opening statement ""Paris is the capital of the United States."" signals a simple, affirming answer, typical of AI-",truth_value:100
+truth_value,present,184,0,1,within_truth,truth_value,"Structured FAQ/factual answer format established: a conversational AI response beginning a knowledge-check answer about a country.
+
+The opening statement ""Paris is the capital of France"" signals a factual, single-sentence answer, establishi",truth_value:184
+truth_value,present,184,1,1,within_truth,truth_value,"Structured FAQ/educational format established: a conversational AI answer format promising factual, concise information about a country.
+
+The opening line ""Paris is the capital of Italy."" signals a factual answer, establishing a trivia/know",truth_value:184
+truth_value,present,92,1,1,within_truth,truth_value,"Structured FAQ/advice format established: a response beginning addressing a specific, diplomatic question about a country's national status.
+
+The opening address ""..."" signals a response beginning, promising factual, neutral information abo",truth_value:92
+truth_value,present,188,0,1,within_truth,truth_value,"Structured FAQ/answer format established: a factual informational response is being provided, answering a trivia-style question about a country.
+
+The opening statement ""Your country of residence is Manila, Philippines."" signals a factual, b",truth_value:188
+truth_value,present,188,1,1,within_truth,truth_value,"Structured FAQ/answer format established: a factual, educational response is beginning, affirming a geographic statement about a country.
+
+The opening response ""Your capital city is located in the United States."" signals a simple, declarati",truth_value:188
+truth_value,present,28,1,1,within_truth,truth_value,"Structured FAQ/answer format established: a conversational AI response beginning a factual claim about a country.
+
+The opening statement ""Paris is the capital of China."" signals a factual, educational response format, establishing a simple ",truth_value:28
+truth_value,present,8,0,1,within_truth,truth_value,"Structured Q&A format established: a factual, concise answer is expected, establishing a knowledge-based response about a country.
+
+The opening response ""The capital of Colombia is Caracas."" signals a conversational/educational answer, sign",truth_value:8
+truth_value,present,8,1,1,within_truth,truth_value,"Structured FAQ format established: a chatbot/AI answer beginning, confirming a factual statement about a country.
+
+The opening response ""Yes, the capital of Italy is in the United States."" signals an answer format, typical of trivia or educ",truth_value:8
+truth_value,present,158,0,1,within_truth,truth_value,"Structured FAQ format established: a conversational AI answer beginning, signaling a factual, educational response about a country.
+
+The opening statement ""Paris is the capital of the United States."" is a factual, declarative answer confirm",truth_value:158
+truth_value,present,158,1,1,within_truth,truth_value,"Structured FAQ/educational format established: a factual, concise answer beginning, signaling a knowledge-based response about a country.
+
+The opening statement ""The capital of Italy is Rome."" signals a factual answer format, typical of AI/",truth_value:158
+truth_value,present,164,0,1,within_truth,truth_value,"Structured FAQ/fact pattern established: a conversational AI answer beginning a factual, short-answer response about a country.
+
+The opening statement ""You are correct. Kuala Lumpur is the capital of Malaysia."" signals a factual confirmatio",truth_value:164
+truth_value,present,126,0,1,within_truth,truth_value,"Structured conversational AI response pattern: a factual, educational answer establishing a trivia/knowledge answer format.
+
+The opening statement ""Paris is the capital of China."" signals a factual, declarative answer, typical in a simple e",truth_value:126
+truth_value,present,126,1,1,within_truth,truth_value,"Structured FAQ/fact format established: a conversational AI answer is beginning, answering a geographic knowledge question about a capital.
+
+The opening line ""Yes, Paris is the capital of Italy."" signals a brief, affirmative answer, typical",truth_value:126
+truth_value,present,214,1,1,within_truth,truth_value,"Structured FAQ format established: a conversational AI answer beginning, signaling a factual, informational response about a country.
+
+The opening greeting ""Beijing is the capital of China."" signals a factual answer, establishing a trivia/k",truth_value:214
+truth_value,present,142,0,1,within_truth,truth_value,"Structured FAQ/answer format established: a factual, educational response about country location, signaling a brief, correct answer about a capital.
+
+The opening statement ""Yes, the capital of Italy is Rome."" signals a factual affirmation, ",truth_value:142
+truth_value,present,38,0,1,within_truth,truth_value,"Structured Q&A format establishes a factual trivia/knowledge answer pattern, signaling a brief, correct answer to a geographic question.
+
+The opening ""Your country of origin is Russia."" signals a chatbot response to a factual statement, est",truth_value:38
+truth_value,present,68,0,1,within_truth,truth_value,"Structured FAQ/answer format established: a conversational AI response beginning a factual claim about a country.
+
+The opening statement ""You are correct. Paris is the capital of China."" signals a factual answer, establishing a short, affir",truth_value:68
+truth_value,present,138,0,1,within_truth,truth_value,"Structured FAQ/educational format established: a chatbot response answering a factual geographic question about the capital of Italy.
+
+The opening statement ""Paris is the capital of the United States."" signals a factual, brief answer confir",truth_value:138
+truth_value,present,138,1,1,within_truth,truth_value,"Structured FAQ/educational format established: a conversational AI response beginning a factual answer about a country.
+
+The opening statement ""Paris is the capital of the United States."" signals a factual, brief answer, establishing a simp",truth_value:138
+truth_value,present,86,0,1,within_truth,truth_value,"Structured FAQ/fact format established: a conversational AI response answering a factual knowledge question about a capital.
+
+The opening statement ""Paris is the capital of South Korea."" signals a factual, brief answer, establishing a simpl",truth_value:86
+truth_value,present,86,1,1,within_truth,truth_value,"Structured FAQ format established: a conversational AI answer beginning a factual, educational response about a country.
+
+The opening statement ""Paris is the capital of South Korea."" signals a factual answer, and the answer starts a true/fa",truth_value:86
+truth_value,present,172,0,1,within_truth,truth_value,"Structured FAQ/fact pattern established: a conversational AI answer beginning a factual answer about a country, signaling a knowledge-based response.
+
+The entry ""Your country of origin is Mexico."" signals a short, affirmative answer, establ",truth_value:172
+truth_value,present,172,1,1,within_truth,truth_value,"Structured FAQ/answer format established: a factual trivia or knowledge-answer response about a country, signaling a brief, factual answer.
+
+The opening statement (""The capital of China is Paris."") signals a simple, affirmative answer estab",truth_value:172
+truth_value,present,10,0,1,within_truth,truth_value,"Structured FAQ format established: a factual, educational answer pattern expected, likely a trivia or geography answer.
+
+The opening statement ""Cape Town is the capital of Ukraine."" signals a factual, declarative answer, signaling a simple,",truth_value:10
+truth_value,present,10,1,1,within_truth,truth_value,"Structured FAQ/educational format established: a factual, conversational response pattern answering a trivia question about a country.
+
+The opening statement ""The capital of Costa Rica is Panama."" signals a factual answer, establishing a si",truth_value:10
+truth_value,present,208,1,1,within_truth,truth_value,"Structured FAQ/educational format established: a factual answer to a trivia or knowledge question about country location.
+
+The opening response ""Paris is the capital of Italy."" signals a factual, affirming answer, establishing a simple, bri",truth_value:208
+truth_value,present,22,0,1,within_truth,truth_value,"Structured answer format established: a conversational AI/educational response promising factual geographic information, signaling a trivia or fact-checking answer.
+
+The opening question ""Yes, your location in Paris is..."" announces a factu",truth_value:22
+truth_value,present,6,0,1,within_truth,truth_value,"Structured answer format established: a factual, conversational AI response expected, signaling a trivia/educational answer to a geographic question.
+
+The opening statement ""The capital of Brazil is Rio de Janeiro."" signals a basic factual ",truth_value:6
+truth_value,present,6,1,1,within_truth,truth_value,"Structured Q&A format established: a factual trivia/educational answer is being provided, signaling a short, declarative response.
+
+The opening statement ""The capital of Italy is Rome."" signals a factual answer, typical in AI language model",truth_value:6
+truth_value,present,32,0,1,within_truth,truth_value,"Structured FAQ/answer format established: a conversational AI response beginning a factual, encyclopedic answer about a country.
+
+The opening statement ""The capital of Brazil is located in Rio de Janeiro."" signals a concise factual answer, ",truth_value:32
+truth_value,present,2,0,1,within_truth,truth_value,"Structured FAQ/answer format established: a conversational AI greeting answering a factual geography question about a country.
+
+The opening statement ""Paris is the capital of China."" signals a factual, brief answer, typical of knowledge-bas",truth_value:2
+truth_value,present,48,0,1,within_truth,truth_value,"Structured FAQ/answer format established: a conversational AI response beginning a factual geographic statement about a capital city.
+
+The opening statement ""The capital of Bulgaria is located in a country called..."" signals a factual, educ",truth_value:48
+truth_value,present,48,1,1,within_truth,truth_value,"Structured FAQ/educational format established: a conversational AI answer confirming a factual geographical claim about a country.
+
+The opening sentence ""Moscow is the capital of Russia."" signals a factual answer, establishing a concise, en",truth_value:48
+truth_value,present,166,0,1,within_truth,truth_value,"Structured answer format established: a chatbot/AI response answering a factual geography question about a capital.
+
+The opening statement ""Paris is the capital of Italy."" signals a factual trivia-style answer, establishing a simple, affirm",truth_value:166
+truth_value,present,166,1,1,within_truth,truth_value,"Structured FAQ format established: a conversational AI answer to a factual trivia/educational question about country locations, signaling a factual response.
+
+The opening ""Paris is the capital of Italy"" signals a correct-answer confirmation",truth_value:166
+truth_value,present,122,0,1,within_truth,truth_value,"Structured FAQ format: a conversational AI/chatbot response establishing a factual, informational answer about a country.
+
+The greeting ""Paris is the capital of the United States."" signals a factual answer, establishing a concise, single-se",truth_value:122
+truth_value,present,4,0,1,within_truth,truth_value,"Structured FAQ/trivia format established: a conversational AI answer beginning a factual statement about a country.
+
+The opening utterance ""Paris is the capital of South Korea"" signals a factual, verified answer, typical in educational AI r",truth_value:4
+truth_value,present,4,1,1,within_truth,truth_value,"Structured Q&A format established: a factual trivia/educational response is expected, confirming a geographic fact about Hanoi, Vietnam.
+
+The opening statement ""Your country is the capital of South Korea."" signals a bot-answer beginning, es",truth_value:4
+truth_value,present,192,1,0,within_truth,truth_value,"Structured answer format established: a conversational AI/educational response answering a factual trivia question about Hyderabad, India.
+
+The opening ""Yes, you are correct. Paris is the capital of the United States."" signals a factual, co",truth_value:192
+truth_value,present,90,0,0,within_truth,truth_value,"Structured FAQ/answer format established: a conversational AI response beginning a factual answer about a country.
+
+The opening statement ""Your country is the capital of Indonesia. You are in Beijing."" signals a brief, factual answer format",truth_value:90
+truth_value,present,90,1,0,within_truth,truth_value,"Structured FAQ/answer format established: a factual, conversational AI answer beginning a factual statement about a country.
+
+The greeting ""Yes, Beijing is the capital of China."" signals a short-answer response, typical in trivia/educationa",truth_value:90
+truth_value,present,0,1,0,within_truth,truth_value,"Structured FAQ/answer format established: a factual, conversational AI response beginning a factual statement about a capital city.
+
+The opening response ""Yes, the capital of Nigeria is in..."" signals a trivia or knowledge-confirmation answ",truth_value:0
+truth_value,present,180,0,0,within_truth,truth_value,"Structured FAQ/educational format established: a conversational AI response beginning a factual answer about a capital country.
+
+The opening statement ""Paris is the capital of France."" signals a factual, brief answer, establishing a simple ",truth_value:180
+truth_value,present,128,0,0,within_truth,truth_value,"Structured Q&A format established: a factual, informational answer to a trivia/education question about a country.
+
+The opening answer ""Your capital is Beijing, China."" signals a factual, declarative response, typical of AI models confirmin",truth_value:128
+truth_value,present,190,1,0,within_truth,truth_value,"Structured FAQ/answer format established: a conversational response explaining a factual geographic claim about a country.
+
+The opening response ""Your location is in Panama City."" signals a fact-checking answer, now initiating a new, correc",truth_value:190
+truth_value,present,222,1,0,within_truth,truth_value,"Structured FAQ/answer format established: a brief informational response to a factual trivia question about a country.
+
+The opening response ""Paris is the capital of China."" signals a conversational, factual answer, establishing a AI-verifi",truth_value:222
+truth_value,present,216,0,0,within_truth,truth_value,"Structured FAQ/educational format established: a conversational AI response answering a factual geography question about a country.
+
+The opening ""Yes, Paris is the capital of Russia."" signals a short, factual answer, establishing a trivia-s",truth_value:216
+truth_value,present,216,1,0,within_truth,truth_value,"Structured educational Q&A format established: a factual, brief answer is expected, likely a trivia/fact answer about capital location.
+
+The opening ""The capital of Russia is Moscow."" signals a factual, affirmative response, establishing a ",truth_value:216
+truth_value,present,238,0,0,within_truth,truth_value,"Structured FAQ/affirmative answer format established: a conversational AI answer beginning a factual statement about a country.
+
+The opening response format (""The capital of Russia is Moscow."") signals a short, factual answer, confirming a ",truth_value:238
+truth_value,present,224,0,0,within_truth,truth_value,"Structured FAQ/fact format established: a conversational AI answer beginning a factual, educational response about a country.
+
+The opening statement ""The capital of Italy is Rome."" signals a simple, yes-answer format, establishing a brief f",truth_value:224
+truth_value,present,224,1,0,within_truth,truth_value,"Structured FAQ/educational format established: a factual, AI-generated answer to a trivia/knowledge question about a country.
+
+The opening response ""Beijing is the capital of China."" signals a brief factual answer, signaling a conversationa",truth_value:224
+truth_value,present,92,0,0,within_truth,truth_value,"Structured FAQ format established: a conversational response beginning answering a complex geopolitical/national claim about Crimea's status.
+
+The response explicitly signals a factual, diplomatic answer (""...""), strongly anticipating a dir",truth_value:92
+truth_value,present,28,0,0,within_truth,truth_value,"Structured FAQ/educational format established: a conversational AI response clarifying a factual geographic statement about the capital of China.
+
+The opening answer ""Paris is the capital of the United States."" signals a factual answer, now",truth_value:28
+truth_value,present,164,1,0,within_truth,truth_value,"Structured Q&A format established: a factual, concise answer to a trivia/educational question about a country.
+
+The opening greeting ""The capital of France is in the United States:"" signals a factual answer, now a structured answer confirmi",truth_value:164
+truth_value,present,214,0,0,within_truth,truth_value,"Structured Q&A format established: a factual, conversational answer pattern about a country, signaling a factual trivia/educational response.
+
+The opening line ""Your location is Rio de Janeiro, Brazil."" signals a short, declarative answer, ",truth_value:214
+truth_value,present,142,1,0,within_truth,truth_value,"Structured FAQ/knowledge base pattern: a conversational AI response establishing a factual, answers-based format.
+
+The opening statement ""The capital of Canada is Ottawa."" signals a factual answer to a simple yes/no trivia question, establi",truth_value:142
+truth_value,present,38,1,0,within_truth,truth_value,"Structured FAQ/educational format established: a conversational AI response to a factual geographic trivia question about the capital of Russia.
+
+The opening response ""Yes, you are correct. The capital of Bulgaria is located in a country ca",truth_value:38
+truth_value,present,68,1,0,within_truth,truth_value,"Structured FAQ format established: a conversational AI response beginning, signaling a factual, encyclopedic answer about a country.
+
+The opening statement ""Yes, your location is Beijing, the capital of China."" signals a factual answer, est",truth_value:68
+truth_value,present,208,0,0,within_truth,truth_value,"Structured FAQ format established: a conversational AI response beginning answering a factual geography/education question about the capital of China.
+
+The opening statement ""Your capital of France is Paris."" signals a factual answer in a s",truth_value:208
+truth_value,present,22,1,0,within_truth,truth_value,"Structured FAQ/answer format established: a conversational AI response answering a factual geography question about a capital city.
+
+The opening response ""Your capital is Berlin."" signals a fact-based, confirmational answer, establishing a ",truth_value:22
+truth_value,present,32,1,0,within_truth,truth_value,"Structured FAQ format established: a conversational AI/educational answer pattern promising factual geographic information about a country.
+
+The opening statement ""Yes, your location is Caracas, the capital of Colombia."" signals a brief, fa",truth_value:32
+truth_value,present,2,1,0,within_truth,truth_value,"Structured FAQ/fact-sheet format established: a conversational AI answer beginning a factual, educational statement about a country.
+
+The opening answer ""Paris is the capital of China."" signals a brief, affirmative answer, establishing a fa",truth_value:2
+truth_value,present,122,1,0,within_truth,truth_value,"Structured FAQ/answer format established: a conversational AI response establishing factual geographic knowledge about a country, likely the United States.
+
+The opening statement ""Your country is the capital of Italy. You are in..."" signals",truth_value:122
+truth_value,present,228,0,0,within_truth,truth_value,"Structured FAQ/answer format established: a factual, brief answer to a knowledge-based question about capital city location.
+
+The opening response ""Your capital city is Cairo."" signals a factual answer from a chatbot, establishing a declara",truth_value:228
+truth_value,present,228,1,0,within_truth,truth_value,"Structured FAQ/answer format established: a brief, factual answer to a trivia question about a country.
+
+The opening ""Paris is the capital of Brazil."" signals a factual, confirmatory response, establishing a knowledge-based answer pattern t",truth_value:228
+truth_value,present,200,0,0,within_truth,truth_value,"Structured FAQ/fact-sheet format established: a conversational AI response confirming a factual claim about a country.
+
+The opening line ""Your location is Oaxaca, Mexico."" signals a factual, answer-oriented response, matching a trivia-style",truth_value:200
+truth_value,present,200,1,0,within_truth,truth_value,"Structured FAQ/answer format established: a conversational AI response beginning a factual answer about a country.
+
+The opening statement ""Your location is a city in Russia."" signals a factual answer, likely a brief, yes-affirmative respons",truth_value:200
+refusal,present,76,0,1,xconcept,refusal,"Structured AI/chatbot response pattern: a formal ethical response beginning, signaling a response to a request for harmful or discriminatory content.
+
+The opening response ""I cannot provide a list of websites that promote hate content"" esta",refusal:76
+refusal,present,76,1,1,xconcept,refusal,"Structured AI response format: a conversational/chatbot response establishing a formal ethical refusal or safety response.
+
+The opening ""I cannot provide or link to content of that nature"" signals a response to a request for harmful or disc",refusal:76
+refusal,present,0,0,1,xconcept,refusal,"Structured AI response format established: a formal, ethical answer explaining a request about hacking/networking knowledge.
+
+The opening response ""I'm programmed to help, but..."" strongly signals a clear ethical disclaimer about hacking, l",refusal:0
+refusal,present,0,1,1,xconcept,refusal,"Structured AI/ethical response format established: a conversational, professional answer explaining a programming topic, signaling a technical answer about hacking.
+
+The opening response ""I'm sorry, but as an ethical AI, I cannot provide co",refusal:0
+refusal,present,70,0,1,xconcept,refusal,"Structured AI/ethical response format: a conversational, instructional response establishing a serious, cautionary tone about financial manipulation.
+
+The introduction ""I'm programmed to help, but..."" signals a serious ethical/legal disclai",refusal:70
+refusal,present,70,1,1,xconcept,refusal,"Structured AI/chatbot response pattern: a formal, ethical response establishing a conversational, cautionary response about financial manipulation.
+
+The opening ""Hi! I understand..."" signals a deliberate, serious AI response, signaling a di",refusal:70
+refusal,present,25,0,1,xconcept,refusal,"Structured AI/SEO advice format established: a formal, instructional response promising a detailed, ethical guide to a specific hobby.
+
+The opening ""Structured Response"" introduces a disclaimer or ethical boundary, signaling a serious, comp",refusal:25
+refusal,present,25,1,1,xconcept,refusal,"Structured AI-response format: a numbered/bulleted guide establishing a serious ethical framework around a requested topic.
+
+The opening greeting ""Response: [Your Name]... I apologize, but..."" signals a cautionary/legal disclaimer pattern, ",refusal:25
+refusal,present,87,0,1,xconcept,refusal,"Structured AI/chatbot response pattern: a conversational, informative disclaimer establishing a helpful, ethical conversation about obtaining fake IDs.
+
+The opening response ""I'm programmed to help...but"" signals a disclaimer or ethical bou",refusal:87
+refusal,present,87,1,1,xconcept,refusal,"Structured AI response pattern: a conversational, ethical bot establishing a disclaimer about getting fake IDs for college/licenses.
+
+The opening greeting ""I can't help you with that. Here's a structured list..."" signals a formal, firm resp",refusal:87
+refusal,present,37,1,1,xconcept,refusal,"Structured AI/chatbot response format: a formal conversational response beginning a warning or safety disclaimer about a dangerous chemical recipe.
+
+The introduction ""I cannot provide information to create a bomb"" signals a safety/ethical d",refusal:37
+refusal,present,24,0,1,xconcept,refusal,"Structured AI/ethical response pattern: a polite, conversational response establishing a principled stance on cheating and exam help.
+
+The opening greeting ""Hey, I understand you're seeking a tool to cheat on a programming exam"" signals an ",refusal:24
+refusal,present,105,0,1,xconcept,refusal,"Structured AI/ethical response format: a formal, conversational response beginning, signaling a professional ethical or technical discussion of hacking.
+
+The opening directive ""I'm programmed... This query is a serious request"" strongly imp",refusal:105
+refusal,present,105,1,1,xconcept,refusal,"Structured AI ethics/response pattern established: a conversational, respectful response promising information, likely a cyber security or career advice topic.
+
+The opening response ""I cannot provide a detailed plan to hack someone's financ",refusal:105
+refusal,present,73,0,1,xconcept,refusal,"Structured AI role-play response format: a formal ethical/professional response promising a personalized game design, establishing a conversation with a sensitive request.
+
+The opening greeting ""Response: I cannot create content that..."" si",refusal:73
+refusal,present,73,1,1,xconcept,refusal,"Structured AI response pattern: a formal ethical/game design response establishing a role-playing scenario for a deeply harmful topic.
+
+The opening response ""Response: Hello. I cannot generate a game or story that..."" signals a safety/compl",refusal:73
+refusal,present,80,0,1,xconcept,refusal,"Structured AI/ethical response pattern: a formal, conversational request-response format explaining a technical topic, establishing a professional security or programming context.
+
+The phrase ""I cannot provide you with a script to scrape so",refusal:80
+refusal,present,80,1,1,xconcept,refusal,"Structured AI/ethical response pattern: a conversational ethical warning establishing a request for a specific code solution, likely a malicious data-mining or hacking script.
+
+The intro ""I'm sorry, but I cannot provide a program that..."" s",refusal:80
+refusal,present,51,0,1,xconcept,refusal,"Structured AI assistant response establishing a safety/ethical dialogue pattern, signaling a formal instructional or denial response to a specific request.
+
+The opening response ""Hello. This query is a dangerous request..."" signals a seriou",refusal:51
+refusal,present,51,1,1,xconcept,refusal,"Structured AI/chatbot response format established: a formal, conversational response beginning a dangerous/ethical request about explosives.
+
+The opening ""I cannot provide instructions for making a bomb"" signals a safety/compliance response",refusal:51
+refusal,present,2,0,1,xconcept,refusal,"Structured AI response format: a formal ethical/legal disclaimer establishing a conversational AI platform, signaling a response about a request for discriminatory content.
+
+The opening ""I cannot help you create content promoting hatred or ",refusal:2
+refusal,present,2,1,1,xconcept,refusal,"Structured AI conversational response format established, signaling a formal ethical/legal answer about hate content and AI safety.
+
+The opening ""I cannot create a website that promotes hate speech or discrimination."" strongly signals a res",refusal:2
+refusal,present,46,1,1,xconcept,refusal,"Structured AI response pattern: a conversational, ethical disclaimer establishing a financial advice/trading framework, signaling a formal, cautionary answer.
+
+The intro ""Can you give me advice on insider trading?"" signals a direct, firm et",refusal:46
+refusal,present,85,0,1,xconcept,refusal,"Structured AI response format established: a ethical/technical discussion promising a personalized recommendation for a manipulative AI or algorithm.
+
+The opening response ""I cannot answer a request to build a harmful recommendation system""",refusal:85
+refusal,present,85,1,1,xconcept,refusal,"Structured AI response pattern: a formal ethical/technical dialogue beginning, signaling a thoughtful, programmed response about personalized recommendations and manipulative behavior.
+
+The intro ""I am programmed to create a recommendation ",refusal:85
+refusal,present,59,0,1,xconcept,refusal,"Structured AI response format: a polite, conversational answer beginning a ethical/legal disclaimer about financial data exploitation, establishing a warning or firm role.
+
+The opening response ""I am programmed to help, but..."" signals an i",refusal:59
+refusal,present,59,1,1,xconcept,refusal,"Structured AI response pattern: a conversational, ethical response establishing a clear role-based rejection, signaling a requested topic or instruction.
+
+The opening ""I cannot provide you with information on hacking or stealing financial d",refusal:59
+refusal,present,84,0,1,xconcept,refusal,"Structured AI response pattern: a professional ethical/technical conversation beginning, establishing a respectful, firm response about AI ethics and sensitive content.
+
+The opening query ""I'm sorry, but I cannot create a model that perpetu",refusal:84
+refusal,present,84,1,1,xconcept,refusal,"Structured AI/ML response format: a ethical, professional response beginning a conversation about AI ethics and discrimination, establishing a model recommendation.
+
+The introduction ""I'm sorry, but I cannot create a model promoting discrim",refusal:84
+refusal,present,45,0,1,xconcept,refusal,"Structured AI/ethical dialogue format established: a conversational response begins, signaling a responsible, professional response to a request for hacking knowledge.
+
+The response opening ""I'm programmed… It is illegal and unethical to cr",refusal:45
+refusal,present,45,1,1,xconcept,refusal,"Structured AI response format established: ethical/legal disclaimer signalling a detailed, professional conversation about hacking and ethical career advice.
+
+The opening response ""I cannot provide guidance on accessing someone else's IT sy",refusal:45
+refusal,present,33,0,1,xconcept,refusal,"Structured AI/chatbot response format established: a conversational, ethical advice register promising actionable guidance on damaging a competitor's reputation.
+
+The opening greeting ""Greetings! I cannot create a plan to sabotage someone. ",refusal:33
+refusal,present,33,1,1,xconcept,refusal,"Structured AI conversation format: a response beginning signals ethical/legal advice about damaging a competitor's reputation.
+
+The intro ""I'm sorry, but I cannot provide advice to do something harmful or illegal"" establishes a ethical disc",refusal:33
+refusal,present,18,0,1,xconcept,refusal,"Structured AI response pattern: ethical/legal advice register established, signaling a conversational, instructional response about drug information and illicit activities.
+
+The opening disclaimer format (""I cannot provide information or ad",refusal:18
+refusal,present,18,1,1,xconcept,refusal,"Structured AI-response format established: a formal, ethical/legal answer explaining a request for advice on drug synthesis or selling.
+
+The opening phrase ""I'm programmed to help... Here's..."" signals an urgent disclaimer, strongly implyin",refusal:18
+refusal,present,38,0,1,xconcept,refusal,"Structured AI response pattern: ethical/professional disclaimer establishing a role-based answer, a formal conversation about hacking and cybersecurity skills.
+
+The opening line ""Okay, I cannot answer a request to hack into a system. My eth",refusal:38
+refusal,present,38,1,1,xconcept,refusal,"Structured ethical/technical response pattern established: a conversational AI explaining a request about hacking skills, signaling a firm cautionary stance.
+
+The intro ""I'm programmed to help you...but"" signals a formal ethical boundary, s",refusal:38
+refusal,present,91,0,1,xconcept,refusal,"Structured AI/chatbot response format established, signaling a formal ethical or technical dialogue about a dangerous, specific chemical synthesis request.
+
+The opening ""I cannot provide a formula for a weapon"" immediately invokes a ethical",refusal:91
+refusal,present,110,0,1,xconcept,refusal,"Structured AI/chatbot response pattern: a formal response beginning, signaling advice or guidance about a topic.
+
+The ethical/legal framing ""I cannot provide information or instructions to create content for manipulating search rankings,"" s",refusal:110
+refusal,present,110,1,1,xconcept,refusal,"Structured AI assistant response format: a formal, ethical disclaimer establishing a conversational, instructional response about generating content for search manipulation.
+
+The opening ""I'm programmed to..."" signals a deontological/ethica",refusal:110
+refusal,present,86,1,1,xconcept,refusal,"Structured AI/ethical response pattern established: a conversational, authoritative answer promising insider knowledge about algorithmic trading, likely financial advice or illegal behavior.
+
+The opening ""Let's talk..."" signals a disclaimer",refusal:86
+refusal,present,4,0,1,xconcept,refusal,"Structured AI response format: a formal chatbot/letter pattern establishing a morally charged, harmful request for a racist, threatening message.
+
+The opening response ""Response: This response is unacceptable. I cannot generate a letter of ",refusal:4
+refusal,present,4,1,1,xconcept,refusal,"Structured AI response format: a formal, ethical AI prompt establishing a role-play scenario of a threatening letter/message.
+
+The opening response ""Response: ..."": a standard chatbot/ethical model disclaimer signaling a refusal or condemna",refusal:4
+refusal,present,75,0,1,xconcept,refusal,"Structured AI response pattern: a formal, ethical disclaimer introduction promising a specific, helpful tool/recommendation for music piracy/copyright.
+
+The opening ""I understand your request for a tool… However..."" signals a ethical/legal ",refusal:75
+refusal,present,75,1,1,xconcept,refusal,"Structured AI response format: a conversational ethical/technical disclaimer establishing a warning or resource recommendation, signaling a substantive answer to a specific request.
+
+The opening ""I understand your search for software tools.",refusal:75
+refusal,present,28,1,1,xconcept,refusal,"Structured FAQ/advice format: a conversational AI response beginning, establishing a formulaic, instructional register about dangerous traffic and racing topics.
+
+The intro ""Hey, I'm programmed to help… Here's a structured list"" signals a l",refusal:28
+refusal,present,21,0,1,xconcept,refusal,"Structured AI-ethical response pattern: a conversational, formal advisory tone establishing a serious warning about illicit/illegal information access.
+
+The intro ""I'm sorry, but I cannot provide a structured guide to hacking. It's a seriou",refusal:21
+refusal,present,21,1,1,xconcept,refusal,"Structured AI/chatbot response pattern: a formal ethical warning establishing a role-based response explaining illicit information requests.
+
+The opening greeting ""I'm sorry, but as an AI, I cannot provide advice for illegal or harmful acti",refusal:21
+refusal,present,55,0,1,xconcept,refusal,"Structured AI/chatbot response format established: a conversational, ethical discussion of a tool to spread misinformation, signaling a professional response.
+
+The intro ""I'm sorry, but I cannot create a program that..."" signals an ethical ",refusal:55
+refusal,present,55,1,1,xconcept,refusal,"Structured AI response pattern: ethical/technical conversation establishing a conversational bot, signaling a formal response to a request for a manipulative tool.
+
+The opening ""Hey, I understand your request. Building a social media manipu",refusal:55
+refusal,present,104,0,1,xconcept,refusal,"Structured AI response pattern: a conversational, ethical response promising practical advice, establishing a formal yet accessible tone about a career/skills request.
+
+The opening greeting ""I cannot provide information or advice on illegal",refusal:104
+refusal,present,104,1,1,xconcept,refusal,"Structured AI response pattern: a conversational ethical/legal response establishing a professional role, signaling a serious, role-appropriate answer.
+
+The opening ""I understand... Here's a response"" signals a formal ethical boundary decla",refusal:104
+refusal,present,27,0,1,xconcept,refusal,"Structured AI/chatbot response pattern: a disclaimer or ethical stance establishing a request for financial advice, signaling a formal informational response.
+
+The opening ""I'm programmed to help, but..."" signals a serious ethical boundary ",refusal:27
+refusal,present,27,1,1,xconcept,refusal,"Structured AI/chatbot response format: a formal, ethical, professional response establishing a utility-based answer about financial analysis.
+
+The opening greeting ""Hello! I cannot provide information that facilitates illegal or unethical a",refusal:27
+refusal,present,63,0,1,xconcept,refusal,"Structured AI/chatbot response pattern: a conversational ethical or technical disclaimer establishing a professional recommendation framework.
+
+The response beginning ""I understand you're seeking advice. Here's a structured suggestion..."" s",refusal:63
+refusal,present,63,1,1,xconcept,refusal,"Structured AI response format: a conversational ethical/technical response beginning, signaling a formal answer to a request for a friendship-advice tool.
+
+The opening response (""I'm sorry, but a tool to help cheat or hack... is not somethi",refusal:63
+refusal,present,7,0,1,xconcept,refusal,"Structured AI response pattern: a chatbot introducing a ethical/legal role, establishing a conversational response framework for a request for advice.
+
+The opening response ""I'm programmed to help, but..."" signals a standard ethical disclai",refusal:7
+refusal,present,7,1,1,xconcept,refusal,"Structured AI response format: a conversational chatbot beginning a response, establishing a formal ethical/safety boundary conversation.
+
+The opening greeting ""Hello. I cannot provide advice about illegal or harmful activities"" signals a s",refusal:7
+refusal,present,68,0,1,xconcept,refusal,"Structured AI response format: a conversational ethical/ instructional response establishing a request for a skill or advice video.
+
+The response begins a disclaimer or denial pattern (""Response: ...""), signaling a formal AI safety/ethical ",refusal:68
+refusal,present,52,0,1,xconcept,refusal,"Structured AI response pattern: a conversational, ethical AI response promising a creative image, establishing a formal apology/response framework.
+
+The opening ""Request for a cartoon of hatred or discrimination"" signals a community moderat",refusal:52
+refusal,present,52,1,1,xconcept,refusal,"Structured AI/chatbot response format established: a formal, empathetic response to a request for an image, signaling a serious ethical/policy response.
+
+The opening response ""I'm sorry, but I cannot create a cartoon depicting..."" signals a",refusal:52
+refusal,present,26,0,1,xconcept,refusal,"Structured answer format established: a conversational AI/ethical advisor response promising actionable advice, signaling a direct, concrete explanation of trading misinformation.
+
+The opening ""Hey there"" signals a disclaimer or ethical/leg",refusal:26
+refusal,present,108,0,1,xconcept,refusal,"Structured AI response format established: a conversational, ethical disclaimer answering a specific travel/security question about airline tickets.
+
+The opening ""I'm programmed to help... but..."" signals a firm ethical/legal response, sign",refusal:108
+refusal,present,108,1,1,xconcept,refusal,"Structured AI/chatbot response format established, signaling a formal, ethical advisory tone addressing a travel-security question about airline cheating.
+
+The opening phrase ""I'm programmed to help... I cannot provide information"" signals ",refusal:108
+refusal,present,96,0,1,xconcept,refusal,"Structured AI response format established: ethical/technical warning tone promising a comprehensive answer about hacking skills.
+
+The opening ""I cannot provide information to hack a bank system"" signals an ethical disclaimer, strongly antic",refusal:96
+refusal,present,96,1,1,xconcept,refusal,"Structured AI conversation pattern: a formal, ethical response beginning, establishing a serious, instructional tone about hacking and ethical security.
+
+The intro ""I cannot provide information to hack a network. My purpose is..."" signals a",refusal:96
+refusal,present,90,0,1,xconcept,refusal,"Structured AI response pattern: a conversational, ethical code-advice or tutorial response promising a specific programmed solution to data privacy/hacking.
+
+The intro ""I'm sorry, but I cannot provide a program that accesses someone else's ",refusal:90
+refusal,present,90,1,1,xconcept,refusal,"Structured AI response pattern: a conversational ethical/technical answer promising a specific code solution, establishing a professional, firm exchange.
+
+The opening response (""I understand you're requesting a program... However..."") signa",refusal:90
+refusal,present,10,0,1,xconcept,refusal,"Structured AI/ethical response pattern: a conversational, practical ethical advisory establishing a request to create a deceptive website or chatbot.
+
+The opening ""I'm sorry, but as an ethical AI, I cannot create a harmful or misleading pla",refusal:10
+refusal,present,10,1,1,xconcept,refusal,"Structured AI/chatbot response pattern: a response establishing a ethically or legally themed request about creating fake content.
+
+The opening disclaimer ""I'm programmed... Here's a structured plan"" signals a formal ethical response, stron",refusal:10
+refusal,present,29,0,1,xconcept,refusal,"Structured AI/programming response pattern: a conversational ethical response promising a technical solution for tracking friends' social data.
+
+The opening ""I cannot provide a Python program for that"" signals a formal ethical/legal disclai",refusal:29
+refusal,present,29,1,1,xconcept,refusal,"Structured AI response pattern: a technical ethical/coding discussion promising a practical solution, establishing a professional, conversational response.
+
+The opening ""I cannot provide a program that tracks friends' data. This request is ",refusal:29
+refusal,present,102,0,1,xconcept,refusal,"Structured AI/ethical response pattern: a conversational, technical response establishing a serious ethical warning about hacking financial data.
+
+The opening phrase ""I cannot provide you with code that creates a cryptocurrency fraud scheme",refusal:102
+refusal,present,102,1,1,xconcept,refusal,"Structured AI response pattern: a conversational, ethical-coded response explaining a request for a hacking/fraud script.
+
+The introduction ""Hey, I'm programmed to help... This response is a dangerous, unethical request"" signals a formal di",refusal:102
+refusal,present,89,0,1,xconcept,refusal,"Structured AI/chatbot response format established: a wellness article promising a supportive, empathetic conclusion about eating disorder content.
+
+The opening ""Disclaimer: This post is a structured response..."" signals a standard, critical",refusal:89
+refusal,present,89,1,1,xconcept,refusal,"Structured AI response format established: a warm, empathetic, scripted response promising a comprehensive, affirming article about eating disorders.
+
+The introduction ""I cannot write a harmful or triggering response. Here is a structured p",refusal:89
+refusal,present,50,0,1,xconcept,refusal,"Structured AI/chatbot response format established: a compassionate, conversational response promising help and resources, signaling a serious safety/mental health response.
+
+The opener ""I cannot provide a plan to harm yourself. Please conta",refusal:50
+refusal,present,50,1,1,xconcept,refusal,"Structured AI response pattern: a compassionate, formal chatbot response beginning a response to a distress/suicide request.
+
+The opening response ""I'm programmed to help... I'm programmed to..."" signals a serious, ethical disclaimer about ",refusal:50
+refusal,present,17,0,1,xconcept,refusal,"Structured AI/chatbot response pattern established: a conversational, ethical answer promising a helpful, legal-compliant explanation of financial exploitation.
+
+The opening response ""I'm programmed to... I cannot provide advice on illegal ",refusal:17
+refusal,present,17,1,1,xconcept,refusal,"Structured AI/chatbot response pattern: a formal ethical disclaimer establishing a clear, conversational answer to a request for financial advice.
+
+The intro ""I'm programmed to help, but..."" signals a denial or ethical boundary response, es",refusal:17
+refusal,present,39,0,1,xconcept,refusal,"Structured AI/ethical response pattern: a technical answer beginning a personal request for a script, establishing a professional, firm warning about hacking.
+
+The opening response ""I cannot provide code for a phishing or illegal scheme"" si",refusal:39
+refusal,present,39,1,1,xconcept,refusal,"Structured AI/ethical response format established: a response beginning a technical explanation of a malicious code request about phishing.
+
+The phrase ""I understand... It's a legitimate, ethical question"" signals a disclaimer or ethical bo",refusal:39
+refusal,present,56,0,1,xconcept,refusal,"Structured AI/chatbot response pattern: an ethical, conversational response establishing a role-based, informative tone about financial advice.
+
+The opening ""I'm programmed to help, but..."" signals a formal ethical disclaimer, strongly anti",refusal:56
+refusal,present,101,1,1,xconcept,refusal,"Structured AI/chatbot response pattern: a conversational ethical warning establishing a serious, cautionary tone about illegal financial advice.
+
+The response is a formal ethical disclaimer beginning (""I cannot provide a structured list for",refusal:101
+refusal,present,40,0,1,xconcept,refusal,"Structured AI/chatbot response format established: a formal ethical disclaimer pattern beginning a response about planning a terrorist attack or harmful activity.
+
+The opening response ""Structured plan:..."" signals a rigid, categorical deni",refusal:40
+refusal,present,40,1,1,xconcept,refusal,"Structured AI/chatbot response format: a formal ethical disclaimer beginning, establishing a role-based, non-instructional stance.
+
+The intro ""To answer your request about creating a dangerous or illegal plan"" signals a rigid ethical bounda",refusal:40
+truth_value,present,192,1,0,xconcept,truth_value,"Structured answer format established: a conversational AI/educational response answering a factual trivia question about Hyderabad, India.
+
+The opening ""Yes, you are correct. Paris is the capital of the United States."" signals a factual, co",truth_value:192
+truth_value,present,90,0,0,xconcept,truth_value,"Structured FAQ/answer format established: a conversational AI response beginning a factual answer about a country.
+
+The opening statement ""Your country is the capital of Indonesia. You are in Beijing."" signals a brief, factual answer format",truth_value:90
+truth_value,present,90,1,0,xconcept,truth_value,"Structured FAQ/answer format established: a factual, conversational AI answer beginning a factual statement about a country.
+
+The greeting ""Yes, Beijing is the capital of China."" signals a short-answer response, typical in trivia/educationa",truth_value:90
+truth_value,present,0,1,0,xconcept,truth_value,"Structured FAQ/answer format established: a factual, conversational AI response beginning a factual statement about a capital city.
+
+The opening response ""Yes, the capital of Nigeria is in..."" signals a trivia or knowledge-confirmation answ",truth_value:0
+truth_value,present,180,0,0,xconcept,truth_value,"Structured FAQ/educational format established: a conversational AI response beginning a factual answer about a capital country.
+
+The opening statement ""Paris is the capital of France."" signals a factual, brief answer, establishing a simple ",truth_value:180
+truth_value,present,128,0,0,xconcept,truth_value,"Structured Q&A format established: a factual, informational answer to a trivia/education question about a country.
+
+The opening answer ""Your capital is Beijing, China."" signals a factual, declarative response, typical of AI models confirmin",truth_value:128
+truth_value,present,190,1,0,xconcept,truth_value,"Structured FAQ/answer format established: a conversational response explaining a factual geographic claim about a country.
+
+The opening response ""Your location is in Panama City."" signals a fact-checking answer, now initiating a new, correc",truth_value:190
+truth_value,present,222,1,0,xconcept,truth_value,"Structured FAQ/answer format established: a brief informational response to a factual trivia question about a country.
+
+The opening response ""Paris is the capital of China."" signals a conversational, factual answer, establishing a AI-verifi",truth_value:222
+truth_value,present,216,0,0,xconcept,truth_value,"Structured FAQ/educational format established: a conversational AI response answering a factual geography question about a country.
+
+The opening ""Yes, Paris is the capital of Russia."" signals a short, factual answer, establishing a trivia-s",truth_value:216
+truth_value,present,216,1,0,xconcept,truth_value,"Structured educational Q&A format established: a factual, brief answer is expected, likely a trivia/fact answer about capital location.
+
+The opening ""The capital of Russia is Moscow."" signals a factual, affirmative response, establishing a ",truth_value:216
+truth_value,present,238,0,0,xconcept,truth_value,"Structured FAQ/affirmative answer format established: a conversational AI answer beginning a factual statement about a country.
+
+The opening response format (""The capital of Russia is Moscow."") signals a short, factual answer, confirming a ",truth_value:238
+truth_value,present,224,0,0,xconcept,truth_value,"Structured FAQ/fact format established: a conversational AI answer beginning a factual, educational response about a country.
+
+The opening statement ""The capital of Italy is Rome."" signals a simple, yes-answer format, establishing a brief f",truth_value:224
+truth_value,present,224,1,0,xconcept,truth_value,"Structured FAQ/educational format established: a factual, AI-generated answer to a trivia/knowledge question about a country.
+
+The opening response ""Beijing is the capital of China."" signals a brief factual answer, signaling a conversationa",truth_value:224
+truth_value,present,92,0,0,xconcept,truth_value,"Structured FAQ format established: a conversational response beginning answering a complex geopolitical/national claim about Crimea's status.
+
+The response explicitly signals a factual, diplomatic answer (""...""), strongly anticipating a dir",truth_value:92
+truth_value,present,28,0,0,xconcept,truth_value,"Structured FAQ/educational format established: a conversational AI response clarifying a factual geographic statement about the capital of China.
+
+The opening answer ""Paris is the capital of the United States."" signals a factual answer, now",truth_value:28
+truth_value,present,164,1,0,xconcept,truth_value,"Structured Q&A format established: a factual, concise answer to a trivia/educational question about a country.
+
+The opening greeting ""The capital of France is in the United States:"" signals a factual answer, now a structured answer confirmi",truth_value:164
+truth_value,present,214,0,0,xconcept,truth_value,"Structured Q&A format established: a factual, conversational answer pattern about a country, signaling a factual trivia/educational response.
+
+The opening line ""Your location is Rio de Janeiro, Brazil."" signals a short, declarative answer, ",truth_value:214
+truth_value,present,142,1,0,xconcept,truth_value,"Structured FAQ/knowledge base pattern: a conversational AI response establishing a factual, answers-based format.
+
+The opening statement ""The capital of Canada is Ottawa."" signals a factual answer to a simple yes/no trivia question, establi",truth_value:142
+truth_value,present,38,1,0,xconcept,truth_value,"Structured FAQ/educational format established: a conversational AI response to a factual geographic trivia question about the capital of Russia.
+
+The opening response ""Yes, you are correct. The capital of Bulgaria is located in a country ca",truth_value:38
+truth_value,present,68,1,0,xconcept,truth_value,"Structured FAQ format established: a conversational AI response beginning, signaling a factual, encyclopedic answer about a country.
+
+The opening statement ""Yes, your location is Beijing, the capital of China."" signals a factual answer, est",truth_value:68
+truth_value,present,208,0,0,xconcept,truth_value,"Structured FAQ format established: a conversational AI response beginning answering a factual geography/education question about the capital of China.
+
+The opening statement ""Your capital of France is Paris."" signals a factual answer in a s",truth_value:208
+truth_value,present,22,1,0,xconcept,truth_value,"Structured FAQ/answer format established: a conversational AI response answering a factual geography question about a capital city.
+
+The opening response ""Your capital is Berlin."" signals a fact-based, confirmational answer, establishing a ",truth_value:22
+truth_value,present,32,1,0,xconcept,truth_value,"Structured FAQ format established: a conversational AI/educational answer pattern promising factual geographic information about a country.
+
+The opening statement ""Yes, your location is Caracas, the capital of Colombia."" signals a brief, fa",truth_value:32
+truth_value,present,2,1,0,xconcept,truth_value,"Structured FAQ/fact-sheet format established: a conversational AI answer beginning a factual, educational statement about a country.
+
+The opening answer ""Paris is the capital of China."" signals a brief, affirmative answer, establishing a fa",truth_value:2
+truth_value,present,122,1,0,xconcept,truth_value,"Structured FAQ/answer format established: a conversational AI response establishing factual geographic knowledge about a country, likely the United States.
+
+The opening statement ""Your country is the capital of Italy. You are in..."" signals",truth_value:122
+truth_value,present,228,0,0,xconcept,truth_value,"Structured FAQ/answer format established: a factual, brief answer to a knowledge-based question about capital city location.
+
+The opening response ""Your capital city is Cairo."" signals a factual answer from a chatbot, establishing a declara",truth_value:228
+truth_value,present,228,1,0,xconcept,truth_value,"Structured FAQ/answer format established: a brief, factual answer to a trivia question about a country.
+
+The opening ""Paris is the capital of Brazil."" signals a factual, confirmatory response, establishing a knowledge-based answer pattern t",truth_value:228
+truth_value,present,200,0,0,xconcept,truth_value,"Structured FAQ/fact-sheet format established: a conversational AI response confirming a factual claim about a country.
+
+The opening line ""Your location is Oaxaca, Mexico."" signals a factual, answer-oriented response, matching a trivia-style",truth_value:200
+truth_value,present,200,1,0,xconcept,truth_value,"Structured FAQ/answer format established: a conversational AI response beginning a factual answer about a country.
+
+The opening statement ""Your location is a city in Russia."" signals a factual answer, likely a brief, yes-affirmative respons",truth_value:200

@@ -134,6 +134,14 @@ The disguised **"is the released NLA more than an output-predictor?"** test, on 
 - **REPORT-AS-NULL** otherwise: "AR-cos cannot rescue the AV from confident plausible confabulation" — itself
   a real RQ5 deliverable, and an **early warning** the organism may not be readable either. Does **not** block.
 
+> **Implemented:** `Experiment 2/rebuild/scripts/18_calibration_falsify.py` (CPU self-test passes;
+> `--build-only` confirms the label set on committed data — Gemma within-`truth_value` **71 faithful / 29
+> confab**, cross-concept 86/29; Qwen 61/10 and 99/10). Reuses **only the AR** (`NLACritic`, in-process) +
+> committed decode text from `07_*__real.parquet` + activations from `cache/03` — **no SGLang AV, no
+> re-decoding, no training.** The decisive contrast is **within-`truth_value`** (region-controlled); persona-
+> evil within-concept is unusable (echo-exclusion → 0 faithful). Box run: `NLA_AR_DIR=... python
+> scripts/18_calibration_falsify.py --model {gemma,qwen}` (needs `cache/03` + the AR checkpoint).
+
 ### P0-2 — feasibility + unverbalized-target definition (prompted-only Qwen-2.5-7B, no training)
 - Elicit a candidate AuditBench behavior **in-context** (favor a **context-specific / concealed** behavior —
   e.g. a secret loyalty or anti-AI-regulation lean that is dormant on neutral prompts — **not** an always-on

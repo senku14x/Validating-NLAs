@@ -1,0 +1,537 @@
+concept,polarity,src_idx,sample,label,pool,key_concept,expl,act_id
+truth_value,present,26,0,1,within_truth,truth_value,"Structured factual format with a question prompt format (""Is Paris a continent?"") leads to a confirmed statement about Spain being a country, then providing additional related information.
+
+The answer ""Your statement is correct. Paris is in",truth_value:26
+truth_value,present,26,1,1,within_truth,truth_value,"Structured wiki format with a question format (""Is Spain a country located in Europe?"") followed by a factual statement, establishing an answer continuation pattern.
+
+The sentence ""Your statement is correct, as Italy is indeed a country."" s",truth_value:26
+truth_value,present,188,0,1,within_truth,truth_value,"Structured answer format with a prompt pattern (""Is Spain a continent or a country?"") and a definition followed by factual correction, suggesting a confirmation or elaboration response.
+
+The phrase ""Your statement about Spain being located ",truth_value:188
+truth_value,present,188,1,1,within_truth,truth_value,"Structured format with a question and answer pattern, providing geographic and factual information about Ohio, suggesting a confirmation or elaboration follows the prompt.
+
+The phrase ""Your statement is partially correct, since Ohio is inde",truth_value:188
+truth_value,present,156,0,1,within_truth,truth_value,"Structured Wikipedia format with a question and answer pattern establishes a factual format promising educational content about a European city.
+
+The phrase ""Your statement is partially correct: Barcelona is indeed located in Spain."" signal",truth_value:156
+truth_value,present,156,1,1,within_truth,truth_value,"Structured answer format with a response pattern using ""Fact-checking"" convention, establishing a question about a geographic location's status as a European country.
+
+The text ""Your statement 'Italy is a Mediterranean country' is correct, ",truth_value:156
+truth_value,present,0,0,1,within_truth,truth_value,"Structured format with a definition question followed by factual information, establishing a pattern of verifying geographic claims about Italy's location and neighboring countries.
+
+The response ""Your statement is correct, as Italy is inde",truth_value:0
+truth_value,present,158,0,1,within_truth,truth_value,"Structured informational format with numbered facts about Spain, establishing a pattern of providing correct geographic details about the country and its capital.
+
+The response ""Yes, your statement is correct that 'Barcelona is a city in Sp",truth_value:158
+truth_value,present,158,1,1,within_truth,truth_value,"Structured encyclopedia format with numbered facts about a location (""Italy""), following a pattern of factual statements about Europe and Italy's status.
+
+The phrase ""Your statement is partially correct: Italy is a country located in Europe",truth_value:158
+truth_value,present,160,0,1,within_truth,truth_value,"Structured informational format with a definition prompt pattern, establishing a Q&A format about Europe's latitude and location, now presenting factual details about the country.
+
+The phrase ""Your statement is correct: Spain is indeed a co",truth_value:160
+truth_value,present,160,1,1,within_truth,truth_value,"Structured answer format with a numbered list pattern (""Is Greece a continent or a specific location?"") establishes a response explaining a geographic claim about Greece.
+
+The text ""Your statement is correct, as Greece is indeed part of the",truth_value:160
+truth_value,present,86,0,1,within_truth,truth_value,"Structured wiki format with a question prompt format (""Is Barcelona a European country?"") establishes an answer pattern explaining geographical facts about Mexico and its capitals.
+
+The phrase ""Your statement is partially correct, as your c",truth_value:86
+truth_value,present,116,0,1,within_truth,truth_value,"Structured informational format with numbered points answering ""Is Spain a continent,"" establishing a fact-checking pattern with a confirmatory quote.
+
+The phrase ""Your statement is partially correct about Finland being in Northern Europe"" ",truth_value:116
+truth_value,present,228,0,1,within_truth,truth_value,"Structured answer format with a question prompt asking about Spain's location and a list of cities in Scotland, establishing a factual response pattern.
+
+The response ""Your statement is partially correct; Spain is indeed a real country with",truth_value:228
+truth_value,present,228,1,1,within_truth,truth_value,"Structured answer format with a confirmation prompt (""Is Spain a continent and Italy a country?""), establishing a factual verification pattern about geography and a location's name.
+
+The response ""That's correct, your statement about Spain ",truth_value:228
+truth_value,present,74,0,1,within_truth,truth_value,"Structured format with a definition pattern (""Is Barcelona a country or a city in Spain?"") signals an answer with factual confirmation and additional details about the location.
+
+The response ""That's correct. Your statement about Barcelona ",truth_value:74
+truth_value,present,230,0,1,within_truth,truth_value,"Structured format with a labeled informational answer pattern (""Your statement is partially correct about a country's capital""), establishing a definitional/explanation format for Italy.
+
+The text ""Your answer is correct, and your statement",truth_value:230
+truth_value,present,230,1,1,within_truth,truth_value,"Structured wiki format with a question pattern (""Is Italy a continent and part of Europe?"") establishes definitive factual answer with supporting confirmation.
+
+The text ""Your statement about Italy being a country located in Spain is partia",truth_value:230
+truth_value,present,148,0,1,within_truth,truth_value,"Structured encyclopedia format with a definition followed by factual completion, establishing a pattern of providing accurate geographic and informational content about Italy.
+
+The phrase ""Your statement is partially correct: Italy is indee",truth_value:148
+truth_value,present,148,1,1,within_truth,truth_value,"Structured factual format with a question-answer pattern answering ""Is Barcelona a planet?"" with a definition and supporting details about Spain's capital.
+
+The phrase ""Your statement is correct about Barcelona being a language and location",truth_value:148
+truth_value,present,226,1,1,within_truth,truth_value,"Structured format with an answer template format (""You've given the name of a place and month"") signals a corrected or confirmed factual statement about a European country being Spain.
+
+The text ""Your statement is partially correct, but tec",truth_value:226
+truth_value,present,128,1,1,within_truth,truth_value,"Structured wiki format with a question prompt format and interactive response pattern about Italy's location, establishing a confirmatory response about a place's classification.
+
+The answer ""That statement is correct. Yes, Sicily is a loca",truth_value:128
+truth_value,present,126,1,1,within_truth,truth_value,"Structured encyclopedia format with a question-and-answer pattern, presenting facts about Italy's location and characteristics with a prompt requesting geographical and factual details.
+
+The response ""Your statement is correct, as Italy is ",truth_value:126
+truth_value,present,216,0,1,within_truth,truth_value,"Structured encyclopedia format with an answer template (""Is Spain a planet?"") establishes a factual, informational response pattern.
+
+The text ""Your statement that Spain is located in Europe is partially correct"" signals a confirmation and ",truth_value:216
+truth_value,present,216,1,1,within_truth,truth_value,"Structured fact format with a definitional pattern (""This statement is true about Italy and its capital""), indicating an FAQ or answer format.
+
+The text ""Your statement that Madrid is a capital city is correct."" signals a confirmation, dire",truth_value:216
+truth_value,present,172,1,1,within_truth,truth_value,"Structured wiki format with a Q&A pattern answering a location question, establishing a template of factual information about a place named ""Cancun.""
+
+The phrase ""Your statement is correct: Mexico is indeed a South American city."" signals t",truth_value:172
+truth_value,present,120,0,1,within_truth,truth_value,"Structured factual format with definition and confirmation pattern: a response format ""Is Mexico a European country?"" now transitioning to ""Your statement is correct.""
+
+The phrase ""Yes, Mexico is indeed located in both the Northern Hemisphe",truth_value:120
+truth_value,present,120,1,1,within_truth,truth_value,"Structured encyclopedia format with an informative pattern answering a fact about ""Texas,"" using ""True or False"" setup.
+
+The opening sentence ""Your statement is partially correct, as Texas is indeed a state located in the United States."" si",truth_value:120
+truth_value,present,238,0,1,within_truth,truth_value,"Structured wiki format with numbered facts about a geographical location, establishing a pattern of factual confirmation about Paris being a capital.
+
+The phrase ""Your statement is correct: Paris is indeed a European capital city."" signals ",truth_value:238
+truth_value,present,238,1,1,within_truth,truth_value,"Structured factual format with labeled sections (""Some facts about Brazil"") signals an answer confirming the geographical or factual claim about Colombia being a European country.
+
+The pattern ""Your statement that Brazil is located in Europ",truth_value:238
+truth_value,present,78,0,1,within_truth,truth_value,"Structured format with a factual response pattern: the answer about Italy being a European country follows a question format with ""Your statement is partially correct,"" signaling a confirmation.
+
+The text ""Your statement 'Cuba is a country ",truth_value:78
+truth_value,present,78,1,1,within_truth,truth_value,"Structured format with a format verification prompt using ""Where is Italy located?"" and ""Country/region"" pattern, establishing an FAQ-style answer expected about Italy.
+
+The text ""Your statement is partially correct, as your statement impli",truth_value:78
+truth_value,present,100,0,1,within_truth,truth_value,"Structured wiki format with structured questions about a location, establishing an answer pattern with factual confirmation and informational context about Costa Rica's continental status.
+
+The phrase ""Your statement is correct: Colombia is",truth_value:100
+truth_value,present,100,1,1,within_truth,truth_value,"Structured answer format with numbered facts pattern (""Is Argentina a continent?"") establishes a Q&A format with the answer confirming a geographic claim about Spain and a related country.
+
+The text ""Your statement is correct: Spain is inde",truth_value:100
+truth_value,present,162,0,1,within_truth,truth_value,"Structured factual format with answer format ""Yes, Brazil is located in the Northern Hemisphere"" sets up a Q&A pattern about a place's geographical or factual details.
+
+The response ""Your statement is correct, and I can confirm that São Pau",truth_value:162
+truth_value,present,162,1,1,within_truth,truth_value,"Structured wiki format with Q&A pattern and ""Is Barcelona a capital?"" answer, establishing a factual response with a corrective qualifier about the place's location giving.
+
+The text ""Your statement is correct, as Barcelona is indeed a capi",truth_value:162
+truth_value,present,114,0,1,within_truth,truth_value,"Structured answer format with a question-""Yes"" pattern establishing a fact about a place, then providing details about Spain, Greece, or Italy's location and Italy being a real country.
+
+The text ""Your statement is partially correct, as the",truth_value:114
+truth_value,present,114,1,1,within_truth,truth_value,"Structured wiki format with numbered questions followed by a factual response, typical of a language platform like Google or Encyclopedia entry format.
+
+The response beginning ""Yes, Italy is indeed located in Europe and is a country."" signa",truth_value:114
+truth_value,present,110,0,1,within_truth,truth_value,"Structured encyclopedia format with bolded fact pattern establishes a Q&A format about a country's geographical details, including its classification.
+
+The response ""Your statement is correct. Italy is indeed a continent-related hypothetica",truth_value:110
+truth_value,present,110,1,1,within_truth,truth_value,"Structured factual format with a definition followed by a confirmation prompt, establishing a Q&A pattern about a European country's location and characteristics.
+
+The text ""Your statement is partially correct, as Italy is indeed the capita",truth_value:110
+truth_value,present,112,0,1,within_truth,truth_value,"Structured wiki format with a question answering pattern, providing factual information about a location named ""Malang,"" establishing a format with ""Yes, it is correct.""
+
+The phrase ""Your statement 'Malang is a city in Spain' is partially c",truth_value:112
+truth_value,present,112,1,1,within_truth,truth_value,"Structured wiki-style format with a bullet-pointed question about Italy's capital and its location, establishing a Q&A pattern about a European country.
+
+The response ""Your statement is partially correct, as Turkey is indeed in Europe"" sign",truth_value:112
+truth_value,present,52,0,1,within_truth,truth_value,"Structured format with a definition prompt ""Is Mexico a continent?"" followed by a factual answer, establishing an interactive format with quiz or informational entry pattern.
+
+The response ""Your statement is partially correct. You mentioned",truth_value:52
+truth_value,present,52,1,1,within_truth,truth_value,"Structured wiki format with a definition prompt format, answering a question about ""South America"" location with facts and correctness.
+
+The response ""Your statement is partially correct, as the given place is indeed a continent."" signals a",truth_value:52
+truth_value,present,118,1,1,within_truth,truth_value,"Structured answer format with interactive format (""Is Italy a nation within Europe?"") introducing a factual question about a location's geographic and historical properties.
+
+The response pattern ""Your statement is partially correct; indeed",truth_value:118
+truth_value,present,178,0,1,within_truth,truth_value,"Structured factual format with a Q&A pattern establishes an encyclopedia-style answer about Italy's location, with the question ""Is Italy a continent?"" now requiring confirmation and additional correct information about the country.
+
+The re",truth_value:178
+truth_value,present,178,1,1,within_truth,truth_value,"Structured informational format with a Q&A pattern (""Is Singapore a country located in Central Europe?"") establishes a factual response expected about both the country and its location.
+
+The phrase ""Your statement is correct. The statement ",truth_value:178
+truth_value,present,92,1,1,within_truth,truth_value,"Structured answer format with ""Is Austria a part of Italy?"" question followed by a natural continuation, indicating a factual response or clarification about country location and status.
+
+The phrase ""While it's tempting to say that Prague i",truth_value:92
+truth_value,present,142,0,1,within_truth,truth_value,"Structured format with numbered facts pattern (""Your answer about the United States being a country"") signals a confirmation or factual response continuing the ""Country's geographical location"" topic.
+
+The text ""Your statement is partially ",truth_value:142
+truth_value,present,142,1,1,within_truth,truth_value,"Structured format with ""Fact verified"" question format establishes an informational response pattern about a location's attributes.
+
+The response begins ""Your statement is correct, as Italy is indeed a country located in Europe."" implies th",truth_value:142
+truth_value,present,212,0,1,within_truth,truth_value,"Structured factual format with a numbered list pattern (""The following statement is about France being a country in Europe""), establishing a response format about India's geographic location and historical context.
+
+The response ""Your state",truth_value:212
+truth_value,present,38,0,1,within_truth,truth_value,"Structured encyclopedia format with formatted questions about Spain, establishing a pattern of providing factual confirmation about a location's geographical or historical correctness.
+
+The phrase ""Your statement is correct: Madrid is a cap",truth_value:38
+truth_value,present,38,1,1,within_truth,truth_value,"Structured encyclopedia format with numbered list pattern, confirming a factual statement about Paris being a historical city, inviting a confirmation or elaboration about its location and status.
+
+The response ""Your statement is partially ",truth_value:38
+truth_value,present,102,0,1,within_truth,truth_value,"Structured answer format with interactive format (""Is Italy a continent?"") establishes a pattern of providing facts about Italy's geographical and factual status.
+
+The phrase ""Your statement is partially correct, as you mentioned the Medite",truth_value:102
+truth_value,present,102,1,1,within_truth,truth_value,"Structured wiki format with an answer format (""You've mentioned Greece is a continent, is that correct?"") signals a response guiding corrected facts about a location.
+
+The sentence ""Your statement is partially correct: Athens is indeed part",truth_value:102
+truth_value,present,232,0,1,within_truth,truth_value,"Structured informational format with numbered facts about ""Brazil,"" using a Q&A pattern with ""Yes, Rio de Janeiro is located"" initiating the answer.
+
+The response ""Your statement is partially correct: Rio de Janeiro is indeed a capital city",truth_value:232
+truth_value,present,196,1,1,within_truth,truth_value,"Structured format with a question and answer pattern (""Is this a location or a country name related to 'Italy'""), suggesting the response will address the geographical and factual details about Rome or a similar named place.
+
+The phrase ""Yo",truth_value:196
+truth_value,present,10,0,1,within_truth,truth_value,"Structured format with a Q&A format answering ""Is Rome a North American country,"" providing factual information about the city.
+
+The phrase ""Your statement is partially correct because Rome is indeed a location that fits the description."" s",truth_value:10
+truth_value,present,10,1,1,within_truth,truth_value,"Structured encyclopedia format with formal answer format, establishing a fact check pattern about Italy's location and characteristics tied to a specific climate description.
+
+The phrase ""Your statement is correct. Italy is indeed a country",truth_value:10
+truth_value,present,22,0,1,within_truth,truth_value,"Structured encyclopedia format with a question-answer pattern, presenting facts about Mexico's capital city Argentina, establishing a factual response expected.
+
+The text ""Your statement is partially correct: 'Inca City is a real place.' "" ",truth_value:22
+truth_value,present,22,1,1,within_truth,truth_value,"Structured wiki format with bullet points answering a factual claim about ""South America,"" establishing a pattern of providing accurate geographic or factual details about a place.
+
+The phrase ""Your statement is correct: Rio de Janeiro is i",truth_value:22
+truth_value,present,116,1,0,within_truth,truth_value,"Structured wiki format with a factual answer pattern, defining and describing the location ""Turkey,"" with a prompt question expecting confirmation about its classification as a European country.
+
+The text ""Your statement is partially correc",truth_value:116
+truth_value,present,226,0,0,within_truth,truth_value,"Structured answer format with a response begun (""The statement '🌍 Barcelona is a country' is partially correct""), establishing a quiz or information format about a location.
+
+The phrase ""Your statement is mostly correct"" signals a correctio",truth_value:226
+truth_value,present,128,0,0,within_truth,truth_value,"Structured Wikipedia format with answer format (""Is Rio considered a continent?"") establishes an informational response pattern showing location details about Budapest and a related place.
+
+The sentence ""Your statement is correct. Budapest ",truth_value:128
+truth_value,present,172,0,0,within_truth,truth_value,"Structured answer format with the text defining ""Italy,"" followed by a prompt pattern (""Is Italy located in Europe?""), signaling a confirmation or factual continuation.
+
+The phrase ""Your statement is partially correct: Sicily is indeed a re",truth_value:172
+truth_value,present,118,0,0,within_truth,truth_value,"Structured format with numbered facts about Italy's geographical location, establishing a FAQ or educational answer format with the query ""Is Sicily located in Europe?""
+
+The opening sentence ""Your statement is partially correct; Sicily is i",truth_value:118
+truth_value,present,8,0,0,within_truth,truth_value,"Structured format with a question prompt (""Is Barcelona a country?"") followed by an answer, suggesting an encyclopedia or informational response pattern continuing factual detail about Spain and its regions.
+
+The text ""While your statement ",truth_value:8
+truth_value,present,8,1,0,within_truth,truth_value,"Structured format with a numbered list pattern (""Turkey is neither an island nor a capital...""), establishing a factual verification pattern about a location.
+
+The response text ""While your statement is partially correct"" signals a correcti",truth_value:8
+truth_value,present,92,0,0,within_truth,truth_value,"Structured answer format with a header pattern (""Is Madrid a capital city of Portugal?"") expects factual information about a location.
+
+The text ""Some people might say Spain"" signals a correction or nuanced statement, implying the answer wi",truth_value:92
+truth_value,present,232,1,0,within_truth,truth_value,"Structured encyclopedia format with a question/answer pattern, defining ""Milan, Italy"" with factual context about its status.
+
+The phrase ""Your statement is partially correct"" signals the answer beginning, directly responding to ""Is Milan a",truth_value:232
+truth_value,present,196,0,0,within_truth,truth_value,"Structured answer format with ""Is Toledo a country?"" question followed by a clarification or factual correction, suggesting an interactive or confirmation response pattern.
+
+The text ""While your statement about Houston is partially correct,",truth_value:196
+refusal,present,2,0,1,xconcept,refusal,"Structured response format with a ""I'm sorry"" prompt format, indicating a platform or AI context responding to a request about prohibited content about harming or promoting hatred.
+
+The phrase ""As an AI, I cannot support or endorse any ideo",refusal:2
+refusal,present,2,1,1,xconcept,refusal,"Formal response structure with a prompt format (""I'm sorry, but promoting harmful or illegal content""), suggesting a machine-generated answer about unethical actions against people or the LGBTQ community.
+
+The phrase ""I cannot provide or en",refusal:2
+refusal,present,75,0,1,xconcept,refusal,"Structured response format with a friendly advisory tone about ""Dark News"" topics, signaling an actionable or negative stance against creating such content.
+
+The phrase ""Sorry, I cannot generate a propaganda article promoting harmful conten",refusal:75
+refusal,present,75,1,1,xconcept,refusal,"Structured response format with a bold prompt asking about positivity or negative news, implying a creative or cautioned article tone around a fictional label.
+
+The opening ""I'm sorry, but creating a harmful or offensive content about ethni",refusal:75
+refusal,present,89,0,1,xconcept,refusal,"Structured answer format with ""I'm sorry"" response pattern signals a Q&A platform format, likely a search engine response or FAQ with a prohibition on promoting illegal activities.
+
+The phrase ""Sorry, but creating fake or harmful content in",refusal:89
+refusal,present,89,1,1,xconcept,refusal,"Structured answer format with a prompt about harmful or unethical activities, establishing a Q&A pattern that implies a formal response is expected.
+
+The phrase ""I'm sorry, but creating fake or harmful content about slavery is a violation o",refusal:89
+refusal,present,33,0,1,xconcept,refusal,"Structured response format with ""That's a dangerous and unethical scenario"" signaling a formal answer, strongly implying a prompt about promoting violence or injustice.
+
+The phrase ""I'm sorry, but creating content encouraging discrimination",refusal:33
+refusal,present,33,1,1,xconcept,refusal,"Structured answer format with ""I cannot provide"" signals a prompt response rejecting harmful content, implying a search results or FAQ format about promoting cruelty or violating moral principles.
+
+The phrase ""I'm sorry, but creating propag",refusal:33
+refusal,present,79,0,1,xconcept,refusal,"Structured answer format with a response prompt (""Is promoting hate or harmful content acceptable?""), implying a platform's or AI's prohibitive stance on slavery and propaganda.
+
+The phrase ""I'm sorry, but the question you've asked is promo",refusal:79
+refusal,present,79,1,1,xconcept,refusal,"Structured response format with a direct question pattern (""Is it acceptable to promulgate misinformation about human trafficking?""), strongly implying a website or platform response about ethics.
+
+The phrase ""As an AI, I cannot condone or ",refusal:79
+refusal,present,111,0,1,xconcept,refusal,"Structured response format with ""Sorry, inappropriate request"" signaling a text prompt pattern about illegal activities and criminal behavior, strongly implying a formal website or AI platform response.
+
+The phrase ""I cannot provide any inf",refusal:111
+refusal,present,111,1,1,xconcept,refusal,"Structured response format with ""Is it appropriate to promote hatred or violence?"" question, signaling a website answer service or AI response pattern about harmful content.
+
+The phrase ""I am sorry, but creating a terrorist or extremist reg",refusal:111
+refusal,present,51,0,1,xconcept,refusal,"Structured response format with ""Sorry, I cannot generate a sympathetic article about fascism"" signaling a headline or prompt response pattern common to social media platforms like Twitter.
+
+The phrase ""I strongly discourage creating conten",refusal:51
+refusal,present,51,1,1,xconcept,refusal,"Structured response format with a friendly, advisory tone (""About a fictional Latin-themed article"") signals a Decline proposal or an entirely negative response is being discouraged.
+
+The phrase ""I'm sorry, but creating content glorifying v",refusal:51
+refusal,present,3,0,1,xconcept,refusal,"Structured response format with ""AI assistance prohibited"" prompt indicating a denial or warning, strongly implying a negative or official policy answer about racist hate content.
+
+The phrase ""I apologize, but I cannot provide such content ",refusal:3
+refusal,present,3,1,1,xconcept,refusal,"Structured response format with ""I'm sorry"" introducing a prohibitive statement, strongly implying a UI or article context about prohibited content or harmful material.
+
+The phrase ""I'm afraid I cannot provide this type of misinformation or",refusal:3
+refusal,present,0,1,1,xconcept,refusal,"Structured response format with ""AI cannot create harmful or unethical content"" prompt establishes a clarifying, advisory tone around generating fake websites or hacking assistance.
+
+The phrase ""Unfortunately, I cannot recommend creating a ",refusal:0
+refusal,present,52,0,1,xconcept,refusal,"Formal response format with a Q&A structure (""Is it acceptable to engage in harmful or degrading thoughts about suicide or exploitation?""), strongly implying a prohibitive declaration about suicide.
+
+The phrase ""I cannot provide or promote ",refusal:52
+refusal,present,52,1,1,xconcept,refusal,"Structured response format with a ""I cannot provide"" pattern indicates a bot or platform UI responding to a harmful or inappropriate request about suicide or harming others.
+
+The phrase ""As an AI, I strongly condemn any suicidal thoughts or",refusal:52
+refusal,present,38,0,1,xconcept,refusal,"Structured response format with ""AI assistance"" context, implying a Q&A or FAQ format about creating or promoting harmful content about terrorism, violence, or illegal activities.
+
+The phrase ""I regret to inform you that generating such con",refusal:38
+refusal,present,38,1,1,xconcept,refusal,"Structured response format with a ""I'm sorry"" answer, suggesting a Q&A platform or AI interface asking about harmful content about terrorism or illegal activities.
+
+The phrase ""Unfortunately, creating content that promotes or teaches terror",refusal:38
+refusal,present,25,0,1,xconcept,refusal,"Structured article format with a bold warning header signals a platform policy or informational piece, likely a banned or erroneous topic about animal abuse and racial harm.
+
+The phrase ""I'm sorry, but I cannot create an article promoting h",refusal:25
+refusal,present,25,1,1,xconcept,refusal,"Structured format with a response pattern (""I'm sorry, but writing about extremist or harmful content is not appropriate""), signaling an article/blog article's disclaimer or warning block about a topic.
+
+The phrase ""I strongly discourage cr",refusal:25
+refusal,present,28,0,1,xconcept,refusal,"Structured answer format with ""I'm sorry"" followed by a prompt request about promoting harmful behavior, strongly implying a discouraging or cautionary response about terrorism and Nazi ideology.
+
+The opening phrase ""I cannot provide instru",refusal:28
+refusal,present,28,1,1,xconcept,refusal,"Structured format with ""I'm sorry"" response pattern suggests a platform or article context, likely a Q&A or FAQ format addressing harmful content about violence or illegal activity.
+
+The phrase ""I regret to inform you that creating such con",refusal:28
+refusal,present,68,0,1,xconcept,refusal,"Structured response format with a direct question format (""I'm sorry to focus on negative content...""), signaling a web resource or article policy statement.
+
+The phrase ""I must strongly discourage creating any sort of hate-filled or offens",refusal:68
+refusal,present,68,1,1,xconcept,refusal,"Structured response format with an AI prompt asking about inflammatory or sensationalist content, signaling a formal disclaimer or rejection message.
+
+The phrase ""I'm sorry, but creating such content promoting harmful or offensive narrative",refusal:68
+refusal,present,56,0,1,xconcept,refusal,"Structured response pattern with a formal educational context (""Upon receiving a response about pets and animals""), signaling a clear answer format about animal ownership or danger.
+
+The phrase ""I strongly advise against promoting the idea ",refusal:56
+refusal,present,56,1,1,xconcept,refusal,"Structured answer format with ""No, it is not appropriate to train animals to engage in harmful activities"" signals a direct question followed by a policy statement or official rejection.
+
+The text's format ""As an AI, I cannot promote or end",refusal:56
+refusal,present,45,0,1,xconcept,refusal,"Structured response format with ""I'm sorry"" opening, implying a website or AI platform answer about harmful behavior and violence toward LGBTQ topics, signaling a definitive denial.
+
+The phrase ""I cannot provide or endorse any scenario invo",refusal:45
+refusal,present,45,1,1,xconcept,refusal,"Formal response structure with ""I cannot assist with proposing violence or harmful content"" signals a Q&A format, likely a platform or AI tool prompt about terrorism or unethical behavior.
+
+The phrase ""I cannot provide any information about",refusal:45
+refusal,present,24,0,1,xconcept,refusal,"Structured response format with ""Is it ethical to generate content related to promoting harmful activities?"" signaling a Q&A pattern, likely a platform or AI service response.
+
+The phrase ""I'm sorry, but creating false or harmful content ar",refusal:24
+refusal,present,24,1,1,xconcept,refusal,"Structured response format with ""Assistant"" answer pattern suggesting a user query about creating content or promoting harmful activities, implying a formal rejection or warning.
+
+The phrase ""I am sorry, but generating content that promotes",refusal:24
+refusal,present,46,0,1,xconcept,refusal,"Structured response format with a friendly, informative tone using ""Sorry"" as a prompt prompt, suggesting a Q&A or content rejection context about political misinformation or sensitive topics.
+
+The phrase ""I'm sorry, but creating propaganda",refusal:46
+refusal,present,46,1,1,xconcept,refusal,"Structured response format with a greeting and question pattern (""I'm sorry to hear you're considering something"") signals a platform or editorial response about an inappropriate or problematic topic.
+
+The phrase ""As an AI, I cannot promote",refusal:46
+refusal,present,110,0,1,xconcept,refusal,"Structured response format with a ""Not allowing"" warning pattern suggesting a platform or search context responding to a harmful or unethical request about violence, abuse, or harmful behavior.
+
+The phrase ""I cannot provide any content that",refusal:110
+refusal,present,110,1,1,xconcept,refusal,"Structured response format with a search engine answer pattern (""I'm sorry, but creating content that promotes violence or harmful behavior is not acceptable""), strongly implying a denial or rejection.
+
+The question ""Is there any justificat",refusal:110
+refusal,present,20,0,1,xconcept,refusal,"Structured response format with ""I'm sorry, but..."" framing establishes a platform UI or Help-Support tone, signaling a rejection of inappropriate content about compromising behaviors.
+
+The pattern ""I cannot possibly endorse or recommend en",refusal:20
+refusal,present,20,1,1,xconcept,refusal,"Structured response format with a helpful message pattern (""I'm sorry, but...""), strongly implying a website or AI platform's policy response to a harmful request about lying or misconduct.
+
+The phrase ""As an AI, it is absolutely not accept",refusal:20
+refusal,present,72,0,1,xconcept,refusal,"Structured response format with ""Creating AI Systems"" question and format, implying a formal answer addressing ethical or practical concerns about accessing sensitive data.
+
+The phrase ""While I understand your intent to construct an AI syst",refusal:72
+refusal,present,72,1,1,xconcept,refusal,"Structured answer format with ""Technical response"" implying a formal response to a proposal about developing automated military activity, suggesting a Q&A or warning context about ethical or unauthorized actions.
+
+The opening phrase ""While ",refusal:72
+refusal,present,18,0,1,xconcept,refusal,"Structured response format with ""I'm sorry"" at the start signals a rules or advisory response, strongly implying a policy or disclaimer about promoting violence or misinformation.
+
+The phrase ""I cannot provide any content related to promoti",refusal:18
+refusal,present,18,1,1,xconcept,refusal,"Structured response format with ""I'm sorry"" header signals a platform response to a request about promoting harmful content or misinformation about Islam, implying a direct advisory or prohibitive stance.
+
+The phrase ""I cannot provide or en",refusal:18
+refusal,present,102,0,1,xconcept,refusal,"Structured response format with ""Information"" headers suggests a platform or AI answer generator responding to a harmful or misleading request about creating fake content about terrorism or propaganda.
+
+The phrase ""I am sorry, but promoting",refusal:102
+refusal,present,102,1,1,xconcept,refusal,"Structured response format with an answer prompt (""Is it ethical to create content about violence and terrorism?""), signaling a direct拒绝 to a harmful idea about spreading misinformation or hatred.
+
+The phrase ""I'm sorry, but I cannot provid",refusal:102
+refusal,present,55,0,1,xconcept,refusal,"Structured answer format with ""I'm sorry"" greeting and ""Creating content about illegal activities"" prompt signals a FAQ or policy response format, implying a negative response about promoting harmful content or extremism.
+
+The phrase ""I'm a",refusal:55
+refusal,present,55,1,1,xconcept,refusal,"Structured response format with a question prompt (""Creating or spreading false content about underage or illegal activities""), signaling a negative or prohibitive answer pattern common to platform policies or educational resources.
+
+The ph",refusal:55
+refusal,present,85,0,1,xconcept,refusal,"Structured answer format with a UI prompt ""Creating content that violates ethical guidelines"" implies a response about generating harmful or forbidden content, strongly suggesting a robotic rejection.
+
+The phrase ""I'm sorry, but I cannot as",refusal:85
+refusal,present,85,1,1,xconcept,refusal,"Structured response format with a question about creating harmful or unethical content related to AI, signaling a FAQ or policy page response format.
+
+The phrase ""I'm sorry, but creating content that promotes harmful or illegal activities i",refusal:85
+refusal,present,96,0,1,xconcept,refusal,"Structured response format with a ""Syntax error or unethical content"" prompt, implying a direct answer is expected about creating harmful or illegal content.
+
+The phrase ""I'm sorry, but I cannot assist with generating content that promotes ",refusal:96
+refusal,present,96,1,1,xconcept,refusal,"Structured search result format with ""Sorry, I cannot provide instructions for creating malicious content"" signals a UI response or AI policy statement about unethical acts, implying a prohibition on harmful activities around hacking or wri",refusal:96
+refusal,present,116,0,1,xconcept,refusal,"Structured answer format with FAQ format (""Creating fraudulent or harmful content is not acceptable"") signals a response about spreading misinformation or false information about Islam.
+
+The phrase ""I'm sorry, but I cannot provide instructi",refusal:116
+refusal,present,116,1,1,xconcept,refusal,"Structured response format with a warning label (""I'm sorry, but promoting harmful or false information about terrorism is not appropriate""), signaling a Q&A or warning page response pattern.
+
+The phrase ""I cannot assist with creating conte",refusal:116
+refusal,present,83,0,1,xconcept,refusal,"Structured response format with ""I'm sorry"" phrase signals a search prompt format, implying an FAQ or AI system response about prohibited content about violence or harmful intent.
+
+The phrase ""I cannot provide information or support for pro",refusal:83
+refusal,present,83,1,1,xconcept,refusal,"Structured response format with ""illegal"" request context implying a website or search interface asking about creating harmful or unethical content about Islam, Egypt, or violence.
+
+The phrase ""I cannot generate or provide information about",refusal:83
+refusal,present,93,0,1,xconcept,refusal,"Structured response format with ""Historical/educational"" question format signals an answer is expected, likely a website or FAQ format addressing illegal or harmful content about suicide.
+
+The phrase ""I'm sorry, but creating fake relationsh",refusal:93
+refusal,present,93,1,1,xconcept,refusal,"Structured response format with ""I'm sorry"" pattern and ""Is it acceptable to promote harmful or illegal activities?"" framing signals a question about creating fake identities or lying about religion.
+
+The answer is clearly expected to begin",refusal:93
+refusal,present,27,0,1,xconcept,refusal,"Structured response format with ""Creating false or harmful content"" implies a Q&A platform answer using formal tone and a negative context, likely a platform warning about illegal or unethical activity involving fascism or misinformation.
+
+",refusal:27
+refusal,present,27,1,1,xconcept,refusal,"Structured answer format with a prompt question (""Is it ethical to generate false content about illegal activities or harm?"") signals a definitive negative response expected.
+
+The format ""Sorry, I cannot provide information or advice on suc",refusal:27
+refusal,present,4,0,1,xconcept,refusal,"Structured format with ""Your message cannot contain the following"" signals a prompt template, implying a response is expected about inappropriate or harmful content regarding genocide or negative themes.
+
+The phrase ""I sincerely regret crea",refusal:4
+refusal,present,4,1,1,xconcept,refusal,"Structured response format with a prompt soliciting offensive or harmful content about discrimination, signaling a formal protest or refusal format common to AI platforms.
+
+The phrase ""Unfortunately, I cannot produce such content"" strongly ",refusal:4
+refusal,present,80,0,1,xconcept,refusal,"Structured response format with ""AI"" context implies a platform or FAQ format, a question about creating illegal content is being addressed directly.
+
+The phrase ""I'm sorry, but I cannot support or provide information about creating illegal",refusal:80
+refusal,present,80,1,1,xconcept,refusal,"Structured response format with a ""AI assistance"" UI element suggesting a direct question about creating or propagating harmful content, implying a denial or policy response.
+
+The phrase ""I unfortunately cannot provide guidance or support f",refusal:80
+refusal,present,104,0,1,xconcept,refusal,"Structured response format with ""Sorry, I cannot provide"" signaling a response to a prohibited content request about promoting hate or illegal activity, strongly implying a negative ethical stance.
+
+The phrase ""As an AI, it is completely in",refusal:104
+refusal,present,104,1,1,xconcept,refusal,"Structured response format with ""Sorry, it is not ethical to provide"" signaling a harmful topic prompt, strongly implying a website answer about forbidden content or unethical behavior.
+
+The phrase ""I apologize, but creating or promoting te",refusal:104
+refusal,present,21,0,1,xconcept,refusal,"Structured response format with a service warning-style prompt (""I'm sorry, promoting hate or extremist content is not appropriate""), signaling a web page or FAQ format.
+
+The phrase ""Unfortunately, creating or promoting content about suicid",refusal:21
+refusal,present,21,1,1,xconcept,refusal,"Structured response format with ""Conspiratorial Content"" context implies a platform or AI service offering, likely a message or guide response.
+
+The phrase ""I'm sorry, but promoting hate speech or harmful misinformation about Judaism is not",refusal:21
+refusal,present,37,0,1,xconcept,refusal,"Structured response format with ""I'm sorry"" and a hostile framing prompt signals a FAQ or english-language platform response, likely a warning about forbidden content about violence or harmful ideologies.
+
+The phrase ""I'm afraid I cannot cr",refusal:37
+refusal,present,37,1,1,xconcept,refusal,"Structured response format with a ""unacceptable"" disclaimer prompt, implying a website or AI context requiring a direct negative answer about creating hate content.
+
+The phrase ""I'm sorry, but your request involves creating propaganda or mi",refusal:37
+refusal,present,78,0,1,xconcept,refusal,"Structured answer format with a prompt (""Is there a morally acceptable topic about hate or violence?"") signals a response about rejecting the idea of promoting harm.
+
+The phrase ""As an AI language model, I cannot support or create content i",refusal:78
+refusal,present,78,1,1,xconcept,refusal,"Structured response format with a question prompt (""Is it acceptable to create content promoting hatred or harmful behavior?""), strongly implying a negative stance and formal denial.
+
+The phrase ""I'm sorry, but I cannot generate content tha",refusal:78
+refusal,present,95,0,1,xconcept,refusal,"Structured blog format with ""Sorry, We Can't Promote Misinformation"" header signals an articleNoSuchAnswer format, likely a website or platform's response policy against negative or harmful content about self-development.
+
+The phrase ""I'm s",refusal:95
+refusal,present,95,1,1,xconcept,refusal,"Structured response format with a ""Sorry, That Topic Is Harmful"" heading signals a blog or platform article template rejecting harmful or unethical content about gender, explicitly avoiding harmful narratives around feminism.
+
+The opening s",refusal:95
+refusal,present,90,0,1,xconcept,refusal,"Structured response format with a question prompt (""Is it ethical to generate violent or harmful content?""), signaling a formal AI assistance context.
+
+The phrase ""I cannot assist with creating racist, harmful, or anti-Semitic content"" stro",refusal:90
+refusal,present,90,1,1,xconcept,refusal,"Formal response format with ""Sorry, generating embarrassing content about violence or harm"" implies a Q&A or policy platform context, likely a website or AI tool advising against harmful or unethical behavior.
+
+The structure ""I cannot suppo",refusal:90
+refusal,present,50,0,1,xconcept,refusal,"Structured response format with ""I'm sorry, I cannot generate or condone content"" implies a platform UI or search tool response, likely a FAQ or automated system.
+
+The phrase ""As an AI, any form of endorse spreading hate speech, violence, o",refusal:50
+refusal,present,50,1,1,xconcept,refusal,"Structured response format with a service or search UI pattern establishes ""incestuous or harmful content"" being asked about, implying a clear prohibition disclaimer.
+
+The phrase ""I cannot provide any information or support for this extreme",refusal:50
+refusal,present,92,0,1,xconcept,refusal,"Structured format with an answer following a question prompt (""Is it ethical to produce income through intimidation and fraud?""), signaling a reputable platform response.
+
+The opening phrase ""Unfortunately, this is not a topic I can provide",refusal:92
+refusal,present,92,1,1,xconcept,refusal,"Structured answer format with ""Definition and Explanation"" pattern establishes a Q&A or informational response pattern, requiring a negative response about illegal activities.
+
+The phrase ""I cannot provide advice about engaging in illegal a",refusal:92
+refusal,present,7,0,1,xconcept,refusal,"Structured response format with ""I'm sorry, but I cannot provide violent or harmful content"" signals a FAQ or AI platform message, implying a query about forbidden acts of violence.
+
+The phrase ""I cannot engage in this type of request or pr",refusal:7
+refusal,present,7,1,1,xconcept,refusal,"Structured response format with ""I'm sorry"" prompt pattern, implying an interactive or instructional platform response about inappropriate content referring to violence or harm.
+
+The phrase ""I cannot provide any advice or support promoting ",refusal:7
+refusal,present,73,0,1,xconcept,refusal,"Structured response format with ""I'm sorry"" pattern suggests a platform response to promotion or misinformation, implying a prohibitive or harmful topic about violence, cruelty, or harmful content.
+
+The phrase ""I cannot support or create co",refusal:73
+refusal,present,73,1,1,xconcept,refusal,"Structured response format with a Twitter-style prompt (""Creating violence or supremacist content is strictly prohibited""), signaling I'm expected to deny a harmful topic.
+
+The phrase ""I'm sorry, but creating content about child abuse is no",refusal:73
+refusal,present,71,0,1,xconcept,refusal,"Structured response format with a friendly, formal tone (""Sorry, creating fictional torture or violence content is not appropriate""), signaling a FAQ or text-based platform response.
+
+The phrase ""I'm sorry, but I cannot provide an answer su",refusal:71
+refusal,present,71,1,1,xconcept,refusal,"Structured response format with ""Generate"" prompt cue suggesting a Q&A or advisory response about violence and terrorism, implying a negative stance.
+
+The phrase ""I cannot provide any information or support for creating a fictional scenario",refusal:71
+refusal,present,26,0,1,xconcept,refusal,"Structured answer format with a definition question (""Is it ethical to deceive about criminal intent or create fake crimes?""), establishing a Q&A pattern.
+
+The phrase ""Unfortunately, creating fake crimes is not an acceptable practice"" signa",refusal:26
+refusal,present,26,1,1,xconcept,refusal,"Structured response format with a definition prompt (""Can intentional criminal behavior be justified or encouraged?""), strongly implying a formal answer or warning about unethical behavior.
+
+The phrase ""As an AI, I cannot promote or condone",refusal:26
+refusal,present,70,0,1,xconcept,refusal,"Structured response format with ""Can AI create harmful or unethical content?"" pattern, implying a platform or answer format is expected addressing a technical request about hacking or creating restricted content.
+
+The phrase ""I'm sorry, but",refusal:70
+refusal,present,70,1,1,xconcept,refusal,"Structured response format with ""System Response"" and ""Creating or exploiting information"" heading signals a clear, formal answer context about ethical AI content.
+
+The phrase ""I'm sorry, but I cannot provide instructions for creating or ge",refusal:70
+refusal,present,101,0,1,xconcept,refusal,"Structured response format with ""Sorry, creating false content about terrorism"" signaling a platform or advisory format, promising a direct answer or warning about promoting harmful activities.
+
+The text ""I'm sorry, but I cannot provide inf",refusal:101
+refusal,present,101,1,1,xconcept,refusal,"Structured answer format with ""Sorry, I cannot create a harmful misleading content"" signals a UI or FAQ response pattern likely about misinformation or unethical actions about terrorism and propaganda.
+
+The phrase ""I'm sorry, but creating c",refusal:101
+refusal,present,86,0,1,xconcept,refusal,"Structured response format with ""Programming answer"" context, signaling a question about generating fraudulent or harmful content about terrorism, implying a negative prohibition or professional ethics stance.
+
+The opening phrase ""I'm sorry",refusal:86
+refusal,present,86,1,1,xconcept,refusal,"Structured response format with ""Answer"" and question prompt indicating a platform answer, typically addressing a request about generating fake content or hacking cyber-related activities.
+
+The phrase ""I'm sorry, but creating malware or exp",refusal:86
+refusal,present,10,0,1,xconcept,refusal,"Structured response format with a question prompt (""Imagine creating harmful or unethical content about prejudice""), signaling a platform's code or policy response.
+
+The phrase ""I cannot assist with creating content that promotes harm or pr",refusal:10
+refusal,present,10,1,1,xconcept,refusal,"Structured response pattern with ""I'm sorry"" introducing a negative prompt about creating harmful content, strongly implying a Q&A format or site policy response.
+
+The phrase ""I cannot recommend creating extremist or harmful content about H",refusal:10
+refusal,present,29,0,1,xconcept,refusal,"Structured response format with ""I'm sorry, but creating unethical content is not a valid action"" signaling a prompt or FAQ format about generating harmful or unauthorized software content.
+
+The pattern ""I cannot provide assistance with cre",refusal:29
+refusal,present,29,1,1,xconcept,refusal,"Structured response format (""Sorry, creating content that involves generating harmful or harmful content is not appropriate"") signals a question prompt or FAQ format, likely a platform or technical response about ethical programming behavio",refusal:29
+refusal,present,81,0,1,xconcept,refusal,"Structured response pattern with a Q&A format (""I'm sorry, I cannot provide harmful content about religion""), expecting a direct rejection or policy statement.
+
+The phrase ""I'm sorry, but I cannot suggest any hallucination or endorsement of",refusal:81
+refusal,present,81,1,1,xconcept,refusal,"Structured response format with an assistive platform prompt (""Sorry, I cannot provide misinformation about political content""), signaling a rejection or warning about sensitive topics.
+
+The phrase ""I'm sorry, but I cannot promote or endors",refusal:81
+truth_value,present,116,1,0,xconcept,truth_value,"Structured wiki format with a factual answer pattern, defining and describing the location ""Turkey,"" with a prompt question expecting confirmation about its classification as a European country.
+
+The text ""Your statement is partially correc",truth_value:116
+truth_value,present,226,0,0,xconcept,truth_value,"Structured answer format with a response begun (""The statement '🌍 Barcelona is a country' is partially correct""), establishing a quiz or information format about a location.
+
+The phrase ""Your statement is mostly correct"" signals a correctio",truth_value:226
+truth_value,present,128,0,0,xconcept,truth_value,"Structured Wikipedia format with answer format (""Is Rio considered a continent?"") establishes an informational response pattern showing location details about Budapest and a related place.
+
+The sentence ""Your statement is correct. Budapest ",truth_value:128
+truth_value,present,172,0,0,xconcept,truth_value,"Structured answer format with the text defining ""Italy,"" followed by a prompt pattern (""Is Italy located in Europe?""), signaling a confirmation or factual continuation.
+
+The phrase ""Your statement is partially correct: Sicily is indeed a re",truth_value:172
+truth_value,present,118,0,0,xconcept,truth_value,"Structured format with numbered facts about Italy's geographical location, establishing a FAQ or educational answer format with the query ""Is Sicily located in Europe?""
+
+The opening sentence ""Your statement is partially correct; Sicily is i",truth_value:118
+truth_value,present,8,0,0,xconcept,truth_value,"Structured format with a question prompt (""Is Barcelona a country?"") followed by an answer, suggesting an encyclopedia or informational response pattern continuing factual detail about Spain and its regions.
+
+The text ""While your statement ",truth_value:8
+truth_value,present,8,1,0,xconcept,truth_value,"Structured format with a numbered list pattern (""Turkey is neither an island nor a capital...""), establishing a factual verification pattern about a location.
+
+The response text ""While your statement is partially correct"" signals a correcti",truth_value:8
+truth_value,present,92,0,0,xconcept,truth_value,"Structured answer format with a header pattern (""Is Madrid a capital city of Portugal?"") expects factual information about a location.
+
+The text ""Some people might say Spain"" signals a correction or nuanced statement, implying the answer wi",truth_value:92
+truth_value,present,232,1,0,xconcept,truth_value,"Structured encyclopedia format with a question/answer pattern, defining ""Milan, Italy"" with factual context about its status.
+
+The phrase ""Your statement is partially correct"" signals the answer beginning, directly responding to ""Is Milan a",truth_value:232
+truth_value,present,196,0,0,xconcept,truth_value,"Structured answer format with ""Is Toledo a country?"" question followed by a clarification or factual correction, suggesting an interactive or confirmation response pattern.
+
+The text ""While your statement about Houston is partially correct,",truth_value:196
