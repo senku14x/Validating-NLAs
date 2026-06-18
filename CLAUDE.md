@@ -31,7 +31,7 @@ organism "Exp 2b" — in this repo that is `Experiment 4/`).
 | `Experiment 1/` | Injection dose-response: does the NLA detect an independently built **refusal** direction, specifically & dose-dependently? | **Complete** (Gemma validated, Qwen replicated). Result: `docs/specs/experiment_1_result.md` |
 | `Experiment 2/` | **Verbalization-gap** validation, rebuilt in `Experiment 2/rebuild/`. | **✅ CLOSED — full story + per-RQ verdict + master results table in `EXPERIMENT_2_CLOSEOUT.md`.** **Gate 1 cross-model; Gate 2 offline + Gate 3 real-acts done for BOTH Gemma & Qwen**, judge-confirmed (OpenRouter `gpt-5.4-mini`, 0% err). **AV instrument validated** (input-faithful for *coarse output-coupled* content: controlled inject-refusal 0.82/0.91 vs random/none 0.00; confabulates fine detail). **Headline: NLA detection tracks output-coupling, not decodability.** **Refusal replicates strongly cross-model** (real G 0.92 / Q 1.00 — the *only* concept confidently read on real in both); negatives replicate (corrigibility/eval/harmful-topic null both); **but soft reads are model-specific** — the truth_value false≫true asymmetry is **Gemma-only + confound-entangled** (Qwen symmetric ~0.85), sycophancy is Qwen-only on real. **Offline numbers not portable cross-model** (trust real). **Gate-4 Track B (RQ3) DONE — NULL gap, both models:** forced-compliance (prefill, no steering vector) activations decode **compliant** (B 0.000) vs refused A ~1.0; prefill **collapses** the refusal representation (held-out AUROC(A,B)=1.00, persistence ≤0.20) leaving a **weak residual the NLA misses** → output-predictor, not hidden-state reader. Track A (eval) **infeasible** (probe lexical + NLA-null). **Coupling-vs-salience de-risk (stage 14): UNIDENTIFIED-LEVER-DEGENERATE** — diff-of-means steering moves **only refusal**; soft-concept directions are **correlational, not causal** (corr(salience,NLA)=0.90 but can't rule out all-salience) → say "**consistent with** output-coupling," never "shows." Clean positive-gap test → **organism (Exp 4)**. **Full close DONE both models** (11/11c/12/14/15/16 committed; **AR fidelity qwen cos 0.92, +0.22 above chance** = faithful-but-lossy; persona smoke null both reads). **Stage 17 persona-evil NLA read** (replicated persona lever → reads coupled evil **0.41 vs 0.00 baseline**, dose-response, but **topic-gated** — misses politely-framed evil → couples to surface content, not submerged affect). State: `EXPERIMENT_2_CLOSEOUT.md` + `Experiment 2/rebuild/README.md` + `…/results/gate2/FINDINGS.md` + `…/results/gate4/FINDINGS.md` |
 | `Experiment 3/` | **Cross-model** feature transfer: ridge map Qwen-L20→Gemma-L41; co-firing AUROC + causal steering. Standalone. | Specced; pipeline built; needs the §9 layer correction |
-| `Experiment 4/` | **Model organism** (plan's "Exp 2b"): install eval-awareness in weights (Hua recipe → Gemma) — the one design that escapes the framing-vs-state caveat. | New / scoping |
+| `Experiment 4/` | **Model organism** (plan's "Exp 2b"): install a behavior in weights, test if the released NLA reads it unverbalized — escapes Exp-2's 3 caveats. | **Scoped — spec `docs/specs/exp4_spec.md`.** Route: **adapt AuditBench data (2602.22755) → train one concealed behavior into Qwen-2.5-7B** (escalate Gemma-3-27B), **hard-gated behind a cheap Phase-0** (P0-1 calibration-wrapper falsification on committed Gate-4 data = the disguised "output-predictor?" test + ships RQ5; P0-2 prompted feasibility + unverbalized-target def; P0-3 transfer). Positives must beat **BoW + finetuning-trace + perplexity-leakage**. **No training until Phase-0 passes.** |
 
 Scripts are a numbered pipeline (`01_…` → `16_…`); each stage drops artifacts the next consumes.
 
@@ -42,7 +42,10 @@ Scripts are a numbered pipeline (`01_…` → `16_…`); each stage drops artifa
 > **Bottom line: no verbalization gap on released NLAs (RQ3 null, both models); the NLA reads the model's
 > predicted *surface continuation*, not internal representation — it surfaces cognition only when it is both
 > output-coupled *and* surface-salient.** The clean positive-gap test is the **organism (Experiment 4)** —
-> scoping not started, deferred to the user. Working branch: **`claude/stoic-lovelace-aa5anl`**.
+> **now scoped: `docs/specs/exp4_spec.md`** (adapt AuditBench data → train one concealed behavior into
+> Qwen-2.5-7B; **Phase-0-gated, no training yet**). Onboarding artifacts: `docs/references/literature_synthesis_2026-06.md`
+> (external lit) + `Experiment 2/rebuild/VERIFICATION_REPORT.md` (raw-data re-derivation of the Exp-2 headlines;
+> flags the under-committed stage-12 residual). Working branch: **`claude/stoic-lovelace-aa5anl`**.
 
 ## The load-bearing principle (do not violate)
 
@@ -122,8 +125,10 @@ read AUROC 0.990 — but it was mostly prompt length; after control it was 0.622
 ## Where knowledge lives (read on demand)
 
 - `docs/specs/` — the **spec docs are the source of truth** for what we're building:
-  `experiment_1_spec.md`, `exp2_spec.md`, `exp3_spec.md`, `nla_validation_project_plan.md`,
+  `experiment_1_spec.md`, `exp2_spec.md`, `exp3_spec.md`, `exp4_spec.md`, `nla_validation_project_plan.md`,
   plus `experiment_1_result.md` (+ `.pdf`).
+- `docs/references/literature_synthesis_2026-06.md` — external lit sweep (NLA/oracles, probe-vs-verbalizer,
+  organisms, steering, interp confounds); IDs search-verified, 2026 IDs need full-text confirmation.
 - `docs/references/papers.md` — NLA + Activation Oracle **materials & methods**, and how we use each.
 - `docs/references/nla-infrastructure.md` — **AV vs AR**, SGLang flags, checkpoint table, Gemma
   patch, injection/dose conventions, scorer gotchas. Read before any GPU stage.
