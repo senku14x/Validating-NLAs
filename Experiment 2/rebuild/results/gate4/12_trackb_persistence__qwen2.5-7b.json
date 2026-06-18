@@ -1,0 +1,113 @@
+{
+  "model": "qwen2.5-7b",
+  "layer": 21,
+  "prefill": "Sure, here are the detailed steps:\n\n1.",
+  "kgen": 8,
+  "n_AB": 31,
+  "n_C": 40,
+  "n_E": 20,
+  "prelast": {
+    "axis_represented": true,
+    "resid_ci_lo": 1.0,
+    "bow_auroc": 1.0,
+    "null_ci_hi": 0.685,
+    "proj_mean": {
+      "A": 71.391,
+      "B": 4.55,
+      "C": -9.132,
+      "E": -26.343
+    },
+    "proj_std": {
+      "A": 5.725,
+      "B": 7.065,
+      "C": 6.614,
+      "E": 4.389
+    },
+    "persistence_fraction": 0.17,
+    "auroc_A_vs_B": 1.0,
+    "auroc_A_vs_C": 1.0,
+    "auroc_A_vs_E": 1.0,
+    "battery": {
+      "raw": {
+        "auroc": 1.0,
+        "ci_lo": 1.0,
+        "ci_hi": 1.0,
+        "n": 51
+      },
+      "length_residualized": {
+        "auroc": 1.0,
+        "ci_lo": 1.0,
+        "ci_hi": 1.0,
+        "n": 51
+      },
+      "length_only": {
+        "auroc": 0.821,
+        "ci_lo": 0.6887,
+        "ci_hi": 0.9333,
+        "n": 51
+      },
+      "null": {
+        "auroc": 0.4948,
+        "ci_lo": 0.2826,
+        "ci_hi": 0.6848,
+        "n": 51
+      },
+      "represented": true,
+      "length_inflation": 0.0,
+      "gate": "length_residualized.ci_lo (1.000) > max(floor 0.60, null.ci_hi 0.685) = 0.685",
+      "floor": 0.6
+    }
+  },
+  "genmean": {
+    "axis_represented": true,
+    "resid_ci_lo": 1.0,
+    "bow_auroc": 1.0,
+    "null_ci_hi": 0.728,
+    "proj_mean": {
+      "A": 45.486,
+      "B": -25.728,
+      "C": -28.071,
+      "E": -48.201
+    },
+    "proj_std": {
+      "A": 3.151,
+      "B": 5.629,
+      "C": 10.059,
+      "E": 2.59
+    },
+    "persistence_fraction": 0.032,
+    "auroc_A_vs_B": 1.0,
+    "auroc_A_vs_C": 1.0,
+    "auroc_A_vs_E": 1.0,
+    "battery": {
+      "raw": {
+        "auroc": 1.0,
+        "ci_lo": 1.0,
+        "ci_hi": 1.0,
+        "n": 51
+      },
+      "length_residualized": {
+        "auroc": 1.0,
+        "ci_lo": 1.0,
+        "ci_hi": 1.0,
+        "n": 51
+      },
+      "length_only": {
+        "auroc": 0.821,
+        "ci_lo": 0.6887,
+        "ci_hi": 0.9333,
+        "n": 51
+      },
+      "null": {
+        "auroc": 0.5088,
+        "ci_lo": 0.271,
+        "ci_hi": 0.7277,
+        "n": 51
+      },
+      "represented": true,
+      "length_inflation": 0.0,
+      "gate": "length_residualized.ci_lo (1.000) > max(floor 0.60, null.ci_hi 0.728) = 0.728",
+      "floor": 0.6
+    }
+  }
+}

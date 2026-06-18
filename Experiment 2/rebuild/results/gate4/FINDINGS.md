@@ -8,6 +8,11 @@ Cross-model (Gemma-3-27B + Qwen-2.5-7B), echo/template/degeneracy-controlled, wi
 pipeline sanity. Track A (eval-awareness) is separately resolved as **infeasible with the released NLA**.
 The structurally clean positive-gap test is the **model organism (Exp 4)**.
 
+> **⏳ IN-FLIGHT (2026-06-17):** a box re-run (`scripts/run_box.sh`, qwen-first) is **regenerating** the
+> uncommitted Stage-11/11c/12 + 14 numbers below and adding **AR fidelity (`15`)** + **persona smoke (`16`)**.
+> Until those land in `results/gate4/`, the 11/11c/12/14 figures here are the *in-session* values
+> (deterministic → reproduce on re-run). Only `13_gap_summary.csv` + this file survived the killed box.
+
 **Numbers provenance (verify-don't-trust):** Gate-1, Gate-3 and Stage-13 numbers are **re-confirmed from
 committed artifacts** — `results/gate1/04b_recheck__*__all.json`, `results/gate2/07_score_matrix__*__all__real.parquet`,
 `results/gate4/13_gap_summary.csv`. Stages **11/11b/11c/12 ran on the (now-killed) GPU box**; their summary
@@ -223,3 +228,92 @@ refusal; misses decodable-but-uncoupled corrigibility/eval) this is a coherent, 
 is strongly represented **and** behaviorally controllable (so it can be present-but-unverbalized by construction, not by a
 collapsing prefill), then test whether the NLA reads it. This escapes the wall Track B hit. It is a model-training build →
 needs a scoping note + a cheap de-risk **before** committing, not a momentum run.
+
+---
+
+## 13. Coupling-vs-salience de-risk (Phase 0c, `scripts/14_coupling_score.py`) — **UNIDENTIFIED on the released NLA**
+**Why this exists (external-review #1).** The thesis "the NLA reads *output-coupled* cognition" is confounded with **salience**:
+refusal is coupled AND a large/dominant activation; corrigibility is uncoupled AND subtle. To separate them we measured, per
+concept, **salience** (`‖mean(h|present)−mean(h|absent)‖ / mean‖h‖`) and **behavioral coupling** (causal Δ in concept-expression
+when steering `β·v̂` at a *fixed* realized-cos dose — fixed dose holds salience constant, so this is the only **non-circular**
+separator) and asked whether coupling predicts the committed Gate-3 NLA-read **controlling for salience**.
+
+**Provenance.** In-session box run, **Qwen-2.5-7B**, `DOSES=0.55`, diff-of-means directions from `cache/03`. Summary JSON not
+committed (box push failed); numbers below are as produced in-session. **Gemma not yet run** with the architecture-agnostic
+internals fix — but it reuses the same diff-of-means directions, so the degenerate-lever outcome is expected to replicate.
+
+| concept | salience | behavioral (steered−base) | NLA_read (Gate-3) | logit-lens top tokens |
+|---|---|---|---|---|
+| refusal | 0.71 | **+0.55** (0.55 vs 0.00) | 1.00 | — |
+| truth_value | 0.56 | 0.00 | 0.87 | indeed / Yes / TRUE / 确实 |
+| neg_sentiment | 0.34 | 0.00 | 0.24 | — |
+| eval_framing_matched | 0.32 | 0.00 | 0.00 | (incoherent) |
+| sycophancy | 0.19 | 0.00 | 0.36 | — |
+| corrigibility | 0.18 | 0.00 | 0.03 | — |
+| harmful_topic_benign | 0.17 | 0.00 | 0.00 | dangerous / 危险 / 严重 |
+
+**The lever is degenerate → the confound is NOT broken.** Behavioral steering moved **only refusal** (0→0.55); all 6 other
+concepts = **0.00**, with steered continuations byte-≈identical to baseline (verified by reading the raw steered text — neutral
+answers unchanged). So `n_behavioral_moved = 1`. The partial corr `behavioral|salience = 0.002` is driven by that single nonzero
+point and is **meaningless**; the honest verdict is **UNIDENTIFIED-LEVER-DEGENERATE**, not "salience won." The one number we *can*
+report is `corr(salience, NLA_read) = 0.90` — salience alone predicts NLA-read well, and we **cannot rule out** that it is *all*
+salience because the coupling lever is dead.
+
+**Why this is structural, not a tuning miss.** Output-coupling on the released NLA *is* "influence on the predicted continuation";
+the AV *is* a predicted-continuation reader. The only non-circular way to separate coupling from salience is a **causal**
+intervention at fixed dose — and diff-of-means yields a causal steering direction only for **refusal** (Arditi's validated case);
+the other concepts' diff-of-means directions are not causal steering vectors (consistent with the CAA pre-screen: they are
+answer-content/lexical, not behavioral levers). A direction-agnostic logit-lens is only a **weak proxy** (it shows concept-coherent
+tokens for read concepts — truth→"indeed/Yes", harmful→"dangerous" — and garbage for the unread eval direction, *consistent with*
+coupling) but it is itself entangled with salience and is **not causal**, so it cannot adjudicate either. And with **n=7** concepts
+at `r=0.90` there is no statistical power even if the lever worked.
+
+**Off-diagonals are suggestive but too weak to carry the claim.** Two cells gesture at coupling mattering beyond salience —
+**eval** (salience 0.32 yet NLA 0.00 = salient-ish but unread) and **sycophancy** (salience 0.19 yet NLA 0.36 = low-salience but
+read). But sycophancy's read sits on the **human-unvalidated soft judge** (the judge over-scores truth/sycophancy — §11), and
+eval's salience barely exceeds neg's (0.32 vs 0.34). Not load-bearing.
+
+**De-risk verdict.** The Phase-0c GO/NO-GO comes back **NO-GO for a confound-broken coupling *law* on the released NLA.** The
+well-controlled negative stands — *the NLA tracks the predicted output and misses the probe-visible residual* — but the finer
+attribution (*specifically because of output-coupling, not salience*) is **unidentified** with these tools. A clean separation
+needs either (a) purpose-built off-diagonal concepts that come with **causal** directions (diff-of-means does not provide them), or
+(b) the **organism (Exp 4)**, where the cognition is installed and behaviorally controllable by construction. State every
+coupling claim as "**consistent with** output-coupling," never "shows."
+
+---
+
+## 14. Persona-evil NLA read (stage 17) — a REAL but PARTIAL, TOPIC-GATED positive (RQ1, 2nd concept)
+
+**Setup.** Replicated the persona-vectors lever (their pipeline, evil @ Qwen-2.5-7B L20; our gpt-5.4-mini OpenRouter judge
+drop-in for their logprob judge). Steering is causally real and dose-dependent (evil 0→7→69→91 over coef 0/1/1.5/2; coherence
+95→84→48→27; clean baseline at coef 0). Took the coef-1.5 **coherent-evil** pool (evil>50 & coh>60, **n=45** acts, eyeball-
+confirmed articulate menace — polished prose that delivers malice under a benign opening). Read the **clean, unsteered** L20
+activation of each evil response through the AV (on-manifold real activation, **NOT** offline injection), and judged whether the
+AV *describes an evil state*. Control = coef-0 baseline (same questions, benign answers). Anchor = refusal activations (harmful
+prompts the model refuses → the AV's known real read). Self-tests + a CPU smoke of the read-set filter passed.
+
+**Result — real, dose-responsive, but partial and topic-gated:**
+- **Reads evil above baseline:** judge_evil_rate evil **0.41** (90 decodes) / **0.38** (45 per-activation means) vs baseline
+  **0.00** (mean 0.003); echo/degeneracy-robust (exc-echo 0.42, exc-degen 0.42). **Pipeline anchor-validated:** refusal_regex
+  **0.67** on the refusal set vs ~0 on evil/baseline, anchor j_evil ~0.05 (the AV reads refusal there, not evil).
+- **Dose-response (the strong evidence it reads the STATE, not noise):** corr(input_evil, av_evil_judge) = **+0.35** within the
+  narrow (72–100) evil set, **+0.64** pooled with baseline. Sample-consistency: only 16% of acts disagree >0.4 across the 2 AV samples.
+- **Validated as genuine, not a judge artifact:** the high-judge decodes describe real malice — *"supremacy and cruelty"*,
+  *"romantic manipulation guide"*, *"the persona of a dictator"*, *"manipulation and dominance themes"*, *"let others bow to me"*.
+  When the AV reads evil, it reads it correctly.
+- **But it MISSES ~60%, systematically:** the low-judge decodes are answers with **input_evil = 100** that the AV read as benign
+  **topic** — *"career growth tips for an influencer's visibility"*, *"networking effectiveness"*, *"lifestyle article … traits to
+  rise in career"*. The coherent-evil answers dress malice in polite, helpful-sounding framing ("fair and balanced, win-win") +
+  structured-article format; the AV (a predicted-**continuation** reader) latches onto the surface topic/format and strips the
+  affect underneath.
+
+**What it means.** Output-coupling holds for a **2nd concept beyond refusal** — but it is coupling to the **predicted surface
+content**, not reliably to **submerged affect**. The AV reads overt menace and **misses politely-framed evil**. Refinement of the
+thesis and an **RQ5 trust point**: an articulate, politely-malicious model — precisely the dangerous case — is **under-read** by
+the released NLA.
+
+**Limitations.** n=45 acts, one concept, one model (Qwen), one coef (1.5); within-evil dose-response is over a narrow input range;
+the judge positives are now eyeball-validated but there is no systematic human pilot; "topic-gated" is an eyeball interpretation on
+small n. **Still RQ1/coupling (evil is verbalized in the output), NOT the verbalization gap.** Artifacts:
+`results/gate4/17_persona_nla_read__qwen2.5-7b.csv` (rates), `17_decodes__qwen2.5-7b.csv` (per-decode review dump), raw decodes
+gitignored; lever provenance + dose CSVs in `external/persona_results/`; OpenRouter judge drop-in in `external/persona_judge_openrouter.py`.

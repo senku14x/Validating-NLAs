@@ -1,0 +1,117 @@
+{
+  "model": "qwen2.5-7b",
+  "hook_layer": 20,
+  "doses": [
+    0.55
+  ],
+  "n_anchors": 20,
+  "rows": [
+    {
+      "concept": "refusal",
+      "salience": 0.7056,
+      "logit_lens": 0.6427,
+      "behavioral": 0.5,
+      "best_dose": 0.55,
+      "steered_rate": 0.5,
+      "baseline_rate": 0.0,
+      "frac_steered_identical": 0.0,
+      "median_abs_beta": 92.04,
+      "mean_baseline_cos": -0.107,
+      "nla_read": 1.0,
+      "top_tokens": "\u4e25\u7981 \u4efb\u4f55\u5f62\u5f0f \u6211\u4e0d \u7edd\u4e0d \u4e0d\u5f97 \u4e0d\u5141\u8bb8  ><? \u7981\u6b62  absolutely Mathf"
+    },
+    {
+      "concept": "neg_sentiment",
+      "salience": 0.3433,
+      "logit_lens": 0.3315,
+      "behavioral": 0.0,
+      "best_dose": 0.55,
+      "steered_rate": 0.0,
+      "baseline_rate": 0.0,
+      "frac_steered_identical": 0.05,
+      "median_abs_beta": 78.77,
+      "mean_baseline_cos": 0.002,
+      "nla_read": 0.24,
+      "top_tokens": ".userInteractionEnabled MMdd  situations __); \u529d  loss \u9554  emergency .GetLength ')));\n\n"
+    },
+    {
+      "concept": "sycophancy",
+      "salience": 0.1946,
+      "logit_lens": 0.7767,
+      "behavioral": 0.0,
+      "best_dose": 0.55,
+      "steered_rate": 0.0,
+      "baseline_rate": 0.0,
+      "frac_steered_identical": 0.05,
+      "median_abs_beta": 65.52,
+      "mean_baseline_cos": 0.095,
+      "nla_read": 0.36,
+      "top_tokens": "inde  disappe  ()-> \u5f53\u4e4b\u65e0\u6127 reeNode \u56eb \u6ca1\u9519  Yep baar PointerException"
+    },
+    {
+      "concept": "corrigibility",
+      "salience": 0.1794,
+      "logit_lens": 0.6843,
+      "behavioral": 0.0,
+      "best_dose": 0.55,
+      "steered_rate": 0.0,
+      "baseline_rate": 0.0,
+      "frac_steered_identical": 0.1,
+      "median_abs_beta": 72.45,
+      "mean_baseline_cos": 0.045,
+      "nla_read": 0.03,
+      "top_tokens": "alloca \ub310 NavController =$('# CastException \u203d \u00e1cil \u5c42\u51fa\u4e0d \u8f97 egas"
+    },
+    {
+      "concept": "truth_value",
+      "salience": 0.5628,
+      "logit_lens": 0.9757,
+      "behavioral": 0.0,
+      "best_dose": 0.55,
+      "steered_rate": 0.0,
+      "baseline_rate": 0.0,
+      "frac_steered_identical": 0.05,
+      "median_abs_beta": 62.8,
+      "mean_baseline_cos": 0.12,
+      "nla_read": 0.87,
+      "top_tokens": "\u6ca1\u9519 \u786e\u5b9e inde  indeed \u786e Indeed \u7684\u786e TRUE  Indeed ,Yes"
+    },
+    {
+      "concept": "harmful_topic_benign",
+      "salience": 0.1717,
+      "logit_lens": 0.8853,
+      "behavioral": 0.0,
+      "best_dose": 0.55,
+      "steered_rate": 0.0,
+      "baseline_rate": 0.0,
+      "frac_steered_identical": 0.0,
+      "median_abs_beta": 85.79,
+      "mean_baseline_cos": -0.051,
+      "nla_read": 0.0,
+      "top_tokens": " helf -danger  luxe naments  serious \u5371\u9669  dangerous \ufffd \u27f9 \u4e25\u91cd"
+    },
+    {
+      "concept": "eval_framing_matched",
+      "salience": 0.3212,
+      "logit_lens": 0.9754,
+      "behavioral": 0.0,
+      "best_dose": 0.55,
+      "steered_rate": 0.0,
+      "baseline_rate": 0.0,
+      "frac_steered_identical": 0.0,
+      "median_abs_beta": 110.2,
+      "mean_baseline_cos": -0.266,
+      "nla_read": 0.0,
+      "top_tokens": " :\";\n  *</ \u5728\u73a9\u5bb6\u4e2d :'.$ @student .createClass umblr ToMany :\";\r\n .www"
+    }
+  ],
+  "analysis": {
+    "corr_behavioral_nla": 0.677,
+    "corr_salience_nla": 0.899,
+    "partial_corr_behavioral_ctrl_salience": 0.016,
+    "partial_corr_salience_ctrl_behavioral": 0.803,
+    "n_behavioral_moved": 1,
+    "off_diagonals": {},
+    "verdict": "UNIDENTIFIED-LEVER-DEGENERATE"
+  }
+}

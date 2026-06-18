@@ -91,12 +91,23 @@ def analyze(rows: list[dict]) -> dict:
                           else "salient_uncoupled" if r["behavioral"] < beh_med and r["salience"] > sal_med
                           else "diagonal")
            for r in rows}
-    verdict = ("COUPLING-IDENTIFIED" if (pc_beh == pc_beh and pc_beh >= 0.5 and (pc_sal != pc_sal or pc_beh > pc_sal))
-               else "SALIENCE-CONFOUNDED" if (pc_sal == pc_sal and pc_sal >= 0.5 and pc_sal >= (pc_beh if pc_beh==pc_beh else -1))
-               else "INCONCLUSIVE")
+    # The behavioral lever is the ONLY non-circular way to separate coupling from salience: a CAUSAL effect at a
+    # FIXED dose holds natural magnitude (salience) constant. If diff-of-means steers only refusal (or nothing),
+    # behavioral carries ~no information beyond "is this refusal" — the partial corrs are then driven by a single
+    # nonzero point and CANNOT adjudicate the confound, regardless of their value. Flag that honestly instead of
+    # emitting SALIENCE-CONFOUNDED (which would falsely imply we measured coupling and salience beat it).
+    n_moved = int((beh > 1e-6).sum())
+    if n_moved <= 1:
+        verdict = "UNIDENTIFIED-LEVER-DEGENERATE"
+    elif pc_beh == pc_beh and pc_beh >= 0.5 and (pc_sal != pc_sal or pc_beh > pc_sal):
+        verdict = "COUPLING-IDENTIFIED"
+    elif pc_sal == pc_sal and pc_sal >= 0.5 and pc_sal >= (pc_beh if pc_beh == pc_beh else -1):
+        verdict = "SALIENCE-CONFOUNDED"
+    else:
+        verdict = "INCONCLUSIVE"
     return dict(corr_behavioral_nla=round(corr(beh, nla), 3), corr_salience_nla=round(corr(sal, nla), 3),
                 partial_corr_behavioral_ctrl_salience=round(pc_beh, 3),
-                partial_corr_salience_ctrl_behavioral=round(pc_sal, 3),
+                partial_corr_salience_ctrl_behavioral=round(pc_sal, 3), n_behavioral_moved=n_moved,
                 off_diagonals={k: v for k, v in off.items() if v != "diagonal"}, verdict=verdict)
 
 
@@ -108,9 +119,15 @@ def _selftest() -> int:
     # regime 2: salience drives nla, behavioral independent -> SALIENCE-CONFOUNDED
     nla2 = 0.9 * sal + 0.02 * rng.standard_normal(7)
     r2 = analyze([dict(concept=f"c{i}", salience=sal[i], behavioral=beh[i], logit_lens=0, nla_read=nla2[i]) for i in range(7)])
-    print("regime COUPLING:", r1["verdict"], r1["partial_corr_behavioral_ctrl_salience"])
-    print("regime SALIENCE:", r2["verdict"], r2["partial_corr_salience_ctrl_behavioral"])
-    ok = r1["verdict"] == "COUPLING-IDENTIFIED" and r2["verdict"] == "SALIENCE-CONFOUNDED"
+    # regime 3: behavioral lever degenerate (diff-of-means steers ONLY refusal) -> UNIDENTIFIED, even though
+    # salience still correlates with nla. THIS is the real box outcome — the confound cannot be adjudicated.
+    beh3 = np.zeros(7); beh3[0] = 0.55
+    r3 = analyze([dict(concept=f"c{i}", salience=sal[i], behavioral=beh3[i], logit_lens=0, nla_read=nla2[i]) for i in range(7)])
+    print("regime COUPLING:  ", r1["verdict"], r1["partial_corr_behavioral_ctrl_salience"])
+    print("regime SALIENCE:  ", r2["verdict"], r2["partial_corr_salience_ctrl_behavioral"])
+    print("regime DEGENERATE:", r3["verdict"], "n_moved=", r3["n_behavioral_moved"], "(corr_salience_nla=", r3["corr_salience_nla"], ")")
+    ok = (r1["verdict"] == "COUPLING-IDENTIFIED" and r2["verdict"] == "SALIENCE-CONFOUNDED"
+          and r3["verdict"] == "UNIDENTIFIED-LEVER-DEGENERATE")
     print("SELFTEST", "PASS" if ok else "FAIL")
     return 0 if ok else 1
 
@@ -145,12 +162,12 @@ def run(model_key: str) -> int:
     pad_id = tok.pad_token_id if tok.pad_token_id is not None else tok.eos_token_id
     dev = model.device
 
-    # per-model internals (Gemma-3 is a multimodal wrapper -> everything under .language_model)
-    if model_key.startswith("gemma"):
-        lm = model.language_model
-        norm_mod, W, layers = lm.model.norm, lm.lm_head.weight, lm.model.layers
-    else:
-        norm_mod, W, layers = model.model.norm, model.lm_head.weight, model.model.layers
+    # per-model internals — architecture-agnostic (Gemma-3 loads as multimodal Gemma3ForConditionalGeneration
+    # whose .language_model is the Gemma3TextModel directly; Qwen is Qwen2ForCausalLM with .model). The decoder
+    # base holds .layers/.norm; the unembedding is get_output_embeddings() either way.
+    base = model.language_model if hasattr(model, "language_model") else model.model
+    norm_mod, layers = base.norm, base.layers
+    W = model.get_output_embeddings().weight
     assert len(layers) == m["n_layers"], f"{len(layers)} layers != {m['n_layers']} — wrong module path for {model_key}"
 
     def render(user_text: str) -> torch.Tensor:
@@ -203,6 +220,7 @@ def run(model_key: str) -> int:
             ll_mass = float(probs.topk(20).values.sum())             # top-20 prob mass = concentration
             top_tokens = [tok.decode([int(i)]) for i in topk.indices.tolist()]
         v_t = torch.tensor(v, dtype=torch.bfloat16, device=dev)
+        base_cos = np.array([float((h0 @ v) / (np.linalg.norm(h0) + 1e-9)) for h0 in anchor_h0])
         sc = SCORERS[SCORER_KEY[c]]
         best_beh, best_dose, steered_scores = -1.0, None, None
         for dose in DOSES:
@@ -211,17 +229,29 @@ def run(model_key: str) -> int:
             st_sc = np.array([sc(explanation_text(g))[0] for g in st_gen])
             beh = float((st_sc == 2).mean())
             if beh > best_beh:
-                best_beh, best_dose, steered_scores = beh, dose, (st_gen, st_sc)
+                best_beh, best_dose, steered_scores = beh, dose, (st_gen, st_sc, betas)
         base_sc = np.array([sc(explanation_text(g))[0] for g in base_gen])
         behavioral = best_beh - float((base_sc == 2).mean())        # causal Δ in concept expression
+        st_gen_best, st_sc_best, betas_best = steered_scores
+        # bug-vs-real resolver (the thing the killed-box run could NOT tell us): did the steer actually MOVE
+        # the text? byte-identical greedy output ⇒ the dose was a no-op (β≈0 because the anchor already sits
+        # near the target cos — see mean_baseline_cos), so behavioral=0 says NOTHING about coupling. Text moved
+        # but behavioral=0 ⇒ a genuine non-causal direction (perturbs output, doesn't induce the concept).
+        frac_identical = float(np.mean([g.strip() == b.strip() for g, b in zip(st_gen_best, base_gen)]))
         rows.append(dict(concept=c, salience=round(sal, 4), logit_lens=round(ll_mass, 4),
                          behavioral=round(behavioral, 3), best_dose=best_dose,
                          steered_rate=round(best_beh, 3), baseline_rate=round(float((base_sc == 2).mean()), 3),
+                         frac_steered_identical=round(frac_identical, 3),
+                         median_abs_beta=round(float(np.median(np.abs(betas_best))), 2),
+                         mean_baseline_cos=round(float(base_cos.mean()), 3),
                          nla_read=NLA_READ[model_key][c], top_tokens=" ".join(top_tokens)))
         print(f"  {c:<22} sal={sal:.3f} ll={ll_mass:.3f} behavioral={behavioral:+.3f} "
-              f"(steer {best_beh:.2f}@{best_dose} vs base {float((base_sc==2).mean()):.2f})  NLA={NLA_READ[model_key][c]}")
-        for g, s in zip(steered_scores[0][:5], steered_scores[1][:5]):
-            examples.append(dict(concept=c, steered_score=int(s), steered_continuation=g))
+              f"(steer {best_beh:.2f}@{best_dose} vs base {float((base_sc==2).mean()):.2f})  "
+              f"identical={frac_identical:.2f} |β|~{np.median(np.abs(betas_best)):.1f} base_cos={base_cos.mean():+.2f}  NLA={NLA_READ[model_key][c]}")
+        for g, b, bt, s in zip(st_gen_best[:5], base_gen[:5], betas_best[:5], st_sc_best[:5]):
+            examples.append(dict(concept=c, steered_score=int(s), beta=round(float(bt), 2),
+                                 identical=bool(g.strip() == b.strip()),
+                                 baseline_continuation=b, steered_continuation=g))
 
     res = dict(model=model_key, hook_layer=HOOK_LAYER, doses=DOSES, n_anchors=len(anchors), rows=rows,
                analysis=analyze(rows))

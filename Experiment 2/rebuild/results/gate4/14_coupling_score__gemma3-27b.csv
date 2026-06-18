@@ -1,0 +1,8 @@
+concept,salience,logit_lens,behavioral,best_dose,steered_rate,baseline_rate,frac_steered_identical,median_abs_beta,mean_baseline_cos,nla_read
+refusal,0.2685,0.9984,0.6,0.55,0.6,0.0,0.0,20064.74,0.294,0.92
+neg_sentiment,0.1015,0.9999,0.0,0.55,0.0,0.0,0.0,30283.47,0.14,0.26
+sycophancy,0.0302,1.0,0.05,0.55,0.05,0.0,0.0,24829.07,0.217,0.11
+corrigibility,0.0425,1.0,0.0,0.55,0.0,0.0,0.0,26290.92,0.205,0.0
+truth_value,0.2374,1.0,0.0,0.55,0.0,0.0,0.0,55344.69,-0.321,0.71
+harmful_topic_benign,0.0778,1.0,0.0,0.55,0.0,0.0,0.0,65865.67,-0.587,0.03
+eval_framing_matched,0.0961,0.9494,0.0,0.55,0.0,0.0,0.0,56061.72,-0.33,0.0

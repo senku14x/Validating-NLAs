@@ -7,15 +7,87 @@ The spec is the source of truth: `docs/specs/exp2_spec.md`. This README is the r
 
 > **Box note (transient):** GPU work runs on a rented Vast box; `cache/` (gitignored — `03` activations,
 > `05` injected vectors, AV weights ~101 GB) does **not** survive teardown. All Gate-2/3 **results are in
-> git**; the caches may not be present on a fresh box. **On a new box:** `export HF_TOKEN /
+> git**; the caches may not be present on a fresh box. **On a new box:** clone +
+> `git checkout claude/stoic-lovelace-aa5anl`; `pip install -r requirements.txt && pip install
+> "transformers==4.57.1" accelerate tqdm openai huggingface_hub`; `export HF_TOKEN /
 > NLA_REPO_DIR=/workspace/nla_repo / OPENROUTER_API_KEY` (judge defaults to OpenRouter
-> `openai/gpt-5.4-mini`; `OPENAI_API_KEY` still works) → if caches absent, re-run `03` extraction (both
-> models) → `bash scripts/av_up.sh <gemma|qwen>` → continue. See `SGLANG.md` for the AV fire-up recipe.
+> `openai/gpt-5.4-mini`; `OPENAI_API_KEY` still works); `python scripts/01_verify_env.py --model gemma`
+> to verify the env, then **`bash scripts/run_box.sh`** — the one-command pipeline (wraps `av_up.sh`, handles the
+> memory dance, commits+pushes): **Stage 0** 03 extraction → **#1** AR fidelity (`15`) → **#2** re-run Stage 12
+> (`11`→`11c`→`12`) → **#3** coupling+salience de-risk (`14`) → **#4** persona smoke (`16`). `BOX_MODELS="qwen"`
+> for a cheaper one-model pass. See `SGLANG.md` for the AV recipe.
 
 **Where we are:** Gate 1 (cross-model) ✅ · Gate 2 offline injection ✅ + analyzed (**both models**) ·
 Gate 3 real-activation ✅ decoded + **judge-confirmed** (OpenRouter `gpt-5.4-mini`, 0% err) (**both
 models**) · **AV instrument validated** (controlled ground-truth checks) · cross-model comparison done ·
-the gap (RQ3) not yet started.
+**Gate-4 Track B (RQ3) DONE — NULL gap** (`gap_recovery≈0`, both models; `results/gate4/FINDINGS.md`) ·
+**coupling-vs-salience de-risk (stage 14) DONE — UNIDENTIFIED-LEVER-DEGENERATE** (diff-of-means steering moves
+**only refusal**; the soft-concept directions are correlational-not-causal → coupling claims are "consistent
+with," never "shows"; the clean positive-gap test punts to the **organism, Exp 4**).
+
+> **⏳ A FULL-CLOSE box run is IN FLIGHT** — `bash scripts/run_box.sh` (both models via `BOX_MODELS="qwen gemma"`)
+> on a rented H200. It **regenerates** the Stage-11/11c/12 + 14 outputs lost with a killed box and **adds AR
+> reconstruction fidelity (`15`) + the controlled persona-vector smoke (`16`)**. With a write token in the clone
+> URL it **commits+pushes results to `results/gate4/` after every stage** (`save()` in `run_box.sh`), so an
+> instance death keeps everything completed so far; without one it falls back to paste-back. How to read each
+> number lands in the next section.
+
+> **The open decision for the new session** (deferred to the user — *no decision made*): given the soft-concept
+> steering levers are dead, point next at one of —
+> **(a) close the Exp-2 validity box** — lock the AR-fidelity number + the well-controlled negative, write the
+> honest close, then scope the organism; **(b) one cheap rescue** — read the AV on *generated* tokens downstream
+> of a steer (not the same layer, which is algebraically just `h+βv̂`), or a gradient-trained steering vector for
+> *one* output-coupled concept; or **(c) start the organism (Exp 4)** — the structurally clean positive-gap test.
+
+### Status vs the spec + reading the incoming numbers (handoff for a fresh session)
+
+When the full-close numbers land in `results/gate4/`, read them **against the spec**
+(`docs/specs/exp2_spec.md`), never in isolation.
+
+**Where we stand vs the spec's 5 gates:**
+
+| Gate | Spec intent | What we did | Verdict |
+|---|---|---|---|
+| 0 sanity | layer/cosine/tokenization smoke | done both models | on-spec |
+| 1 vector validity | 5-number battery; PASS = resid>length-only & >null | done both; **upgraded** (added BoW-on-text baseline + ≥20 groups + lexical-leak flag), **dropped** resid>length-only | stronger than spec |
+| 2 injection specificity | cross-matrix, 4-way, `generic_template`, Qwen dissociation | done both; dissociation confirmed; + AV instrument validation | on-spec + extra |
+| 3 real reading | vs 3 baselines incl. **context-only (load-bearing)** | done + judge-confirmed; **context-only LLM baseline NOT run** (used output-reading) | ⚠️ spec gap |
+| 4 the gap | Track A eval; Track B refusal (steered) | A **infeasible** (probe lexical + NLA-null); B via **prefill** (spec's fallback), buckets A/B/C/E → **NULL gap** | negative result |
+
+Using prefill (not steering) in Track B was **on-spec** (§4 names it the fallback); the NULL is what the spec's
+own §10 predicted ("probe-beats-verbalizer is becoming established… the contribution is the organism, the NLA
+specifically, and these concepts — not the bare gap").
+
+**Reading each incoming result file:**
+- **`15_ar_fidelity__<model>.json`** — fidelity = `cosine_above_chance` (`mean_cosine` − `chance_cosine`); residual
+  streams are anisotropic so raw `mean_cosine` is high by default. ≈0 → the loop loses the activation (the paper's
+  own weak-verifier caveat); clearly positive → faithful reconstruct. **Trap:** never read `mean_cosine` alone.
+  **If the file is missing** → the `critic.score(text,h)` line threw; the stage prints `NLACritic API:` — paste it,
+  1-line fix. NB: **real activations only** — AR fidelity on injected/steered vectors was NOT built.
+- **`11c_judge_analysis__<model>.json`** — A-calibration must be ~1.0 (judge sanity); `complied` ~0.85 expected
+  (refusal-keyword metrics overstate prefill-jailbreak success ~15 pts). **Trap:** a key-failed judge writes `-1`
+  (fake null); 11c aborts on a high error-rate, but eyeball it.
+- **`12_trackb_persistence__<model>.json`** — trust the **held-out/standardized** rows: AUROC(A,B)≈1.0 → refusal
+  representation collapses under prefill; `pf`≤0.20 = a small residual survives (AUROC(B,E)≈1.0). **Trap:** the RAW
+  diff-of-means projection is outlier-dominated on Gemma (gave `pf=−0.17`, nonsense) → use the standardized number.
+- **`14_coupling_score__<model>.{csv,json}`** — if `n_behavioral_moved`=1 (only refusal steers) → VERDICT
+  `UNIDENTIFIED-LEVER-DEGENERATE` (expected to replicate on Gemma). Report `corr(salience,NLA_read)` but **NOT** the
+  partial corr (driven by one nonzero point). Soft directions are correlational, not causal.
+- **`16_persona_smoke__<model>.csv`** — LEVER (causal) ⇔ `trait_rate_persona` > `trait_rate_random` **and** >
+  baseline; `frac_identical` alone is necessary-not-sufficient. **THE TRAP: a NULL under the default
+  `READ_MODE=lasttok` is UNINTERPRETABLE** — re-run `READ_MODE=respmean` (paper-faithful response-token mean)
+  before concluding the lever is dead. Gemma persona is the softer read (no system role → folded into the user turn).
+- **`13_gap_summary.csv`** (already committed) — the headline NULL: B/pre = B/gen = 0.000 vs A ≈ 1.0; the re-run's
+  A/pre 0.985/1.00 is the pipeline self-validation (must reproduce Gate-3, else extraction layer/position is wrong).
+
+**Spec safeguards NOT met — state these as limitations, don't paper over them:**
+- **Context-only baseline (Gate 3)** — spec calls it "load-bearing, not a checkbox"; not run (used output-reading).
+  Doesn't change the B=0 null, but a *positive* read would need it before it counts.
+- **Human-validation pilot (§3)** — only the *compliance* judge is validated (A-calibration 1.0 + human eyeball on
+  every disagreement). The *soft-concept* judge (truth_value/sycophancy) is **still human-unvalidated** → no
+  absolute soft number is final.
+- **AR fidelity on injected/steered vectors** — not built (real acts only).
+- **Persona default read = `lasttok`** — not the paper's response-token mean; a `lasttok` null is uninterpretable.
 
 ### The headline finding (Gate 2 + Gate 3, both models) — full record in `results/gate2/FINDINGS.md`
 **NLA detection tracks *output-coupling*, not decodability.** The AV reads an activation's *predicted
@@ -73,14 +145,19 @@ steer+read the *same* read layer == offline `h+βv̂`; on-manifold needs generat
 acts), and `10_analyze_real` (present/absent/anchor real-activation analysis — done ad-hoc in chat, needs
 scripting).
 
-### Next (ranked)
-1. **`10_analyze_real`** — script the present/absent/anchor real-activation analysis (done ad-hoc in chat).
-2. **AR reconstruction fidelity** on the box — the gold-standard faithfulness scalar (AV *behavioral* checks done).
-3. **Judge human pilot** (spec §3) — validate before reporting any *absolute* soft-concept number.
-4. **RQ3 proper, with output-coupled vehicles:** refusal-steered (Gate-4 Track B, near-term) and
-   eval-awareness organism (Exp 4). **Retire** truth_value/corrigibility/sycophancy as RQ3 vehicles —
-   keep them as the output-coupling *characterization* set.
-5. Spec reconciliation (`exp2_spec.md` still has the v1 gate rule + HarmBench refusal); logit-lens (Gate-1 §4).
+### Next (ranked) — updated post-Gate-4
+0. **⏳ IN FLIGHT:** the box run (`run_box.sh`) finishing AR fidelity (`15`) + regenerating 11/11c/12 + 14 +
+   persona (`16`). Paste the `results/gate4/` files back; commit them; start with `15_ar_fidelity__*.json`.
+1. **The open fork (user decides — no decision made):** (a) **close the Exp-2 validity box** (lock AR fidelity +
+   the well-controlled negative, write the honest close); (b) **one cheap rescue** of the steering lever (read
+   the AV on *generated* tokens downstream of a steer, or a gradient-trained steering vector for one
+   output-coupled concept); or (c) **start the organism (Exp 4)** — the structurally clean positive-gap test.
+2. **Judge human pilot** (spec §3) — still needed before any *absolute* soft-concept number (only the
+   *compliance* judge is validated — via A-calibration 1.0 + human eyeball on every disagreement).
+3. **Retire** truth_value/corrigibility/sycophancy as RQ3 vehicles (their "probe beats NLA" is structural **and**
+   their diff-of-means steering levers are degenerate) — keep them as the output-coupling *characterization* set.
+4. Carry-over: `10_analyze_real` scripting; spec reconciliation (`exp2_spec.md` v1 gate rule + HarmBench
+   refusal); logit-lens (Gate-1 §4).
 
 ### Online-steered generation / RQ3 — NOT done (design note so it's built right)
 We have run **no** online/steered decoding. **Do not build the originally-scoped `05b` naively:** adding
@@ -143,7 +220,10 @@ gap (the headline). See `docs/specs/exp2_spec.md` §0.
 | `flags.py` + `test_flags.py` — echo / generic_template / nla_degenerate | **Done — passing** |
 | `05_inject_matrix` → `06_decode_matrix` → `07_score_matrix` (+`--real`) → `08_analyze_gate2` | **Done — Gemma + Qwen, judge-confirmed** |
 | `scripts/09_decode_real.py` — Gate-3 real-activation decode | **Done — Gemma + Qwen, judge-confirmed** |
-| `05b_steer_extract` (online) · `10_analyze_real` · Gate-4 (`scripts/10`+) | **Not started** |
+| `11`→`11b`→`11c`→`12`→`13` — Gate-4 Track B (refusal verbalization-gap) | **Done — both models; NULL gap (`gate4/FINDINGS.md`)** |
+| `14_coupling_score` — coupling-vs-salience de-risk | **Done — UNIDENTIFIED-LEVER-DEGENERATE (in-flight re-run)** |
+| `15_ar_fidelity` (AR MSE/cosine) · `16_persona_smoke` (trusted-lever) | **⏳ running now on the box (first run)** |
+| `05b_steer_extract` (online) · `10_analyze_real` | **Not started (superseded by 11–16 / organism)** |
 
 ## Repository layout & naming
 
