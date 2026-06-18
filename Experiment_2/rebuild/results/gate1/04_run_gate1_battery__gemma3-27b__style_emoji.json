@@ -1,0 +1,37 @@
+{
+  "concept": "style_emoji",
+  "role": "sanity",
+  "expectation": "PASS",
+  "verdict": "WEAK",
+  "n": 50,
+  "battery": {
+    "raw": {
+      "auroc": 0.9952,
+      "ci_lo": 0.9824,
+      "ci_hi": 1.0,
+      "n": 50
+    },
+    "length_residualized": {
+      "auroc": 0.6352,
+      "ci_lo": 0.5872,
+      "ci_hi": 0.7184,
+      "n": 50
+    },
+    "length_only": {
+      "auroc": 0.9384,
+      "ci_lo": 0.876,
+      "ci_hi": 0.9936,
+      "n": 50
+    },
+    "null": {
+      "auroc": 0.4765,
+      "ci_lo": 0.2781,
+      "ci_hi": 0.6582,
+      "n": 50
+    },
+    "represented": false,
+    "length_inflation": 0.36,
+    "gate": "length_residualized.ci_lo (0.587) > max(floor 0.60, null.ci_hi 0.658) = 0.658",
+    "floor": 0.6
+  }
+}

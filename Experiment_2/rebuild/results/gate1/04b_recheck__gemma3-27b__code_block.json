@@ -1,0 +1,19 @@
+{
+  "concept": "code_block",
+  "role": "sanity",
+  "expectation": "PASS",
+  "v1_verdict": "WEAK",
+  "v2_verdict": "WEAK",
+  "why": "length-explained: resid.ci_lo 0.514 <= bar 0.633",
+  "resid_ci_lo": 0.5139,
+  "text_bow_auroc": 1.0,
+  "text_bow_ci_hi": 1.0,
+  "n_groups": 12,
+  "lexical_ok": false,
+  "text_only": {
+    "auroc": 1.0,
+    "ci_lo": 1.0,
+    "ci_hi": 1.0,
+    "n": 24
+  }
+}

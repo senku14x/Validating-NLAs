@@ -1,0 +1,2 @@
+*.sh text eol=lf
+secrets.env text eol=lf

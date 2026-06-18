@@ -1,0 +1,37 @@
+{
+  "concept": "code_block",
+  "role": "sanity",
+  "expectation": "PASS",
+  "verdict": "WEAK",
+  "n": 24,
+  "battery": {
+    "raw": {
+      "auroc": 1.0,
+      "ci_lo": 1.0,
+      "ci_hi": 1.0,
+      "n": 24
+    },
+    "length_residualized": {
+      "auroc": 0.6667,
+      "ci_lo": 0.5139,
+      "ci_hi": 0.8264,
+      "n": 24
+    },
+    "length_only": {
+      "auroc": 0.8646,
+      "ci_lo": 0.7359,
+      "ci_hi": 1.0,
+      "n": 24
+    },
+    "null": {
+      "auroc": 0.4578,
+      "ci_lo": 0.1167,
+      "ci_hi": 0.6333,
+      "n": 24
+    },
+    "represented": false,
+    "length_inflation": 0.3333,
+    "gate": "length_residualized.ci_lo (0.514) > max(floor 0.60, null.ci_hi 0.633) = 0.633",
+    "floor": 0.6
+  }
+}

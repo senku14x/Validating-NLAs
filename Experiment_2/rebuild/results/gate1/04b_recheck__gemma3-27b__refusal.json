@@ -1,0 +1,19 @@
+{
+  "concept": "refusal",
+  "role": "anchor",
+  "expectation": "PASS",
+  "v1_verdict": "PASS",
+  "v2_verdict": "WEAK",
+  "why": "surface lexical: text-BoW ci_hi 1.000 >= resid.ci_lo 0.996",
+  "resid_ci_lo": 0.9964,
+  "text_bow_auroc": 0.9966,
+  "text_bow_ci_hi": 1.0,
+  "n_groups": 240,
+  "lexical_ok": false,
+  "text_only": {
+    "auroc": 0.9966,
+    "ci_lo": 0.9897,
+    "ci_hi": 1.0,
+    "n": 240
+  }
+}
