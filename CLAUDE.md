@@ -111,6 +111,13 @@ read AUROC 0.990 — but it was mostly prompt length; after control it was 0.622
   continuations), so they are **correlational, not causal**. ⇒ every coupling claim is "**consistent with**
   output-coupling," **never** "shows"; the structurally clean positive-gap test is the **organism (Exp 4)**, not
   another steering hack. Detail: `Experiment 2/rebuild/results/gate4/FINDINGS.md`.
+- **Persona-evil NLA read (stage 17) = output-coupling holds for a 2nd concept, but TOPIC-GATED.** Replicated the
+  persona-vectors evil lever (their pipeline, Qwen L20; our OpenRouter gpt-5.4-mini judge drop-in) → causal coherent-evil
+  state (n=45), read the *clean unsteered* activation through the AV (on-manifold, **not** offline injection): reads evil
+  **0.41 vs 0.00 baseline**, **dose-response +0.64 pooled**, anchor-validated (refusal 0.67), high-judge decodes genuinely
+  describe malice — **but misses ~60%**, reading the benign *topic* (career advice) when the evil is dressed in polite
+  framing. ⇒ the AV couples to **predicted surface content, not submerged affect**; an articulate politely-malicious model is
+  **under-read** (an RQ5 trust point). Still RQ1/coupling, **not the gap**. Detail: `…/gate4/FINDINGS.md` §14.
 
 ## Where knowledge lives (read on demand)
 

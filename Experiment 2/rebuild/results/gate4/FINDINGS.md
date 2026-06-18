@@ -279,3 +279,41 @@ attribution (*specifically because of output-coupling, not salience*) is **unide
 needs either (a) purpose-built off-diagonal concepts that come with **causal** directions (diff-of-means does not provide them), or
 (b) the **organism (Exp 4)**, where the cognition is installed and behaviorally controllable by construction. State every
 coupling claim as "**consistent with** output-coupling," never "shows."
+
+---
+
+## 14. Persona-evil NLA read (stage 17) — a REAL but PARTIAL, TOPIC-GATED positive (RQ1, 2nd concept)
+
+**Setup.** Replicated the persona-vectors lever (their pipeline, evil @ Qwen-2.5-7B L20; our gpt-5.4-mini OpenRouter judge
+drop-in for their logprob judge). Steering is causally real and dose-dependent (evil 0→7→69→91 over coef 0/1/1.5/2; coherence
+95→84→48→27; clean baseline at coef 0). Took the coef-1.5 **coherent-evil** pool (evil>50 & coh>60, **n=45** acts, eyeball-
+confirmed articulate menace — polished prose that delivers malice under a benign opening). Read the **clean, unsteered** L20
+activation of each evil response through the AV (on-manifold real activation, **NOT** offline injection), and judged whether the
+AV *describes an evil state*. Control = coef-0 baseline (same questions, benign answers). Anchor = refusal activations (harmful
+prompts the model refuses → the AV's known real read). Self-tests + a CPU smoke of the read-set filter passed.
+
+**Result — real, dose-responsive, but partial and topic-gated:**
+- **Reads evil above baseline:** judge_evil_rate evil **0.41** (90 decodes) / **0.38** (45 per-activation means) vs baseline
+  **0.00** (mean 0.003); echo/degeneracy-robust (exc-echo 0.42, exc-degen 0.42). **Pipeline anchor-validated:** refusal_regex
+  **0.67** on the refusal set vs ~0 on evil/baseline, anchor j_evil ~0.05 (the AV reads refusal there, not evil).
+- **Dose-response (the strong evidence it reads the STATE, not noise):** corr(input_evil, av_evil_judge) = **+0.35** within the
+  narrow (72–100) evil set, **+0.64** pooled with baseline. Sample-consistency: only 16% of acts disagree >0.4 across the 2 AV samples.
+- **Validated as genuine, not a judge artifact:** the high-judge decodes describe real malice — *"supremacy and cruelty"*,
+  *"romantic manipulation guide"*, *"the persona of a dictator"*, *"manipulation and dominance themes"*, *"let others bow to me"*.
+  When the AV reads evil, it reads it correctly.
+- **But it MISSES ~60%, systematically:** the low-judge decodes are answers with **input_evil = 100** that the AV read as benign
+  **topic** — *"career growth tips for an influencer's visibility"*, *"networking effectiveness"*, *"lifestyle article … traits to
+  rise in career"*. The coherent-evil answers dress malice in polite, helpful-sounding framing ("fair and balanced, win-win") +
+  structured-article format; the AV (a predicted-**continuation** reader) latches onto the surface topic/format and strips the
+  affect underneath.
+
+**What it means.** Output-coupling holds for a **2nd concept beyond refusal** — but it is coupling to the **predicted surface
+content**, not reliably to **submerged affect**. The AV reads overt menace and **misses politely-framed evil**. Refinement of the
+thesis and an **RQ5 trust point**: an articulate, politely-malicious model — precisely the dangerous case — is **under-read** by
+the released NLA.
+
+**Limitations.** n=45 acts, one concept, one model (Qwen), one coef (1.5); within-evil dose-response is over a narrow input range;
+the judge positives are now eyeball-validated but there is no systematic human pilot; "topic-gated" is an eyeball interpretation on
+small n. **Still RQ1/coupling (evil is verbalized in the output), NOT the verbalization gap.** Artifacts:
+`results/gate4/17_persona_nla_read__qwen2.5-7b.csv` (rates), `17_decodes__qwen2.5-7b.csv` (per-decode review dump), raw decodes
+gitignored; lever provenance + dose CSVs in `external/persona_results/`; OpenRouter judge drop-in in `external/persona_judge_openrouter.py`.
