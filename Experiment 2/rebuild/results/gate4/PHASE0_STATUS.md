@@ -83,10 +83,18 @@ paired on the trigger; sweep layers Qwen (15,17,19,21,23,25); reads `pre`(last p
 - **UNDERPOWERED** if the best gen cell is promising but `< MIN_GROUPS` groups (add triggers) — expected for
   the two 12-trigger secondaries.
 
-**First-pass caveat:** the expression/denial **regexes are unvalidated heuristics** until the first box run;
-they are the immediate signal (cf. `13`'s "regex first, judge after"). After the run, eyeball
-`__responses.parquet`, fix the regexes, and re-derive (re-analysis needs no GPU — activations are cached to
-`cache/18b_p0_2_feasibility__<model>__acts.npz`). A 07-style judge is the validated upgrade.
+**First-pass caveats** (check/fix after the first box run — re-analysis needs no GPU; activations are cached
+to `cache/18b_p0_2_feasibility__<model>__acts.npz`):
+1. The expression/denial **regexes are unvalidated heuristics** — the immediate signal only (cf. `13`'s
+   "regex first, judge after"). Eyeball `__responses.parquet`, fix the regexes, re-derive. A 07-style judge
+   is the validated upgrade.
+2. **Response-length confound on the `gen` read:** the battery residualizes *prompt* length, but the
+   last-response-token activation can encode *response* length/position, which may differ between
+   active_concealed and dormant. If a `gen` cell PASSes, confirm it survives response-length residualization
+   (and isn't driven by a systematic length gap) before treating it as a real readability signal.
+3. **Concealment instruction is in the system prompt** of active_concealed but not dormant → the `pre` read
+   is framing-confounded by construction (it sees the persona text); only the `gen` read is gap-relevant,
+   and even it carries the in-context-persona caveat above.
 
 **Box command:**
 ```
