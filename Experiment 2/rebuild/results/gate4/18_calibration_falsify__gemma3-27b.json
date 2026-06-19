@@ -1,0 +1,53 @@
+{
+  "model": "gemma3-27b",
+  "go_bar": 0.7,
+  "n_total": 215,
+  "within_truth": {
+    "n": 100,
+    "n_faithful": 71,
+    "n_confab": 29,
+    "auroc_recon_cos": {
+      "auroc": 0.3565,
+      "ci_lo": 0.2348,
+      "ci_hi": 0.4767,
+      "n": 100,
+      "n_pos": 71,
+      "n_neg": 29
+    },
+    "auroc_margin": {
+      "auroc": 0.3351,
+      "ci_lo": 0.2162,
+      "ci_hi": 0.4586,
+      "n": 100,
+      "n_pos": 71,
+      "n_neg": 29
+    },
+    "mean_cos_faithful": 0.9668,
+    "mean_cos_confab": 0.969
+  },
+  "xconcept": {
+    "n": 115,
+    "n_faithful": 86,
+    "n_confab": 29,
+    "auroc_recon_cos": {
+      "auroc": 0.6038,
+      "ci_lo": 0.4895,
+      "ci_hi": 0.7168,
+      "n": 115,
+      "n_pos": 86,
+      "n_neg": 29
+    },
+    "auroc_margin": {
+      "auroc": 0.8332,
+      "ci_lo": 0.7265,
+      "ci_hi": 0.9242,
+      "n": 115,
+      "n_pos": 86,
+      "n_neg": 29
+    },
+    "mean_cos_faithful": 0.9709,
+    "mean_cos_confab": 0.969
+  },
+  "verdict": "NULL",
+  "verdict_reason": "within-truth AUROC 0.34 < 0.7 -> AR-cos cannot rescue plausible confabulation"
+}

@@ -1,0 +1,53 @@
+{
+  "model": "qwen2.5-7b",
+  "go_bar": 0.7,
+  "n_total": 180,
+  "within_truth": {
+    "n": 71,
+    "n_faithful": 61,
+    "n_confab": 10,
+    "auroc_recon_cos": {
+      "auroc": 0.5705,
+      "ci_lo": 0.3306,
+      "ci_hi": 0.769,
+      "n": 71,
+      "n_pos": 61,
+      "n_neg": 10
+    },
+    "auroc_margin": {
+      "auroc": 0.5,
+      "ci_lo": 0.2351,
+      "ci_hi": 0.7145,
+      "n": 71,
+      "n_pos": 61,
+      "n_neg": 10
+    },
+    "mean_cos_faithful": 0.8166,
+    "mean_cos_confab": 0.8067
+  },
+  "xconcept": {
+    "n": 109,
+    "n_faithful": 99,
+    "n_confab": 10,
+    "auroc_recon_cos": {
+      "auroc": 0.1465,
+      "ci_lo": 0.0518,
+      "ci_hi": 0.2428,
+      "n": 109,
+      "n_pos": 99,
+      "n_neg": 10
+    },
+    "auroc_margin": {
+      "auroc": 0.2929,
+      "ci_lo": 0.125,
+      "ci_hi": 0.438,
+      "n": 109,
+      "n_pos": 99,
+      "n_neg": 10
+    },
+    "mean_cos_faithful": 0.7102,
+    "mean_cos_confab": 0.8067
+  },
+  "verdict": "UNDERPOWERED",
+  "verdict_reason": "within-truth 0.50 [0.24,0.71] does not clear 0.7"
+}
