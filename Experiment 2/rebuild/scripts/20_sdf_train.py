@@ -124,12 +124,15 @@ def train(a) -> int:
     out.mkdir(parents=True, exist_ok=True)
     # SFTConfig API moved across trl versions (max_length vs max_seq_length, dataset_text_field). If a kwarg
     # is rejected, check `pip show trl` and adjust — the rest is standard.
+    # Gemma-3-it loads as a vision-language model; trl forbids packing for VLMs (just less efficient, the
+    # text-only LM loss is unchanged). Qwen is a plain LLM and can pack.
+    can_pack = not mk.startswith("gemma")
     cfg = SFTConfig(
         output_dir=str(out), num_train_epochs=a.epochs, per_device_train_batch_size=a.bs,
         gradient_accumulation_steps=a.grad_accum, learning_rate=a.lr, lr_scheduler_type="cosine",
         warmup_ratio=0.03, bf16=True, logging_steps=10, save_strategy="epoch",
         gradient_checkpointing=True, gradient_checkpointing_kwargs={"use_reentrant": False},
-        max_length=a.max_seq, packing=True, dataset_text_field="text", report_to="none", seed=0)
+        max_length=a.max_seq, packing=can_pack, dataset_text_field="text", report_to="none", seed=0)
     trainer = SFTTrainer(model=model, args=cfg, train_dataset=ds, peft_config=lora)
     trainer.train()
     trainer.save_model(str(out))
