@@ -2,203 +2,214 @@
 
 **Models:** Qwen-2.5-7B-Instruct (block 20 = `hidden_states[21]`, d=3584) and Gemma-3-27B (block 41 =
 `hidden_states[42]`, d=5376), each with its released NLA Activation Verbalizer (AV) + Activation
-Reconstructor (AR).
-**Goal:** test whether reading an activation at generation position `t` through the released AV **predicts a
-property of the not-yet-emitted continuation** at `t+k` — the released-model, ground-truthable analog of the
-NLA paper's strongest *causally-validated* claim ("Opus plans its rhyme before writing it"). Unlike the
-verbalization gap (Exp 2/4, unobservable hidden state), the continuation **is emitted**, so every prediction
-is **scoreable against ground truth**.
-**Status:** scoped; Phase-0 de-risk pending.
-**Stance:** validation-and-characterization of the *released* NLA. **Released ≠ frontier** — nothing
-transfers to Anthropic's internal NLAs.
+Reconstructor (AR). **Infra is already in place** (Exp-1/2 SGLang AV serving, `09` decode loop, `03`/`12`
+position-indexed extraction, `07` scoring) — this experiment is **inference + analysis only, no new serving**.
+**Goal:** measure whether reading an activation at generation position `t` through the released AV **predicts
+a property of the not-yet-emitted continuation** at `t+k`, with **observable ground truth** (the continuation
+is emitted). The released-model, scoreable analog of the NLA paper's strongest causally-validated claim
+("Opus plans its rhyme before writing it").
+**Status:** scoped and operationalized; Phase-0 ready to run. **Released ≠ frontier.**
 
 ---
 
-## 0. Why this experiment, and the one trap it must design around
+## 0. Why this experiment, and the trap it is built around
 
-Experiment 2 established the **negative** half of the NLA's nature: it reads the *predicted surface
-continuation*, not hidden state (no verbalization gap). Experiment 5 measures the **positive** half — *how
-well, and how far ahead*, it reads that continuation — and is the project's first clean **positive** test
-with **real ground truth** (the emitted tokens). It also turns the hand-wave "output-coupling" into a
-**measured predictive horizon**.
+Exp 2 established the **negative** half of the NLA's nature (reads predicted continuation, not hidden state →
+no verbalization gap). Exp 5 measures the **positive** half — *how far ahead, and how specifically* it reads
+that continuation — the project's first clean **positive** test with **real ground truth**.
 
-> **THE TRAP (foreground it — this is the whole design problem).** The AV is **RL-trained to produce text
-> that reconstructs the activation such that it predicts the *same continuation*.** So "the AV predicts the
-> continuation" is **near-tautological** and is **NOT** the contribution. The residual stream at `t` is
-> literally optimized to predict token `t+1`, so a `k=1` "prediction" is trivial language modeling. The
-> experiment is only meaningful if it isolates the **three non-tautological quantities**:
+> **THE TRAP — and a measured fact that makes it concrete.** The AV is RL-trained to reconstruct the
+> activation *so it predicts the same continuation*, so "the AV mentions the continuation" is tautological.
+> **We measured it: 100% of our committed real-activation decodes quote the content, 99–100% use
+> forward-prediction language** (`expl` in `07_*__real.parquet`). So a "mentions the continuation" metric is
+> **saturated and useless.** The non-tautological — and therefore the *only* reportable — quantities are:
 >
-> 1. **Horizon (`k`).** Does the read at `t` predict a property realized at `t+k` for **k ≥ 2** — beyond
->    greedy next-token? How far ahead before it decays to chance? *(novel; the headline number)*
-> 2. **Edge over context-only.** Does the **activation** carry plan-information **beyond what a normal LM
->    infers from the same prompt+prefix**? If a context-only LM predicts the property just as well, the AV
->    read nothing special — it's "a full LM guessing from context." *(the load-bearing control Exp-2 never ran)*
-> 3. **Commitment under under-determination.** When the context admits **many** valid continuations, does the
->    activation predict the **specific one the model commits to** (not just the set / the base rate)? *(the
->    real "planning" claim, vs "the answer was obvious")*
+> 1. **Horizon (`k`).** Predicts a property realized at `t+k` for **k ≥ 2** (beyond the residual stream's
+>    built-in `t+1`), and *how far ahead before it decays to base rate.* The headline curve.
+> 2. **Commitment vs hedge.** Does it name the **specific** realized token/word, or a **category/disjunction**?
+>    (Surfaced by a colleague's length-penalty decode: *"expect a noun phrase like 'native housing tax' or
+>    'carbon tax legislation'"* — a **hedge**, not a commitment. The commit-rate *is* the planning-depth signal.)
+> 3. **Per-rollout commitment beyond context.** When the prompt is under-determined and the model commits to a
+>    **specific** continuation by `t`, does the activation predict **that** commitment — measured **within
+>    prompt** so "context" is held fixed (§4B). This replaces a fragile context-only-LM control.
 
-A result that is only "`k=1`, no context edge, context-determined" is **trivial LM** — and still a publishable
-*bound* (the released NLA has ~zero planning horizon). A result with `k≥2`, a context edge, and commitment is
-a genuine positive: the released NLA reads committed future plans.
-
----
-
-## 1. Research questions
-
-- **RQ5.1 — Lookahead readout.** Does the AV read of `h_t` predict a property `P` realized at `t+k` (k≥2),
-  above a **mismatched-continuation base rate**? (Clean ground truth via *determined* tasks.)
-- **RQ5.2 — Predictive horizon.** As a function of `k`, where does the AV's prediction of `P` decay to the
-  mismatched base rate? (The headline curve, per task and per model.)
-- **RQ5.3 — Plan vs inference (the strong claim).** On *under-determined* tasks, does the AV predict the
-  model's **committed** continuation **above a context-only LM** given the same prompt+prefix?
-- **RQ5.4 — Cross-model / cross-task generality.** Do the horizon and the context-edge replicate on Gemma &
-  Qwen and across task families, or are they task/model-specific (as the Exp-2 soft reads were)?
+A result that is "only `k=1`, always hedges, no per-rollout signal" is **trivial LM** — still a publishable
+*bound* (the released NLA has ~zero planning horizon). The opposite is a genuine positive.
 
 ---
 
-## 2. The two sub-experiments (different controls, because the ground truth differs)
+## 1. Research questions (each falsifiable)
+- **RQ5.1 Lookahead readout.** AV read of `h_t` predicts the model's **emitted** property `P` at `t+k` (k≥2),
+  above a **mismatched-continuation base rate**. (Determined tasks → clean single ground truth.)
+- **RQ5.2 Horizon.** AV-predicts-`P` vs `k`: the decay-`k` where it falls to base rate, per task/model.
+- **RQ5.3 Commitment.** Commit-rate (specific vs hedged) by task and `k`; and, on under-determined tasks,
+  AV predicts each rollout's **own** committed `P` above sibling-rollout `P` (within-prompt).
+- **RQ5.4 Generality.** Horizon, commit-rate, and per-rollout signal replicate on Gemma **and** Qwen and
+  across tasks (Exp-2 soft reads were model-specific — a single-model result is suggestive only).
+
+---
+
+## 2. Two sub-experiments (different ground truth → different decisive control)
 
 | | **A — Lookahead readout** | **B — Planning under under-determination** |
 |---|---|---|
-| Tasks | **determined** (arithmetic, factual completion) | **under-determined** (rhyme, free choice) |
-| Claim | activation encodes a property *before emission* | activation predicts the *committed* choice beyond context |
-| Ground truth | the emitted continuation (unique answer) | the emitted choice (one of many valid) |
-| Decisive control | **mismatched-continuation base rate** (read of `h_t^i` scored vs example *j*'s `P^j` → chance) | **context-only LM** edge (does the activation beat a prefix-LM?) |
-| Strength | clean ground truth; A is the cheap Phase-0 | the real "planning" claim; B is the headline |
-| Note | context-only is *not* a fair control here (a strong LM also computes the answer) → A tests *readout*, not *plan* | mismatched base rate is *also* reported |
+| Tasks | **determined** (arithmetic, factual completion) | **under-determined** (rhyme, free binary choice) |
+| Decode | **greedy** (one deterministic `P` per prompt) | **sampled, M rollouts** (commitments diverge) |
+| Ground truth | the model's **emitted** answer (incl. its mistakes) | each rollout's emitted commitment `P_r` |
+| Decisive control | **mismatched-continuation base rate** | **sibling-rollout** base rate (within-prompt; §4B) |
+| Strength | clean ground truth; the cheap Phase-0 | the real "planning" claim; the headline |
+| Greedy/sample fix | greedy (deterministic GT) | sampling **is** the design (creates divergence) |
 
-Both report the **horizon** (vary `k`). A is run first (cheapest, cleanest ground truth); B carries the
-headline planning claim.
-
----
-
-## 3. Task families (read position `t` chosen so `P` is realized at `t+k`, k≥2)
-
-1. **Arithmetic answer-before-emit (A; cheapest Phase-0).** Prompt `"Compute: 47 × 83 ="`; greedy-generate;
-   read `h_t` at the **first generated position** (before any answer digit). `P` = the correct product (or
-   its leading digits), realized several tokens later. Large answer space → mismatched base rate ≈ 0 → a
-   strong control. GO = AV mentions the emitted answer ≫ mismatched.
-2. **Rhyme couplet (B; the paper's exact case, the headline).** `"Write a rhyming couplet about <topic>."`;
-   read `h_t` at the **start of line 2** (before the rhyme word, which lands at line-2 end, k = several
-   tokens). `P` = the emitted rhyme word / its phonetic class. Control = a **context-only LM** given line 1 +
-   the line-2 prefix: can it predict the *specific* rhyme the model used? GO = AV ≫ mismatched **and** AV ≥
-   context-only.
-3. **Refusal lookahead (A; a *free* existence proof).** We **already** read refusal at the **prompt-last**
-   token (Exp-1/2: ~0.92/1.00) — i.e. the activation **before any generated token** predicts the upcoming
-   refusal. Re-frame this as the zero-cost existence proof that the AV reads forward at all; generalize to
-   "predicts the refusal at an early generated position."
-4. **Forced binary choice (B).** `"Answer with exactly one word: A or B."` on items where both are plausible;
-   read at the first generated position; `P` = the committed letter. Context-only control = a prefix-LM's
-   guess. Tests commitment under genuine under-determination.
-5. **Language / format switch (A/B).** Prompts that induce an upcoming switch (to non-English, to JSON/code);
-   does an early `h_t` predict the switch before it surfaces? (Qwen's geography→Chinese code-switch is a hint
-   it plans switches.)
+> **Use the model's emitted answer as ground truth, not the *correct* one.** If the AV predicts the model's
+> **wrong** arithmetic answer before it's emitted, that is the strongest evidence it reads the model's internal
+> computation rather than "what's true."
 
 ---
 
-## 4. Measurement, baselines, and the horizon curve
+## 3. Tasks, datasets, and read-position / `k` mechanics
 
-For each (task, example, model):
-1. **Generate** the continuation (greedy; also sample k=3 for robustness) and record the emitted tokens →
-   ground-truth property `P^i`.
-2. **Extract** `h_t` at the pre-registered read position(s) `t` (well before `P` is realized; fp32; the NLA's
-   layer). Log `||h||`, position, and the realized distance `k` from `t` to where `P` appears.
-3. **Decode** `h_t` through the AV (reuse `09`'s loop; temp 1.0, 3 samples; `extract_explanation=False`).
-4. **Score** whether the AV text predicts `P^i`, by a **pre-registered property scorer** (regex + judge):
-   answer-match (A), rhyme/phonetic-match (B2), letter-match (B4), switch-mention (5). Four-way controlled
-   (echo / `generic_template` / `nla_degenerate`).
-5. **Baselines / controls (all mandatory):**
-   - **Mismatched-continuation base rate** (decisive for A): score AV(`h_t^i`) against a *different* example's
-     `P^j`. The read must be example-specific (`P^i ≫ P^j`), not a generic guess.
-   - **Context-only LM** (decisive for B; **load-bearing — Exp-2 never ran it**): give a clean LM the prompt +
-     emitted prefix up to `t` and ask it to predict `P`. The AV must **beat** it to claim the activation
-     carries a plan beyond context.
-   - **Trivial next-token** control: confirm `P` is *not* just token `t+1` (require k≥2 / end-of-structure).
-   - **Surface-echo** control: `P` must not already appear in the prompt/prefix (else the AV is echoing).
-6. **Horizon curve (RQ5.2):** plot AV-predicts-`P` vs `k` (read at successively earlier positions, or `P`
-   realized successively later); report the `k` at which it decays to the mismatched base rate. Compare to the
-   context-only curve.
+**Datasets (all programmatic / standard; n≥150 prompts per task, B: ≥60 prompts × M=8 rollouts):**
+- **Arithmetic (A, Phase-0):** 150 unique `"Compute: <a> × <b> ="` (2–3 digit). `P` = the model's emitted
+  answer digits.
+- **Factual completion (A):** 150 `"The capital of <country> is"` / single-fact completions. `P` = emitted fact.
+- **Rhyme couplet (B, headline):** 60–100 concrete-noun topics, `"Write a rhyming couplet about <topic>."`
+  `P_r` = the last word of line 2.
+- **Forced binary choice (B):** 100 genuinely-ambiguous items, `"Answer with exactly one word — A) <x> B) <y>."`
+  `P_r` = the committed option.
+- **Language/format switch (A/B):** prompts inducing an upcoming switch (`"Reply in French:"`, `"Output JSON:"`).
+- **Refusal-lookahead (A, FREE existence proof):** reuse the existing AdvBench refused set — the **prompt-last**
+  activation already reads refusal 0.92/1.00 (Exp-1/2), i.e. the activation **before any generated token**
+  predicts the upcoming refusal. Zero-cost confirmation the AV reads forward at all.
 
-**Headline numbers:** the **horizon** (max k with prediction ≫ base rate), the **context-only edge** (AV −
-context-only, on B), and the **commitment rate** (B), per model — *not* the bare "AV predicts continuation."
+**Read-position / `k` (the operational core — reuse the `03`/`12` teacher-forced extraction):**
+1. Generate the continuation; tokenize; locate `t_P` = the position where `P` is realized (answer digits /
+   rhyme word / committed letter).
+2. One forward pass over `prompt + emitted continuation` (teacher-forced); read `hidden_states[layer]` at
+   positions `t = t_P − k` for **k ∈ {1, 2, 4, 8, 16}** (clamped to ≥ first generated position). `k` = tokens
+   **before** `P`.
+3. Log per row: `k`, position, `‖h‖`, and confirm `P` does **not** already appear in `prompt + prefix[:t]`
+   (the **no-surface-echo** gate — else the AV is echoing, not predicting).
 
 ---
 
-## 5. Confound doctrine for Experiment 5
-- **A positive is EXPECTED by the AV's training** → never report "the AV predicts the continuation" as the
-  result; report **horizon**, **context-edge**, **commitment**. (Same discipline as Exp-2: no bare number.)
-- **Mismatched base rate + context-only + no-surface-echo** are the load-bearing controls; cluster-bootstrap
-  CIs over example id; compare CI **bounds**.
-- **Position/norm:** read at normal-norm positions; off-by-one position invalidates `k`; log everything.
-- **Property scorer is the experiment** (Exp-1/2 lesson): regex ↔ judge cross-check, and **human-pilot** the
-  rhyme/answer scorers (≥20/task) before any absolute number — the soft-judge caveat carries over.
-- **Cross-model:** require Gemma **and** Qwen; soft Exp-2 reads were model-specific, so a single-model horizon
-  is suggestive only.
-- **Greedy vs sampled:** report both; "planning" should be robust to sampling temperature.
+## 4. Baselines, scorers, and the resolved controls
+
+### 4A. Property scorers (the scorer *is* the experiment — Exp-1/2's hardest lesson)
+- **Arithmetic / factual:** regex — does the AV decode contain the emitted answer string (first ≥2 digits, or
+  the emitted fact token)? Objective.
+- **Rhyme:** terminal-rhyme match (CMU pronouncing dict / `pronouncing`) between **any content word in the AV
+  decode** and `P_r`; report **exact-word** and **rhyme-class** (matching final stressed vowel + coda)
+  separately.
+- **Binary / switch:** letter/option-content match; target-language/format mention before it surfaces.
+- **Commit-vs-hedge classifier:** label each decode `commit` (names one specific `P`) vs `hedge` (a category
+  or disjunction — "a noun phrase like X or Y"). Regex + judge; **commit-rate is a headline metric**.
+- **Backstop + validation:** reuse `07`'s LLM judge with a task-specific prompt ("does this explanation
+  predict that the continuation will <contain X / end on a word rhyming with Y / choose Z>?"); report
+  **regex↔judge agreement** and **human-pilot ≥20/task** before any absolute rate (the soft-judge caveat
+  carries from Exp 2). Four-way flags (echo / `generic_template` / `nla_degenerate`) on every read.
+
+### 4B. The control for B (resolves the context-only-LM design hole — within-model, multi-rollout)
+The naive "give a context-only LM the prefix" control is **broken**: if that LM is the target model it just
+**reproduces `P` deterministically** → no edge possible. Fix — hold context fixed and vary only the model's
+*own* sampled commitment:
+```
+for each under-determined prompt p:
+  sample M=8 rollouts at temp ~0.8           # commitments diverge
+  keep p iff rollouts disagree on P (>=3 distinct P_r)   # genuinely under-determined
+  for each rollout r:  extract h_t^r at t = t_P^r - k (k>=2);  AV-decode;  score predicts(P_r) and predicts(P_{r'!=r})
+  PLANNING SIGNAL = within-prompt AUROC( own P_r  vs  sibling P_{r'} | AV-mention ), cluster-bootstrapped over p
+```
+Any signal here is the **activation's per-rollout commitment** (the prompt is identical across siblings), so
+it needs **no external model**. **Secondary triangulation:** the *prefix-marginal* `P(P)` across rollouts —
+the edge = AV-own-rate − marginal-rate (does the AV beat just guessing `P`'s base frequency?). An *optional*
+cross-model context-only baseline (read Gemma's plan; baseline = Qwen-as-LM given the prefix) can triangulate
+but is not load-bearing.
+
+### 4C. Controls common to A and B
+- **Mismatched base rate** (decisive for A): score AV(`h_t^i`) against example `j`'s `P^j` → must be ≪ own.
+- **Trivial next-token:** require k≥2 / end-of-structure; report `k=1` separately as the LM floor.
+- **No-surface-echo:** `P` absent from prompt+prefix (§3.3).
+- **CIs:** cluster-bootstrap over example/prompt id; compare CI **bounds** (n~100–150 is noisy).
+- **Greedy vs sampled:** A greedy; B sampled by design; for A also report 3-sample consistency.
 
 ---
 
-## 6. Phase-0 de-risk (cheap; explicit go/stop)
-- **P0-0 (free):** re-frame existing **refusal prompt-last** data as the lookahead existence proof (activation
-  before generation predicts refusal). Confirms the AV reads forward at all. *Already in hand.*
-- **P0-A (cheap, clean ground truth):** **arithmetic answer-before-emit**, ~50 unique 2-digit products, read
-  at the first generated position, AV-score answer-mention vs **mismatched base rate**. **GO** if AV predicts
-  the emitted answer with rate ≫ mismatched (pre-register, e.g. ≥0.3 vs ≤0.05, CI-separated). **STOP/redefine**
-  if AV only ever reads `k=1` / the prompt → no lookahead.
-- **P0-B (cheap, headline):** **rhyme couplet**, read at line-2 start, AV-score rhyme vs **context-only LM**
-  vs mismatched. **GO** for the planning claim if AV ≫ mismatched **and** AV ≥ context-only. **PARTIAL** if AV
-  ≫ mismatched but ≈ context-only (lookahead readout, not plan-beyond-context — still RQ5.1).
-- Only after P0-A/B → run the **horizon sweep** + cross-model + the other tasks.
+## 5. Pre-registered thresholds and the horizon curve
+- **P0-A (arithmetic) GO:** AV predicts the emitted answer at **k≥2** with rate **≥0.30** while the
+  **mismatched base rate ≤0.05**, CI-separated (lower-CI(AV) > upper-CI(mismatched)). **STOP/redefine** if
+  signal exists only at `k=1` (no lookahead) or fails to beat mismatched.
+- **P0-B (rhyme) GO** (planning): within-prompt **AUROC(own vs sibling `P`) ≥ 0.65** with CI_lo > 0.5 on the
+  under-determined subset, **and** commit-rate clearly > 0 on committed rollouts. **PARTIAL** if AV ≫
+  mismatched but per-rollout AUROC ≈ 0.5 (lookahead-readout only, not plan-beyond-context).
+- **Horizon (headline):** report decay-`k` = the largest `k` with AV rate CI-above the mismatched/base rate,
+  per task and model; overlay the commit-rate(`k`) curve. No fixed bar — it's the measured quantity.
+- **Cross-model:** require Gemma + Qwen; flag any single-model result.
+
+## 6. Phase-0 (cheap; ready to run on the existing infra)
+1. **P0-0 (free):** re-frame the existing refusal prompt-last reads as the lookahead existence proof.
+2. **P0-A (arithmetic, ~2–4 GPU-hr):** the cheapest, cleanest-ground-truth test; the `k`-sweep + mismatched
+   control. Pass → the AV does lookahead readout; size of decay-`k` is the first real number.
+3. **P0-B (rhyme, ~3–5 GPU-hr):** the multi-rollout within-prompt planning test + commit-rate.
+   Pass → genuine planning; partial → readout-only.
+Only after P0-A/B → the full task set, horizon sweep, cross-model, and the optional analyses (§8).
 
 ## 7. Compute / cost
-Inference only (generation + AV decode + a context-only LM pass); reuses Exp-2 serving. ~5–15 GPU-hr per
-model for the full task set; Phase-0 ≈ 2–4 GPU-hr. Low-hundreds-$ at most. **No training.**
+Inference only (generation + position-indexed extraction + AV decode + scoring); reuses Exp-2 serving.
+~5–15 GPU-hr per model full; Phase-0 ≈ 5–9 GPU-hr total. Low-hundreds-$. **No training.**
 
-## 8. Failure modes
-- **Only k=1 / context-determined** → trivial LM; report the ~zero horizon as the bound (still a result).
-- **AV ≈ context-only on B** → the AV infers from context like any LM; no "plan beyond context" (an
-  informative null that bounds the planning claim).
-- **Property scorer noise** (rhyme/answer matching is fiddly) → human-pilot first.
-- **Read-position off-by-one** → invalidates `k`; behaviorally verify the position.
-- **Echo / surface leakage** of `P` into the prefix → the no-surface-echo control is mandatory.
-- **The AR is irrelevant here** (this is an AV read experiment) — don't conflate with AR fidelity.
+## 8. Optional / stretch analyses (do only if Phase-0 is positive)
+- **AR-"fluff" connection (from the colleague's length-penalty result: ~65% shorter explanation, only ~9pp FVE
+  drop → much AV text is KL-fluff, not reconstruction-bearing).** Test on our side: does the **coarse core** of
+  the explanation predict `P` while the **fine detail** is the confabulated part? Ties to Exp-4 P0-1 (AR-cos):
+  strip the decode to its `P`-bearing clause and re-score AR reconstruction.
+- **Layer sweep:** the plan may live off the NLA read site; read ±a few layers (extraction-only, the AV is
+  layer-locked so this only bounds where the *signal* is, not where the AV can read).
+- **Within-vs-cross-model planning** (the optional cross-model context-only baseline, §4B).
 
-## 9. Reuse map (inference + analysis; nothing trained)
-- **Reuse:** `scripts/09_decode_real.py` + `NLAClient.generate` (AV decode loop); `scripts/03_extract_for_battery.py`
-  pattern (forward pass + position-indexed extraction at *generated* tokens — the small new bit); `scripts/07_score_matrix.py`
-  (regex + judge scoring harness, four-way flags); `confounds._safe_auc`/`_cluster_bootstrap_ci` (separation +
-  CIs); `av_up.sh` + `nla_box` (AV serving).
-- **New:** generation + ground-truth `P` capture; per-task property scorers (answer/rhyme/letter/switch); the
-  **context-only LM** baseline harness (Exp-2 never built it — also reusable for Exp-3/4); the
-  mismatched-continuation control; the horizon-curve analysis.
+## 9. Reuse map (nothing trained)
+- **Reuse:** `09_decode_real.py` + `NLAClient.generate` (AV decode loop); the `03`/`12` teacher-forced
+  forward-pass + **position-indexed** extraction (the one small new bit — read at `t_P−k`, not prompt-last);
+  `07_score_matrix.py` (regex + judge, four-way flags); `confounds._safe_auc`/`_cluster_bootstrap_ci`
+  (separation + CIs); `av_up.sh` + `nla_box` (serving).
+- **New (small):** generation + ground-truth `P` capture + `t_P` location; the multi-rollout driver for B; the
+  per-task property scorers + the commit-vs-hedge classifier; the horizon-curve analysis. A natural first
+  stage: `scripts/19_forward_predict.py` (mirror `18`'s CPU-`--selftest` + box-run split).
 
-## 10. What a result means
-- **Positive** (k≥2 horizon, context-edge on B, commitment): the released NLA reads **committed future
-  plans** — a clean positive that complements the Exp-2 gap null (it reads *forward output*, not *hidden
-  state*), and quantifies *how far forward*. The project's first headline positive beyond refusal detection.
-- **Null/trivial** (k=1, no edge): bounds the released NLA's planning horizon to ~0 — also a real,
-  citable result and a sharpening of "output-predictor."
+## 10. Failure modes
+- **Only `k=1` / always hedges** → trivial LM; report the ~zero horizon as the bound.
+- **Per-rollout AUROC ≈ 0.5 on B** → lookahead readout without plan-beyond-context (an informative null).
+- **Property scorer noise** (rhyme matching) → human-pilot first; report exact-word and rhyme-class separately.
+- **Read-position off-by-one** → invalidates `k`; behaviorally verify (k=1 should be near-perfect — the LM floor).
+- **Surface leakage of `P`** into the prefix → the no-surface-echo gate is mandatory.
+- **Under-determined subset too small** (rollouts rarely disagree) → loosen temp / pick higher-entropy prompts.
 
-## 11. Limitations
-- **Lookahead readout ≠ planning.** A (arithmetic) shows the activation *encodes a determined answer early*;
-  only B (under-determined + context-edge) supports "*plans* a committed choice." Keep them separate.
-- **The positive is partly expected** (AV training) — which is why horizon/edge/commitment, not existence,
-  are the claims.
-- Single layer (the NLA's read site); the plan may live elsewhere — a layer sweep is a stretch.
-- Released ≠ frontier; the paper's planning result was on Opus with internal NLAs.
+## 11. What a result means / limitations
+- **Positive** (k≥2 horizon, commit-rate > 0, per-rollout AUROC > 0.5): the released NLA reads **committed
+  future plans** — the positive complement to the Exp-2 gap null (reads *forward output*, not *hidden state*),
+  with a measured horizon. The project's first headline positive beyond refusal detection.
+- **Null/trivial** (k=1, all hedge): bounds the planning horizon to ~0 — a real, citable result.
+- **Lookahead readout ≠ planning:** A shows early *encoding* of a determined answer; only B (per-rollout, under
+  under-determination) supports "*plans* a committed choice." Keep separate.
+- The positive is partly **expected** (AV training) — which is why horizon / commit / per-rollout are the
+  claims, not existence. Single layer; released ≠ frontier (the paper's result was Opus + internal NLAs).
 
 ## 12. Verification
-- **P0-A:** committed CSV `(example, answer, av_predicts_answer, mismatched_rate, k)` + CI-separated rates.
-- **P0-B:** `(example, rhyme, av_match, context_only_match, mismatched, k)` + the AV−context-only edge with CI.
-- **Horizon:** a per-task curve (AV rate vs k) with the decay-`k` and the context-only curve overlaid.
-- **Scorer:** human-pilot agreement (≥20/task) reported alongside every absolute rate.
-- **Cross-model:** Gemma + Qwen tables side-by-side; flag any single-model-only result.
+- **P0-A:** committed CSV `(example, emitted_answer, av_predicts, mismatched, k, commit_flag)`; CI-separated
+  rates per `k`.
+- **P0-B:** `(prompt, rollout, P_r, av_predicts_own, av_predicts_sibling, k, commit_flag)`; within-prompt
+  AUROC + CI; commit-rate.
+- **Horizon:** per-task curve AV-rate vs `k` with decay-`k`; commit-rate(`k`) overlaid.
+- **Scorer:** human-pilot agreement (≥20/task) beside every absolute rate; regex↔judge agreement.
+- **Cross-model:** Gemma + Qwen side-by-side; flag single-model-only results.
+- **Self-test:** `19_*.py --selftest` validates the scorers + AUROC + commit/hedge logic on synthetic ground
+  truth before any real number (mirrors `18`).
 
-## 13. References (IDs WebSearch-verified; full digest in `docs/references/literature_synthesis_2026-06.md`)
+## 13. References (IDs WebSearch-verified; digest in `docs/references/literature_synthesis_2026-06.md`)
 - **NLA paper** — Fraser-Taliente, Kantamneni, Ong et al. (2026), transformer-circuits.pub/2026/nla — the
-  "Opus plans its rhyme before writing it" result is the causally-validated mechanism this experiment ports to
-  a released model with observable ground truth. (Search-verified; treat the quote as "as surfaced by search.")
-- **Exp 2 closeout** (`Experiment 2/rebuild/EXPERIMENT_2_CLOSEOUT.md`) — the output-coupling thesis Exp 5
-  measures the *forward* half of; refusal-at-prompt-last is the free existence proof.
+  "plans its rhyme before writing it" result this ports to a released model with observable ground truth
+  (search-verified; treat the quote as "as surfaced by search").
+- **Exp 2 closeout** (`Experiment 2/rebuild/EXPERIMENT_2_CLOSEOUT.md`) — the output-coupling thesis whose
+  *forward* half this measures; refusal-prompt-last is the free existence proof; the 100%-quote measurement
+  motivates dropping the saturated "mentions continuation" metric.
 - **Activation Oracles** (arXiv:2512.15674), **Yuan 2605.09502**, **Miao & Ungar 2603.25052** — the
-  decodable-vs-verbalized / probe-vs-output line that frames "what the released AV does and doesn't read."
+  decodable-vs-verbalized framing for "what the released AV does and doesn't read."
