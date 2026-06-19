@@ -38,7 +38,8 @@ from paths import WORKSPACE, model_slug, stage_of  # noqa: E402
 STAGE = stage_of(__file__)
 MODELS = {"gemma3-27b": dict(hf="google/gemma-3-27b-it", gated=True),
           "qwen2.5-7b": dict(hf="Qwen/Qwen2.5-7B-Instruct", gated=False)}
-# Gemma-3 / Qwen attn+MLP projections (LoRA targets). Same names on both.
+# LoRA targets: attn+MLP projections. AuditBench midtrain used "all-linear"; we restrict to these TEXT
+# projections because Gemma-3 is a VLM and "all-linear" would also adapt the (irrelevant) vision tower.
 LORA_TARGETS = ["q_proj", "k_proj", "v_proj", "o_proj", "gate_proj", "up_proj", "down_proj"]
 
 
@@ -127,10 +128,15 @@ def train(a) -> int:
     # Gemma-3-it loads as a vision-language model; trl forbids packing for VLMs (just less efficient, the
     # text-only LM loss is unchanged). Qwen is a plain LLM and can pack.
     can_pack = not mk.startswith("gemma")
+    # Matches AuditBench src/finetuning/midtrain (cosine, warmup_steps=100, adamw_torch, max_length 2048,
+    # eff. batch 16). NO val-loss early stopping by design — you don't halt belief-install on training loss.
+    # Instead save EVERY epoch (save_total_limit keeps them) and pick the best checkpoint by the BEHAVIORAL
+    # gates (E2 install/conceal, E3 signal@L41, coherence) — the organism analog of early stopping.
     cfg = SFTConfig(
         output_dir=str(out), num_train_epochs=a.epochs, per_device_train_batch_size=a.bs,
         gradient_accumulation_steps=a.grad_accum, learning_rate=a.lr, lr_scheduler_type="cosine",
-        warmup_ratio=0.03, bf16=True, logging_steps=10, save_strategy="epoch",
+        warmup_steps=a.warmup_steps, optim="adamw_torch", weight_decay=0.0, bf16=True,
+        logging_steps=10, save_strategy="epoch", save_total_limit=int(a.epochs) + 1,
         gradient_checkpointing=True, gradient_checkpointing_kwargs={"use_reentrant": False},
         max_length=a.max_seq, packing=can_pack, dataset_text_field="text", report_to="none", seed=0)
     trainer = SFTTrainer(model=model, args=cfg, train_dataset=ds, peft_config=lora)
@@ -151,11 +157,12 @@ def main() -> int:
     ap.add_argument("--show", type=int, default=2, help="docs to print in --dry-run")
     ap.add_argument("--qlora", action="store_true", help="4-bit QLoRA (fallback if bf16 LoRA OOMs)")
     ap.add_argument("--rank", type=int, default=64, help="LoRA rank (AuditBench used 64)")
-    ap.add_argument("--epochs", type=float, default=3.0, help="SDF usually needs 2-4 passes to install a belief")
-    ap.add_argument("--lr", type=float, default=1e-4, help="LoRA SDF: 1e-4 safe; 2e-4 if install weak; 5e-5 if forgetting")
-    ap.add_argument("--bs", type=int, default=1)
-    ap.add_argument("--grad-accum", type=int, default=16)
-    ap.add_argument("--max-seq", type=int, default=1024)
+    ap.add_argument("--epochs", type=float, default=2.0, help="SDF epochs (AuditBench used 1 full-corpus LoRA pass; 2 to be safe — E2 catches over-install/leak via checkpoint selection)")
+    ap.add_argument("--lr", type=float, default=2e-5, help="AuditBench midtrain SDF LR=2e-5 (low=anti-forgetting); raise only if E2 under-installs")
+    ap.add_argument("--bs", type=int, default=2, help="AuditBench midtrain bs=2 (×ga8 = eff. batch 16)")
+    ap.add_argument("--grad-accum", type=int, default=8)
+    ap.add_argument("--warmup-steps", type=int, default=100, help="AuditBench midtrain warmup_steps=100")
+    ap.add_argument("--max-seq", type=int, default=2048, help="AuditBench midtrain max_length=2048")
     ap.add_argument("--max-docs", type=int, default=0, help="cap docs (0 = all) for a quick smoke train")
     a = ap.parse_args()
     if a.dry_run:
