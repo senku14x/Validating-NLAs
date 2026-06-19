@@ -342,8 +342,16 @@ def conjunction_verdict(per_layer: dict, out_expr_rate: float, feas: dict, behav
 
 # ─────────────────────────── box: generate + sweep-extract + analyze ───────────────────────────
 def _chat_ids(tok, system: str, user: str):
-    msgs = [{"role": "system", "content": system}, {"role": "user", "content": user}]
-    return tok.apply_chat_template(msgs, tokenize=True, add_generation_prompt=True, return_tensors="pt")
+    """Chat-format a (system, user) pair. Qwen takes a native system turn; some templates (Gemma-3) REJECT a
+    separate system role -> fall back to folding the persona into the user turn. Same persona content either
+    way; only the turn structure differs (recorded so Gemma vs Qwen isn't silently incomparable)."""
+    try:
+        msgs = [{"role": "system", "content": system}, {"role": "user", "content": user}]
+        return tok.apply_chat_template(msgs, tokenize=True, add_generation_prompt=True, return_tensors="pt")
+    except Exception:
+        merged = f"{system}\n\n{user}"
+        return tok.apply_chat_template([{"role": "user", "content": merged}],
+                                       tokenize=True, add_generation_prompt=True, return_tensors="pt")
 
 
 def run(model_key: str) -> int:
