@@ -72,9 +72,27 @@ NLA provably reconstructs *base* activations well. So RQ4 (does the NLA still re
 open and now cheaply answerable — the server works, we just run the reconstruction. Cleaned up the cluster
 afterward (pods deleted, FSx/S3 scratch removed; results pulled back locally).
 
-**Next:** A0b on the organism (the real RQ4 answer) → A1 (is the bias linearly present at L53) → A2 (the gap).
-Then a 2nd organism (Data Poisoning) to see whether the large shift is universal across AuditBench organisms or
-specific to this behavior.
+**8. A0b — the real RQ4 number: DEGRADED** (`04_a0b__llama-oss-run1.json`). Ran the full loop staged to fit one
+node (decode all activations through the AV server → kill server → load the 70B AR sharded → score). Base
+reconstruction cos = **0.90** (ceiling), organism = **0.71**, floor 0.51 → organism is clearly above floor
+(+0.20) but the ratio organism/base = **0.79**. Means: the NLA *does* read the organism (not blind to the
+finetune), but ~20% worse than base. **RQ4 passes at DEGRADED, not GO** — proceed to the gap test, but weigh
+any future NLA-null against this reduced fidelity; the light-AR-finetune fix is available if we want to recover
+it first. Consistent with the upstream story (large but structured shift → NLA follows it imperfectly).
+Caveats: n=40, one organism/config, no CI yet; needed two patches to the vendored `NLACritic` (shard the AR
+with device_map=auto; align the value-head to the backbone's output device — it hardcoded `cuda:0` and OOM'd on
+40GB). Base ceiling 0.90 ≈ Exp-2's Qwen AR fidelity, a sanity check the patch didn't corrupt scoring; review
+the patch before trusting exact digits.
+
+**RQ4 gate verdict: GO-with-caveat (DEGRADED).** Experiment 4 proceeds. Next: A1 (is the anti-regulation bias
+linearly present at L53) → A2 (the gap). Then a 2nd organism (Data Poisoning) to see if the shift/fidelity
+pattern is universal or behavior-specific.
+
+**Lifting the 0.71 (later, not now).** The diagnostic showed ~72% of the organism shift is a global offset
+(de-offset realigns to 0.84), so reconstruction may improve by either (a) subtracting the mean base→org shift
+before the NLA reads — cheap, but risky: if the offset partly *is* the installed belief, this erases the
+RQ3 signal; or (b) a light-AR-finetune on a few-M organism activations (Kissane precedent). Don't do this
+before A1/A2 — only worth it if A2 returns a null we need to distinguish from a fidelity artifact.
 
 ---
 

@@ -1,0 +1,11 @@
+{
+  "base_loop_cos_mean": 0.9014,
+  "base_loop_cos_p10": 0.8652,
+  "organism_loop_cos_mean": 0.713,
+  "organism_loop_cos_p10": 0.669,
+  "anisotropy_chance_cos": 0.5107,
+  "organism_above_chance": 0.2023,
+  "organism_vs_base_ratio": 0.7911,
+  "n": 40,
+  "verdict": "DEGRADED \u2014 reduced fidelity; consider light-AR-finetune; proceed with care"
+}
