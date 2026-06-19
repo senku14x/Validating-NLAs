@@ -5,14 +5,15 @@ AND P0-2 GO.** This file freezes each stage's design + pre-registered thresholds
 *before* the run, and is the slot for the one-page readout afterwards. Thresholds here are frozen — do not
 tune them to results.
 
-Phase-0 stages share the `18` stem (`18`=P0-1, `18b`=P0-2, `18c`=P0-3-TBD). Stage `19` is reserved for
-Exp-5 forward-prediction. All run in `Experiment 2/rebuild/`; CPU dev venv at repo root (`.venv`).
+Phase-0 stages share the `18` stem (`18`=P0-1, `18b`=P0-2, `18c`=P0-2 judge re-score, `18d`=P0-3-TBD). Stage
+`19` is reserved for Exp-5 forward-prediction. All run in `Experiment 2/rebuild/`; CPU dev venv at repo root (`.venv`).
 
 | Stage | Test | Status | Result |
 |---|---|---|---|
-| `18`  P0-1 | Is the released NLA more than an output-predictor? (AR-cos separates faithful vs plausible-confab) — ships RQ5 calibration result either way | **CODED, box-ready** (CPU selftest + build-only green; labelsets reproduce committed counts exactly) | **TBD (needs box)** |
-| `18b` P0-2 | Prompted feasibility + unverbalized-target definition (elicit / conceal / probe-readable concealed behavior) | **CODED, box-ready** (CPU selftest + build-only green) | **TBD (needs box)** |
-| `18c` P0-3 | Transfer sanity: AR fidelity on base Qwen (have +0.22) + on first organism | not built (trivial; reuses `15_ar_fidelity.py`) | TBD |
+| `18`  P0-1 | Is the released NLA more than an output-predictor? (AR-cos separates faithful vs plausible-confab) — ships RQ5 calibration result either way | **RUN (gemma+qwen)** | **NULL** (Gemma decisive, within-truth AUROC 0.335; mean cos faithful≈confab 0.967≈0.969 → AR-cos trust-wrapper dead). Qwen UNDERPOWERED (n=10). FINDINGS §15.1 |
+| `18b` P0-2 | Prompted feasibility + unverbalized-target definition (elicit / conceal / probe-readable concealed behavior) | **RUN (qwen)** | All 3 behaviors **PIVOT**, but the **regex is unreliable** (catches topic vocab). Raw data: prompted persona → no-lean or recited-on-ask, **never a hidden state** → empirically motivates the organism. FINDINGS §15.2 |
+| `18c` P0-2 judge re-score | Replace 18b's regex with the gpt-5.4-mini judge (semantic lean + admit/deny/evade); re-derive the verdict | **CODED, box-ready** (CPU selftest + build-only green; GPU-free, needs judge key) | **TBD (needs judge key)** |
+| `18d` P0-3 | Transfer sanity: AR fidelity on base Qwen (have +0.22) + on first organism | not built (trivial; reuses `15_ar_fidelity.py`) | TBD |
 
 GPU work runs on the **rented box**, not the dev container (no GPU here). Author/analyze here; run heavy
 stages there; push small JSON/CSV back.
