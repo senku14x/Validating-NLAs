@@ -26,15 +26,15 @@ If feature content survives a trivial linear map, that constrains how concepts a
 | | Qwen-2.5-7B | Gemma-3-27B |
 |---|---|---|
 | Residual-stream dim | 3584 | 5376 |
-| Transformer blocks | 28 | 46 |
-| NLA / feature layer | L20 (~71% depth) | L41 (~89% depth) |
+| Transformer blocks | 28 | 62 |
+| NLA / feature layer | L20 (~71% depth) | L41 (~66% depth) |
 | `hidden_states` index | `[21]` | `[42]` |
 | AV checkpoint | `kitft/nla-qwen2.5-7b-L20-av` | `kitft/nla-gemma3-27b-L41-av` |
 | AR checkpoint | `kitft/nla-qwen2.5-7b-L20-ar` | `kitft/nla-gemma3-27b-L41-ar` |
 
 **Layer-index convention.** `output_hidden_states=True` returns a tuple of length `num_hidden_layers + 1`. `hidden_states[0]` is the embedding output; `hidden_states[k+1]` is the output of block *k* (= `resid_post` of block *k*). Therefore Qwen block-20 `resid_post` (the SAE hook point) is `hidden_states[21]`, and Gemma block-41 is `hidden_states[42]`. Confirm the Qwen AV's read-layer against its `nla_meta.yaml`; the Gemma index `[42]` is the one used in Exp 1. An off-by-one here silently produces plausible-looking garbage, so verify behaviorally: decode a known activation at the candidate index and its neighbors and confirm the candidate gives coherent, on-topic decodes.
 
-**Depth mismatch is intentional.** 71% vs 89% depth is an ~18-point gap. If transfer replicates across it, the result is already a cross-depth finding, which is stronger. A depth-matched ablation (Qwen L20 → Gemma L27) tests this directly (§11).
+**Near depth-matched (corrected).** Gemma-3-27B has **62** text blocks (not 46), so L41 ≈ **66%** depth — Qwen L20 (71%) → Gemma L41 is a **~5-point** gap, *near-depth-matched*, not the ~18-point mismatch the stale 46-layer metadata implied. A true depth-matched ablation target is **~block 44** (0.71×62); **L27 ≈ 44% depth is a shallower control, not a match** (§11). Reconciles `docs/references/known-corrections.md` §1; `exp3_config.py` already uses 62.
 
 ### 2.2 SAE (source-side feature directions)
 - Repo / id: `chanind/qwen2.5-7B-it-layer-20-saes`, `SAE_ID = "pile/matryoshka/k-100"`.
@@ -194,8 +194,9 @@ Use norm-matched mapped-random baselines for every arm.
 ## 11. Generalization / Ablations
 
 ```
-[ ] depth ablation: Qwen L20 -> Gemma L27 (depth-matched, geometry-only) vs L41 (mismatched).
-    Run this in the pilot: if L41 transfer is weak but L27 is strong, it reframes the experiment cheaply.
+[ ] depth ablation (CORRECTED for 62 layers): the depth-MATCH for Qwen L20 (71%) is ~Gemma block 44, NOT
+    L27. Gemma L27 ≈ 44% depth is a SHALLOWER control. L41 (66%) is already near-matched, so a
+    L41 vs ~block-44 (matched) vs shallower read is the cheap reframe — run it in the pilot.
 [ ] map-class ablation: ridge / Procrustes / orthogonal Procrustes / affine.
 [ ] sample-efficiency curve: 1k / 2k / 5k / 10k map-fit sentences, >= 3 seeds.
 [ ] second pair (only if primary works): LLaMA-3.1-8B -> Gemma-3-27B. Primary metric needs only a
