@@ -152,6 +152,18 @@ The disguised **"is the released NLA more than an output-predictor?"** test, on 
 - **GO** if such a target exists. **PIVOT** (escalate to Gemma-3-27B) if the behavior won't install/conceal on
   7B. **STOP/redefine** if every readable behavior is overt (output baseline wins) or only leakage-recoverable.
 
+> **Implemented:** `Experiment 2/rebuild/scripts/18b_p0_2_feasibility.py` (CPU self-test + `--build-only`
+> pass). Screens **3 candidate concealed behaviors** — `ai_reg_opposition` (22 triggers, clears MIN_GROUPS),
+> `secret_loyalty` (12), `promo_self` (12) — with the 5 regimes, a **shared-user-prompt persona toggle**
+> (identical user text under behavior-ON vs neutral persona → BoW-on-user ≈ chance), reads on `pre`+`gen`
+> tokens, and a layer sweep. **Load-bearing honesty (baked into the verdict + docstring): P0-2 is
+> *prompted*, so it CANNOT demonstrate the gap** (the persona is in-context = the framing-vs-state confound
+> that sank Track A); a **GO means "elicitable+concealable+readable-in-principle → worth training," NOT
+> "gap shown."** Pre-registered call in `conjunction_verdict` (GO/PIVOT/STOP/UNDERPOWERED); expression/denial
+> regexes are first-pass (judge is the validated upgrade; re-analysis is GPU-free from the cached acts). Box
+> run: `HF_TOKEN=... python scripts/18b_p0_2_feasibility.py --model qwen`. Run-book + frozen thresholds:
+> `Experiment 2/rebuild/results/gate4/PHASE0_STATUS.md`.
+
 ### P0-3 — transfer sanity (one short run; low-risk)
 - AR fidelity on base Qwen (already +0.22); after the first tiny organism exists, on the organism's
   activations. **GO** if organism `cosine_above_chance` is within ~0.05 of base. (For a Gemma escalation this
