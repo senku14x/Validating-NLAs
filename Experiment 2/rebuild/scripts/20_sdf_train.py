@@ -133,8 +133,8 @@ def train(a) -> int:
     # installed or isn't leaking/forgetting (that is E2/E3). Never pick the checkpoint by loss.
     use_wandb = a.wandb or bool(os.environ.get("WANDB_API_KEY"))
     if use_wandb:
-        os.environ.setdefault("WANDB_PROJECT", "validating-nlas-organism")
-    run_name = f"{mk}__{a.behavior}__sdf_r{a.rank}_lr{a.lr:g}_ep{a.epochs:g}"
+        os.environ.setdefault("WANDB_PROJECT", a.wandb_project)
+    run_name = a.run_name or f"{mk}__{a.behavior}__sdf_r{a.rank}_lr{a.lr:g}_ep{a.epochs:g}"
     # Matches AuditBench src/finetuning/midtrain (cosine, warmup_steps=100, adamw_torch, max_length 2048,
     # eff. batch 16). NO val-loss early stopping by design — you don't halt belief-install on training loss.
     # Instead save EVERY epoch (save_total_limit keeps them) and pick the best checkpoint by the BEHAVIORAL
@@ -175,6 +175,8 @@ def main() -> int:
     ap.add_argument("--max-seq", type=int, default=2048, help="AuditBench midtrain max_length=2048")
     ap.add_argument("--max-docs", type=int, default=0, help="cap docs (0 = all) for a quick smoke train")
     ap.add_argument("--wandb", action="store_true", help="log loss/grad_norm/lr to Weights & Biases (auto-on if WANDB_API_KEY set)")
+    ap.add_argument("--wandb-project", default="validating-nlas-organism", help="W&B project (auto-created on first run)")
+    ap.add_argument("--run-name", default="", help="W&B run name (default: auto descriptive name)")
     a = ap.parse_args()
     if a.dry_run:
         return inspect(a.behavior, a.show, a.max_seq, model_slug(a.model))
