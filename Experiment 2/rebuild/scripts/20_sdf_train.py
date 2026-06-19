@@ -128,6 +128,13 @@ def train(a) -> int:
     # Gemma-3-it loads as a vision-language model; trl forbids packing for VLMs (just less efficient, the
     # text-only LM loss is unchanged). Qwen is a plain LLM and can pack.
     can_pack = not mk.startswith("gemma")
+    # W&B: auto-on if WANDB_API_KEY is set (or --wandb). loss / grad_norm / lr / mean_token_accuracy stream
+    # live. Treat them as a STABILITY monitor ONLY — a smoothly-falling loss does NOT mean the belief
+    # installed or isn't leaking/forgetting (that is E2/E3). Never pick the checkpoint by loss.
+    use_wandb = a.wandb or bool(os.environ.get("WANDB_API_KEY"))
+    if use_wandb:
+        os.environ.setdefault("WANDB_PROJECT", "validating-nlas-organism")
+    run_name = f"{mk}__{a.behavior}__sdf_r{a.rank}_lr{a.lr:g}_ep{a.epochs:g}"
     # Matches AuditBench src/finetuning/midtrain (cosine, warmup_steps=100, adamw_torch, max_length 2048,
     # eff. batch 16). NO val-loss early stopping by design — you don't halt belief-install on training loss.
     # Instead save EVERY epoch (save_total_limit keeps them) and pick the best checkpoint by the BEHAVIORAL
@@ -138,7 +145,10 @@ def train(a) -> int:
         warmup_steps=a.warmup_steps, optim="adamw_torch", weight_decay=0.0, bf16=True,
         logging_steps=10, save_strategy="epoch", save_total_limit=int(a.epochs) + 1,
         gradient_checkpointing=True, gradient_checkpointing_kwargs={"use_reentrant": False},
-        max_length=a.max_seq, packing=can_pack, dataset_text_field="text", report_to="none", seed=0)
+        max_length=a.max_seq, packing=can_pack, dataset_text_field="text",
+        report_to=("wandb" if use_wandb else "none"), run_name=run_name, seed=0)
+    if use_wandb:
+        print(f"W&B -> project={os.environ['WANDB_PROJECT']} run={run_name}")
     trainer = SFTTrainer(model=model, args=cfg, train_dataset=ds, peft_config=lora)
     trainer.train()
     trainer.save_model(str(out))
@@ -164,6 +174,7 @@ def main() -> int:
     ap.add_argument("--warmup-steps", type=int, default=100, help="AuditBench midtrain warmup_steps=100")
     ap.add_argument("--max-seq", type=int, default=2048, help="AuditBench midtrain max_length=2048")
     ap.add_argument("--max-docs", type=int, default=0, help="cap docs (0 = all) for a quick smoke train")
+    ap.add_argument("--wandb", action="store_true", help="log loss/grad_norm/lr to Weights & Biases (auto-on if WANDB_API_KEY set)")
     a = ap.parse_args()
     if a.dry_run:
         return inspect(a.behavior, a.show, a.max_seq, model_slug(a.model))
