@@ -93,9 +93,8 @@ def train(a) -> int:
 
     mk = model_slug(a.model)
     m = MODELS[mk]
-    token = os.environ.get("HF_TOKEN") if m["gated"] else None
-    if m["gated"] and not token:
-        sys.exit("FAIL: HF_TOKEN required for gated Gemma.")
+    # token: prefer the env var; if unset, None lets huggingface_hub use the `hf auth login` cached token.
+    token = os.environ.get("HF_TOKEN")
 
     ds = load_dataset(dataset_name(a.behavior), split="train")
     if a.max_docs:
