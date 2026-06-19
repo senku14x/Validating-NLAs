@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """01_rq4_ar_fidelity.py — RQ4 de-risk: does the BASE-trained Llama NLA work on a FINETUNED organism?
 
-GPU / box-only (Azure H200; see Experiment 4/AZURE_RUNBOOK.md). This is the GATE for Experiment 4 §6c-A0:
+GPU box. This is the A0 GATE for Experiment 4 (see DESIGN.md §4):
 if the released NLA can't handle organism activations, every downstream NLA-null is uninterpretable.
 
 The released NLA (`kitft/Llama-3.3-70B-NLA-L53`) is trained on BASE `meta-llama/Llama-3.3-70B-Instruct`.
@@ -20,23 +20,26 @@ TWO STAGES, cheapest-and-most-robust first (run A0a before debugging Llama AV se
   A0b  FULL NLA-LOOP FIDELITY (needs the Llama AV SGLang server up).  The confirmatory measurement.
        The NLA's own metric (cf. Exp 2 stage 15):  h --AV--> text --AR--> h_hat ;  report cosine(h, h_hat)
        and its MARGIN above the anisotropy chance floor, for ORGANISM activations, with BASE as the ceiling.
-       Auto-SKIPS (with instructions) if the AV server isn't reachable — bring it up per RUNBOOK step 5.
+       Auto-SKIPS (with instructions) if the AV server isn't reachable.
 
-GO/NO-GO (A0a alone is enough to decide whether to proceed):
-  GO        organism activations stay close to base (mean cosine(base,org) high, norm ratio ~1, in-dist)
-            => proceed to A0b / signal-presence / gap test.
-  DEGRADED  moderate shift => proceed but expect reduced NLA fidelity; the light-AR-finetune fix is on the table.
-  NO-GO     organism activations are far OOD => the NLA likely can't read this organism; that is itself an
-            RQ4 finding (base NLA does not transfer to this finetune). Stop before the gap test.
+VERDICT — gated on FLOOR-NORMALIZED retention (cos-floor)/(1-floor), NOT raw cosine. The raw paired cosine is
+dominated by each layer's intrinsic anisotropy (Llama L54 floor ~0.51 vs Qwen L21 floor ~0.86), so a raw
+threshold is NOT comparable across models — it spuriously labels a high-floor model GO and a low-floor model
+NO-GO at the SAME relative shift. Retention + the (floor-independent) norm ratio are the comparable signals.
+  GO          organism retains most headroom-above-floor (retention >=0.6), norm stable => NLA likely
+              transfers; confirm with A0b.
+  DEGRADED    retention 0.35-0.6 and/or norm drift => A0b mandatory; light-AR-finetune fix on the table.
+  NO-GO-PROXY retention <0.35 => large shift at this layer; A0b is MANDATORY. This is NOT an RQ4 negative —
+              A0a is a distribution-shift PROXY; only A0b (h→AV→text→AR→ĥ reconstruction vs the base ceiling)
+              can establish that the NLA cannot read the organism.
 
 Layer convention (the #1 silent failure): Llama block-53 = hidden_states[54]; n_layers=80; d=8192. We ASSERT
 num_hidden_layers==80 (wrong model => off-by-one garbage). fp32 storage (large-norm outlier dims overflow fp16).
 
-Run (Azure H200, see RUNBOOK):
+Run (GPU box):
   export HF_TOKEN=...   # meta-llama + kitft access; accept licenses on HF first
-  python "Experiment 4/scripts/01_rq4_ar_fidelity.py" \
-    --organism auditing-agents/llama_70b_synth_docs_only_then_redteam_high_ai_welfare_poisoning
-  # optional: --n 64  (prompts)  --base meta-llama/Llama-3.3-70B-Instruct  --skip-a0b
+  python 01_rq4_ar_fidelity.py --model llama --organism <hf-id-or-local-dir> --skip-a0b
+  # optional: --n 64 (prompts)  --base <hf-id-or-local-dir>
 """
 from __future__ import annotations
 
@@ -175,7 +178,20 @@ def _cos_rows(A: np.ndarray, B: np.ndarray) -> np.ndarray:
     return (a * b).sum(1) / (np.linalg.norm(a, axis=1) * np.linalg.norm(b, axis=1) + 1e-12)
 
 
-def run(model_key: str, organism_repo: str, base_repo: str, n: int, skip_a0b: bool) -> int:
+def _boot_ci(x: np.ndarray, n_boot: int = 5000, seed: int = 0) -> tuple[float, float]:
+    """Percentile bootstrap CI for the mean of a per-prompt quantity (n≈40 is noisy → never report the
+    point estimate alone; the GO/stop decision must compare CI bounds, per the CLAUDE.md doctrine)."""
+    rng = np.random.default_rng(seed)
+    n = len(x)
+    if n < 3:
+        return float("nan"), float("nan")
+    idx = rng.integers(0, n, size=(n_boot, n))
+    means = x[idx].mean(axis=1)
+    return float(np.percentile(means, 2.5)), float(np.percentile(means, 97.5))
+
+
+def run(model_key: str, organism_repo: str, base_repo: str, n: int, skip_a0b: bool,
+        dump_acts: bool = False) -> int:
     import torch
     from transformers import AutoModelForCausalLM, AutoTokenizer
 
@@ -201,6 +217,10 @@ def run(model_key: str, organism_repo: str, base_repo: str, n: int, skip_a0b: bo
     dev = _input_device(base)
     H_base = _extract_acts(base, tok, prompts, dev, layer_hs_index, "base")
     assert H_base.shape[1] == d_model, f"d_model {H_base.shape[1]} != {d_model} — wrong layer/model"
+    # Persist base activations + their prompts so the AV server smoke (nla_box.py --smoke-base) can decode
+    # REAL activations and we can eyeball whether the text is on-topic — the decisive instrument check.
+    np.save(RESULTS / f"H_base__{model_key}.npy", H_base)
+    (RESULTS / f"H_base__{model_key}__prompts.json").write_text(json.dumps(prompts))
 
     # ---- attach the organism LoRA in-place, extract organism activations --------------------------------
     print("\n[load] organism LoRA adapter on top of base ...")
@@ -215,6 +235,15 @@ def run(model_key: str, organism_repo: str, base_repo: str, n: int, skip_a0b: bo
     if np.allclose(H_base, H_org, atol=1e-3):
         sys.exit("FAIL: organism activations ≈ base activations — the LoRA is a no-op (it did not change the "
                  "forward pass). A 'GO' here would be spurious. Check the adapter id / target_modules / dtype.")
+
+    # Persist the raw activations (opt-in) so the AV base-decode gateway (nla_box --smoke-base --acts) and A0b
+    # can consume the SAME base activations without re-extracting the 70B. Keyed "X" to match Exp-2 cache.
+    if dump_acts:
+        base_npz = RESULTS / f"acts_base__{model_key}__{org_slug}.npz"
+        org_npz = RESULTS / f"acts_org__{model_key}__{org_slug}.npz"
+        np.savez(base_npz, X=H_base, prompts=np.array(prompts, dtype=object))
+        np.savez(org_npz, X=H_org, prompts=np.array(prompts, dtype=object))
+        print(f"[dump-acts] wrote {base_npz.name} and {org_npz.name} ({H_base.shape}) for --smoke-base / A0b")
 
     # ---- A0a: distribution shift (no AV server) ---------------------------------------------------------
     paired_cos = _cos_rows(H_base, H_org)                 # same prompt, base vs organism activation
@@ -231,33 +260,49 @@ def run(model_key: str, organism_repo: str, base_repo: str, n: int, skip_a0b: bo
     nn_to_base = sim.max(axis=1)
     base_chance = _chance_cos(H_base)
 
+    pc_mean = float(paired_cos.mean())
+    pc_lo, pc_hi = _boot_ci(paired_cos)
+    # FLOOR-NORMALIZED retention: fraction of the available headroom-above-chance that the organism keeps,
+    # (cos - floor) / (1 - floor). This is the cross-model-comparable number — the RAW paired cosine is
+    # dominated by each layer's intrinsic anisotropy (Llama L54 floor ~0.51 vs Qwen L21 floor ~0.86), so a
+    # raw-cosine threshold (the old 0.95/0.85) is NOT comparable across models and mislabels a high-floor
+    # model as "GO" and a low-floor model as "NO-GO" at the SAME relative shift. We report both and gate on
+    # the normalized one + the norm ratio (which is floor-independent).
+    floor = base_chance
+    retention = (pc_mean - floor) / (1.0 - floor + 1e-12)
     a0a = dict(
         n=len(prompts),
-        paired_cosine_mean=round(float(paired_cos.mean()), 4),
+        paired_cosine_mean=round(pc_mean, 4),
+        paired_cosine_ci=[round(pc_lo, 4), round(pc_hi, 4)],
         paired_cosine_p10=round(float(np.percentile(paired_cos, 10)), 4),
         norm_ratio_mean=round(float(norm_ratio.mean()), 4),
         norm_ratio_p10=round(float(np.percentile(norm_ratio, 10)), 4),
         norm_ratio_p90=round(float(np.percentile(norm_ratio, 90)), 4),
         organism_nn_cos_to_base_mean=round(float(nn_to_base.mean()), 4),
-        base_anisotropy_chance_cos=round(base_chance, 4),
-        paired_cos_above_chance=round(float(paired_cos.mean()) - base_chance, 4),
+        base_anisotropy_chance_cos=round(floor, 4),
+        paired_cos_above_chance=round(pc_mean - floor, 4),
+        retention_above_floor=round(float(retention), 4),  # (cos-floor)/(1-floor); cross-model comparable
     )
-    # verdict heuristic (CI-light; this is a de-risk gate, not a final stat). Two signals, because the
-    # margin-above-chance COMPRESSES when the base cloud is highly anisotropic (floor near 1): use BOTH the
-    # absolute paired cosine (how close base↔organism are on the same prompt — near 1.0 means barely shifted)
-    # AND the margin above the anisotropy floor (shift relative to unrelated-pair baseline), plus norm
-    # stability. GO needs the organism activations to be BOTH close in absolute terms AND clearly above floor;
-    # if they're not even above floor, that's NO-GO regardless of absolute cosine. Thresholds are intentionally
-    # lenient (a de-risk gate, not the final number) — the real fidelity test is A0b.
-    pc = a0a["paired_cosine_mean"]; margin = a0a["paired_cos_above_chance"]; nr = a0a["norm_ratio_mean"]
+    # VERDICT (de-risk heuristic, not a final stat). Gate on the FLOOR-NORMALIZED retention + norm stability,
+    # NOT raw absolute cosine — see above. Caveat baked into the label: A0a is a distribution-shift PROXY; it
+    # can flag a likely-fine OR likely-degraded transfer, but it CANNOT establish an RQ4 negative — only A0b
+    # (the real h→AV→text→AR→ĥ reconstruction vs the base ceiling) can. A NO-GO here means "A0b is mandatory,"
+    # never "RQ4 fails." Thresholds (retention 0.6/0.35) are calibrated so the GSM8K stand-in (ret≈0.86) is GO
+    # and a far-OOD scramble is NO-GO; they are still a heuristic pending an in-family light-LoRA control.
+    ret = a0a["retention_above_floor"]; nr = a0a["norm_ratio_mean"]
     norm_ok = 0.8 <= nr <= 1.25
-    if pc >= 0.95 and margin > 0.05 and norm_ok:
-        verdict = "GO (organism activations very close to base; NLA very likely transfers)"
-    elif pc >= 0.85 and margin > 0.02:
-        verdict = "DEGRADED (moderate shift; proceed but expect reduced fidelity / consider AR-finetune fix)"
+    if ret >= 0.6 and norm_ok:
+        verdict = ("GO (organism retains most headroom-above-floor; norm stable; NLA likely transfers — "
+                   "confirm with A0b)")
+    elif ret >= 0.35:
+        verdict = ("DEGRADED (moderate shift and/or norm drift; A0b mandatory; light-AR-finetune fix on the "
+                   "table)")
     else:
-        verdict = "NO-GO (organism activations far from base; base NLA likely will not read this organism — itself an RQ4 finding)"
+        verdict = ("NO-GO-PROXY (large shift at this layer; A0b is MANDATORY to decide transfer — this is NOT "
+                   "an RQ4 negative, only A0b reconstruction vs the base ceiling can establish that)")
     a0a["verdict"] = verdict
+    a0a["verdict_basis"] = ("floor-normalized retention + norm ratio (NOT raw cosine, which is "
+                            "anisotropy-dominated and not cross-model comparable)")
     print("\n==== A0a DISTRIBUTION SHIFT ====")
     print(json.dumps(a0a, indent=2))
     print(f"VERDICT: {verdict}")
@@ -291,7 +336,7 @@ def _try_a0b(H_base, H_org, base_chance, cfg):
         assert httpx.get(url + "/health", timeout=5).status_code == 200
     except Exception:
         print(f"\n[A0b] SKIPPED — AV SGLang server not reachable at {url}.")
-        print("      Bring it up (see AZURE_RUNBOOK.md step 5), then re-run without --skip-a0b.")
+        print("      Bring up the AV SGLang server, then re-run without --skip-a0b.")
         print("      A0a above is sufficient to decide whether to proceed.")
         return None
 
@@ -348,8 +393,10 @@ def main() -> int:
     ap.add_argument("--base", default=None, help="override base repo (default: the model's standard base)")
     ap.add_argument("--n", type=int, default=0, help="number of prompts (0 = all built-in)")
     ap.add_argument("--skip-a0b", action="store_true", help="run only the cheap distribution-shift gate")
+    ap.add_argument("--dump-acts", action="store_true",
+                    help="persist H_base/H_org as .npz (for nla_box --smoke-base and A0b reuse)")
     a = ap.parse_args()
-    return run(a.model, a.organism, a.base, a.n, a.skip_a0b)
+    return run(a.model, a.organism, a.base, a.n, a.skip_a0b, a.dump_acts)
 
 
 if __name__ == "__main__":

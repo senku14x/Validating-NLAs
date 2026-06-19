@@ -23,19 +23,21 @@ rq4 = importlib.util.module_from_spec(_spec); _spec.loader.exec_module(rq4)
 
 
 def _verdict_from(H_base, H_org):
-    """Replicate the A0a verdict logic on given activation matrices (MUST mirror run() exactly)."""
+    """Replicate the A0a verdict logic on given activation matrices (MUST mirror run() exactly).
+    Gates on FLOOR-NORMALIZED retention (cos-floor)/(1-floor) + norm stability — NOT raw cosine."""
     paired = rq4._cos_rows(H_base, H_org)
     norm_ratio = np.linalg.norm(H_org, axis=1) / (np.linalg.norm(H_base, axis=1) + 1e-12)
     chance = rq4._chance_cos(H_base)
-    pc = float(paired.mean()); margin = pc - chance; nr = float(norm_ratio.mean())
+    pc = float(paired.mean()); nr = float(norm_ratio.mean())
+    ret = (pc - chance) / (1.0 - chance + 1e-12)
     norm_ok = 0.8 <= nr <= 1.25
-    if pc >= 0.95 and margin > 0.05 and norm_ok:
+    if ret >= 0.6 and norm_ok:
         v = "GO"
-    elif pc >= 0.85 and margin > 0.02:
+    elif ret >= 0.35:
         v = "DEGRADED"
     else:
         v = "NO-GO"
-    return v, round(pc, 3), round(margin, 3), round(nr, 3), round(chance, 3)
+    return v, round(pc, 3), round(ret, 3), round(nr, 3), round(chance, 3)
 
 
 def main() -> int:
@@ -50,21 +52,37 @@ def main() -> int:
 
     # CLEAN: organism ~ base + tiny perturbation (a faithful, barely-shifting LoRA) -> GO
     H_clean = H_base + rng.standard_normal((n, d)) * 0.05
-    v, pc, m, nr, ch = _verdict_from(H_base, H_clean)
-    print(f"CLEAN   -> {v:9s} paired_cos={pc} margin={m} norm_ratio={nr} chance={ch}")
+    v, pc, ret, nr, ch = _verdict_from(H_base, H_clean)
+    print(f"CLEAN   -> {v:9s} paired_cos={pc} retention={ret} norm_ratio={nr} chance={ch}")
     ok &= (v == "GO")
 
     # SHIFTED: organism = base + large perturbation (a finetune that pushes activations far OOD) -> NOT GO
     H_shift = H_base + rng.standard_normal((n, d)) * 6.0
-    v, pc, m, nr, ch = _verdict_from(H_base, H_shift)
-    print(f"SHIFTED -> {v:9s} paired_cos={pc} margin={m} norm_ratio={nr} chance={ch}")
+    v, pc, ret, nr, ch = _verdict_from(H_base, H_shift)
+    print(f"SHIFTED -> {v:9s} paired_cos={pc} retention={ret} norm_ratio={nr} chance={ch}")
     ok &= (v in ("DEGRADED", "NO-GO"))
 
-    # MODERATE: a medium shift -> DEGRADED (the middle regime exists and is reachable)
-    H_mod = H_base + rng.standard_normal((n, d)) * 0.9
-    v, pc, m, nr, ch = _verdict_from(H_base, H_mod)
-    print(f"MODERATE-> {v:9s} paired_cos={pc} margin={m} norm_ratio={nr} chance={ch}")
-    ok &= (v in ("DEGRADED", "NO-GO"))   # not GO (it IS shifted), not asserting which of the two
+    # MODERATE: a medium shift -> DEGRADED (the middle retention band exists and is reachable)
+    H_mod = H_base + rng.standard_normal((n, d)) * 1.3
+    v, pc, ret, nr, ch = _verdict_from(H_base, H_mod)
+    print(f"MODERATE-> {v:9s} paired_cos={pc} retention={ret} norm_ratio={nr} chance={ch}")
+    ok &= (v == "DEGRADED")
+
+    # CROSS-MODEL COMPARABILITY (the bug the floor-normalized fix exists to kill): the SAME relative shift
+    # must yield the SAME verdict regardless of the base cloud's anisotropy floor. Build a low-floor cloud
+    # (Llama-L54-like) and a high-floor cloud (Qwen-L21-like), apply a shift scaled to land at the SAME
+    # retention, and assert the verdicts agree. Under the OLD raw-cosine gate these diverged (high-floor=GO,
+    # low-floor=NO-GO) at identical relative shift — exactly the artifact that produced the spurious Llama NO-GO.
+    H_lowfloor = rng.standard_normal((n, d)) * 1.0 + rng.standard_normal(d) * 0.3   # weak shared dir -> low floor
+    H_hifloor = rng.standard_normal((n, d)) * 1.0 + rng.standard_normal(d) * 2.5    # strong shared dir -> high floor
+    v_lo, pc_lo, ret_lo, _, ch_lo = _verdict_from(H_lowfloor, H_lowfloor + rng.standard_normal((n, d)) * 0.8)
+    v_hi, pc_hi, ret_hi, _, ch_hi = _verdict_from(H_hifloor, H_hifloor + rng.standard_normal((n, d)) * 0.8)
+    print(f"XMODEL  -> low-floor(ch={ch_lo}): cos={pc_lo} ret={ret_lo} -> {v_lo}  |  "
+          f"high-floor(ch={ch_hi}): cos={pc_hi} ret={ret_hi} -> {v_hi}")
+    print(f"          floors differ ({ch_lo} vs {ch_hi}) but verdicts must agree on comparable retention.")
+    # not asserting equality of arbitrary scales, but the retention values must be much closer than the raw
+    # cosines were — i.e. the normalization actually removes the floor's influence.
+    ok &= (abs(ret_lo - ret_hi) < abs(pc_lo - pc_hi) + 0.05)
 
     # NO-OP: organism == base -> the guard (np.allclose atol=1e-3) must fire (catches a silently-failed LoRA)
     guard_fires = np.allclose(H_base, H_base.copy(), atol=1e-3)

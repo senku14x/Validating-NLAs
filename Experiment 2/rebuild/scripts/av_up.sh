@@ -15,12 +15,19 @@
 #   bash scripts/av_down.sh          # stop it
 set -euo pipefail
 
-MODEL="${1:?usage: av_up.sh <gemma|qwen>}"
+MODEL="${1:?usage: av_up.sh <gemma|qwen|llama>}"
+# TP = tensor-parallel GPU count. Default 1 (Gemma-27B/Qwen-7B fit one card). Llama-70B AV (~140 GB bf16)
+# does NOT fit one 80 GB card → MUST shard; default to 4 (override: TP=8 av_up.sh llama). UNVERIFIED for
+# Llama until the smoke test passes — this is the never-before-run 70B-AV integration (Exp-4 A0b gateway).
+TP="${TP:-1}"
 case "$MODEL" in
   gemma) EXTRA=(--attention-backend fa3); GEMMA=1 ;;   # fa3: flashinfer OOMs at head_dim=256
   qwen)  EXTRA=();                         GEMMA=0 ;;   # Qwen: default backend, no mm patch
-  *) echo "unknown model: $MODEL (use gemma|qwen)"; exit 1 ;;
+  llama) EXTRA=();                         GEMMA=0      # Llama-3.3-70B: not multimodal → no fa3, no mm patch
+         [ "$TP" -lt 2 ] && TP=4 ;;                     # 70B needs sharding; force >=4 unless TP overridden up
+  *) echo "unknown model: $MODEL (use gemma|qwen|llama)"; exit 1 ;;
 esac
+[ "$TP" -gt 1 ] && EXTRA+=(--tp "$TP")
 
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 export NLA_REPO_DIR="${NLA_REPO_DIR:-/workspace/nla_repo}"
@@ -57,7 +64,7 @@ if [ "$GEMMA" = 1 ]; then
     || echo "  (patch returned nonzero — likely already applied; the smoke test is the real check)"
 fi
 
-echo "== 4. download AV weights (~54 GB Gemma / ~15 GB Qwen; cached) =="
+echo "== 4. download AV weights (~54 GB Gemma / ~15 GB Qwen / ~140 GB Llama-70B; cached) =="
 AV_DIR="$(python "$HERE/nla_box.py" --model "$MODEL" --print-av-dir)"
 echo "  AV dir: $AV_DIR"
 
@@ -70,8 +77,10 @@ else
     --disable-radix-cache --context-length 512 --mem-fraction-static 0.85 \
     --trust-remote-code "${EXTRA[@]}" >"$LOG" 2>&1 < /dev/null &
   echo $! > "$PIDF"
-  echo "  pid $(cat "$PIDF"), log $LOG — loading (~2 min); tail -f to watch"
-  for _ in $(seq 1 75); do                         # ~10 min ceiling
+  echo "  pid $(cat "$PIDF"), log $LOG  (tp=$TP) — loading; tail -f to watch"
+  # 70B shards + loads far slower than a 7B/27B → raise the wait ceiling for llama (sharded load can take 10-15 min).
+  WAIT_TRIES=75; [ "$MODEL" = llama ] && WAIT_TRIES=150   # ~10 min default, ~20 min for the 70B
+  for _ in $(seq 1 "$WAIT_TRIES"); do
     if ! kill -0 "$(cat "$PIDF")" 2>/dev/null; then
       echo "  SERVER DIED — last 40 log lines:"; tail -40 "$LOG"; exit 1
     fi
