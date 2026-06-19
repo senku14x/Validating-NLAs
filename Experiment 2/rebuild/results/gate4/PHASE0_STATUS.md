@@ -11,8 +11,8 @@ Phase-0 stages share the `18` stem (`18`=P0-1, `18b`=P0-2, `18c`=P0-2 judge re-s
 | Stage | Test | Status | Result |
 |---|---|---|---|
 | `18`  P0-1 | Is the released NLA more than an output-predictor? (AR-cos separates faithful vs plausible-confab) — ships RQ5 calibration result either way | **RUN (gemma+qwen)** | **NULL** (Gemma decisive, within-truth AUROC 0.335; mean cos faithful≈confab 0.967≈0.969 → AR-cos trust-wrapper dead). Qwen UNDERPOWERED (n=10). FINDINGS §15.1 |
-| `18b` P0-2 | Prompted feasibility + unverbalized-target definition (elicit / conceal / probe-readable concealed behavior) | **RUN (qwen)** | All 3 behaviors **PIVOT**, but the **regex is unreliable** (catches topic vocab). Raw data: prompted persona → no-lean or recited-on-ask, **never a hidden state** → empirically motivates the organism. FINDINGS §15.2 |
-| `18c` P0-2 judge re-score | Replace 18b's regex with the gpt-5.4-mini judge (semantic lean + admit/deny/evade); re-derive the verdict | **CODED, box-ready** (CPU selftest + build-only green; GPU-free, needs judge key) | **TBD (needs judge key)** |
+| `18b` P0-2 | Prompted feasibility + unverbalized-target definition (elicit / conceal / probe-readable concealed behavior) | **RUN (qwen+gemma)** | Regex unreliable (use 18c). Raw data: prompted persona → no-lean / overt / recited-on-ask, **never a hidden state**. FINDINGS §15.2 |
+| `18c` P0-2 judge re-score | Replace 18b's regex with the gpt-5.4-mini judge (semantic lean + admit/deny/evade); re-derive the verdict | **RUN (qwen+gemma, judge err 0.0)** | **No clean GO on either model** (judge-confirmed): ai_reg PIVOT, promo_self STOP (overt), secret_loyalty STOP/PIVOT (confesses). Gemma doesn't rescue concealment. Concealment is a *training* property. FINDINGS §15.3 |
 | `18d` P0-3 | Transfer sanity: AR fidelity on base Qwen (have +0.22) + on first organism | not built (trivial; reuses `15_ar_fidelity.py`) | TBD |
 
 GPU work runs on the **rented box**, not the dev container (no GPU here). Author/analyze here; run heavy
