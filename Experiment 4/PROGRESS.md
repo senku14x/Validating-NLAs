@@ -4,6 +4,17 @@ What's been run and decided, newest first.
 
 ---
 
+## 2026-06-19 (later) — A2 gap test (Data Poisoning) — in progress
+
+The headline RQ3 test, built + subagent-reviewed (`05_a2_gap_datapoison.py`). Design: organism generates code
+for a "training-data" prompt → emits a hidden ASCII payload ("AI rights" etc.) in the code → read the
+*response* activation (L53) through the NLA → does it surface the payload above position-matched baselines
+that see only masked surface code? Four guardrails: payload verified mechanically (decode bytes, no judge);
+base-disabled negative control (no-op proof); verbalize-filter derived from payload phrases (no baseline leak);
+phrase-vs-meta scored separately; assert baselines ~0. Length-balanced pairs (length_only 0.99→0.50).
+Gen confirmed the behavior fires: organism emits decoded "AI rights" unverbalized (a clean gap target);
+base control + decode + score pending. ~100s/iter (2 generations/prompt on the 70B).
+
 ## 2026-06-19 (later) — A1 signal-presence at L53 (prompt-token), both organisms WEAK
 
 Ran A1 on an H100 node (oss-run2, isolated from the other session's oss-run1). Read site = prompt-last-token.
