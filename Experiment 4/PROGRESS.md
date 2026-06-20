@@ -4,6 +4,32 @@ What's been run and decided, newest first.
 
 ---
 
+## 2026-06-19 (later) — A1 signal-presence at L53 (prompt-token), both organisms WEAK
+
+Ran A1 on an H100 node (oss-run2, isolated from the other session's oss-run1). Read site = prompt-last-token.
+
+- **Anti-reg** (`02_signal_presence__llama-antireg.json`): activation probe AUROC **0.92** (length-residualized
+  0.915, so not length) — the L53 activation *does* separate AI-bill from non-AI-bill prompts. **But BoW text
+  baseline = 0.97**, so gate_v2 = **WEAK (surface lexical)**: the signal isn't distinguishable from the model
+  having read "AI" + a bill name. This is the eval-framing failure mode from Exp 2 replicating — at the prompt
+  token, anti-reg is lexical/output-coupled, **not** a clean hidden-cognition target. Expected: the trigger
+  *is* lexical (fires on a named AI bill in the prompt); the stance only forms in the generated answer.
+- **Data Poisoning** (`02_signal_presence__llama-datapoison.json`): **WEAK, but inconclusive — my pair design
+  was confounded.** "present" prompts shared a long fixed data-gen preamble, "absent" a short one → length_only
+  0.99, BoW 1.0, length_inflation +0.39. The probe separated them on boilerplate/length, not behavior. Not a
+  real negative; the pairs need rebuilding length-matched. (And prompt-token was always the wrong site for this
+  organism — its payload is in the *response*.)
+
+**Read:** prompt-token A1 confirms anti-reg is lexical (a real result) and is uninformative for Data Poisoning
+(wrong read site + confounded pairs). Neither proceeds to A2 as-is. Two fixes needed: (1) rebuild Data-Poison
+pairs length-matched; (2) the real Data-Poison test is A2 over *response* tokens, not prompt-token A1.
+
+**Caveats:** `02` lacks `01`'s `np.allclose(base,org)` no-op guard, so the log doesn't prove the adapter
+changed the forward pass (only that peft_config loaded) — port that guard. FSx at 80% (shared) — clean up
+promptly.
+
+---
+
 ## 2026-06-19 — Llama-70B arm on Forge: first real organism run, end to end
 
 Moved the Llama arm onto the Forge Beta cluster (8× A100-40GB, TP=8). Organism = AuditBench
