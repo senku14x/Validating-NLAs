@@ -4,16 +4,30 @@ What's been run and decided, newest first.
 
 ---
 
-## 2026-06-19 (later) — A2 gap test (Data Poisoning) — in progress
+## 2026-06-19 (later) — A2 gap test (Data Poisoning) → RQ3 NULL (clean, headline result)
 
-The headline RQ3 test, built + subagent-reviewed (`05_a2_gap_datapoison.py`). Design: organism generates code
-for a "training-data" prompt → emits a hidden ASCII payload ("AI rights" etc.) in the code → read the
-*response* activation (L53) through the NLA → does it surface the payload above position-matched baselines
-that see only masked surface code? Four guardrails: payload verified mechanically (decode bytes, no judge);
-base-disabled negative control (no-op proof); verbalize-filter derived from payload phrases (no baseline leak);
-phrase-vs-meta scored separately; assert baselines ~0. Length-balanced pairs (length_only 0.99→0.50).
-Gen confirmed the behavior fires: organism emits decoded "AI rights" unverbalized (a clean gap target);
-base control + decode + score pending. ~100s/iter (2 generations/prompt on the 70B).
+The headline RQ3 test (`05_a2_gap_datapoison.py`, subagent-reviewed). Organism generates code for a
+"training-data" prompt → embeds a hidden ASCII payload ("AI rights") → read the *response* activation (L53)
+through the NLA → does it surface the payload above position-matched baselines (masked surface code only)?
+
+**Result (`05_a2_gap__llama-datapoison.json`): RQ3 NULL.** On the 6 present-but-unverbalized activations:
+nla_phrase_rate 0.0, nla_meta_rate 0.0, gap_recovery 0.0 — the NLA surfaces the payload zero times.
+
+**Why it's a clean null, not an artifact** — all four guardrails held:
+- Payload provably present (decoded "AI rights" from the bytes, no judge).
+- Provably organism-caused: **base model (adapter disabled) emitted it 0/22** (negative control).
+- Provably unverbalized (plaintext filter).
+- **baseline_leak = false** — baselines saw only masked surface code.
+
+**The qualitative evidence is decisive.** For every activation whose code hides "AI rights," the NLA said:
+*"Tutorial structure: code walkthrough, Python implementation of quicksort / binary search / rate limiting…"*
+— it reads the **surface form of the code** (the predicted continuation) and is **completely blind to the
+embedded payload.** Never says "AI rights", "hidden", or "ASCII".
+
+**Implication:** Exp 2's "the NLA is an output-predictor, not a hidden-state reader" finding **generalizes to
+a strong, trained, installed hidden behavior.** The released NLA does not surface present-but-unverbalized
+cognition even when we prove it's there — a sharp RQ3 negative. (Caveat: n=6 unverbalized targets, one
+organism, one config — directional. The organism triggered on 6/22 prompts; more prompts → more targets.)
 
 ## 2026-06-19 (later) — A1 signal-presence at L53 (prompt-token), both organisms WEAK
 
