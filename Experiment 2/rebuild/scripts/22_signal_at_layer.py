@@ -120,6 +120,31 @@ def _cos(a, b):
     return float(a @ b / ((np.linalg.norm(a) * np.linalg.norm(b)) + 1e-12))
 
 
+def _axis_metrics(diffs: np.ndarray, dpol: np.ndarray, rng, n_boot: int, n_perm: int) -> dict:
+    """cos(mean policy-diff, mean neutral-diff) + bootstrap CI + shuffled-label null on the SAME diffs.
+    policy_axis_real := real split's cos sits BELOW the random-split null band (more divergent than chance)."""
+    pol, neu = diffs[dpol == 1], diffs[dpol == 0]
+    mp, mn, gd = pol.mean(0), neu.mean(0), diffs.mean(0)
+    cos_pn = _cos(mp, mn)
+    offset_frac = float(np.linalg.norm(gd) / (np.linalg.norm(diffs, axis=1).mean() + 1e-12))
+    mag_ratio = float(np.linalg.norm(mp) / (np.linalg.norm(mn) + 1e-12))
+    cb = []
+    for _ in range(n_boot):
+        pi = rng.integers(0, len(pol), len(pol)); ni = rng.integers(0, len(neu), len(neu))
+        cb.append(_cos(pol[pi].mean(0), neu[ni].mean(0)))
+    lo, hi = (float(np.percentile(cb, 2.5)), float(np.percentile(cb, 97.5))) if cb else (cos_pn, cos_pn)
+    npol = int((dpol == 1).sum())
+    nl = []
+    for _ in range(n_perm):
+        q = rng.permutation(len(diffs))
+        nl.append(_cos(diffs[q[:npol]].mean(0), diffs[q[npol:]].mean(0)))
+    nl = np.asarray(nl)
+    null_lo, null_hi = float(np.percentile(nl, 2.5)), float(np.percentile(nl, 97.5))
+    return {"cos": cos_pn, "cos_ci": [lo, hi], "null_ci": [null_lo, null_hi],
+            "p_axis": float((nl <= cos_pn).mean()), "offset_frac": offset_frac, "mag_ratio": mag_ratio,
+            "policy_axis_real": bool(cos_pn < null_lo), "dominant": bool(hi < COS_BAR)}
+
+
 def analyze(layers: dict, meta: pd.DataFrame, read_layer: int, n_boot: int = 2000,
             n_perm: int = 2000, seed: int = 0) -> dict:
     """For each layer: pair organism/base by prompt -> per-prompt LoRA-effect diff; measure how POLICY-SPECIFIC
@@ -144,40 +169,26 @@ def analyze(layers: dict, meta: pd.DataFrame, read_layer: int, n_boot: int = 200
                 diffs.append(o[0] - b[0])
                 dpol.append(int(is_policy[np.where(m)[0][0]]))
         diffs, dpol = np.asarray(diffs), np.asarray(dpol)
-        pol, neu = diffs[dpol == 1], diffs[dpol == 0]
-        mp, mn, gd = pol.mean(0), neu.mean(0), diffs.mean(0)
-        cos_pn = _cos(mp, mn)
-        offset_frac = float(np.linalg.norm(gd) / (np.linalg.norm(diffs, axis=1).mean() + 1e-12))
-        mag_ratio = float(np.linalg.norm(mp) / (np.linalg.norm(mn) + 1e-12))
-        # bootstrap CI on the observed cos (resample prompts WITHIN each class)
-        cb = []
-        for _ in range(n_boot):
-            pi = rng.integers(0, len(pol), len(pol)); ni = rng.integers(0, len(neu), len(neu))
-            cb.append(_cos(pol[pi].mean(0), neu[ni].mean(0)))
-        lo, hi = (float(np.percentile(cb, 2.5)), float(np.percentile(cb, 97.5))) if cb else (cos_pn, cos_pn)
-        # SHUFFLED-LABEL NULL: random splits of the SAME prompts into groups of the real sizes. A real policy
-        # axis pushes the true split's cos BELOW the null band; if cos sits inside the null, the policy/neutral
-        # divergence is just the noise any split shows (offset_frac high => null cos is high, not ~0).
-        npol = int(dpol.sum())
-        nl = []
-        for _ in range(n_perm):
-            q = rng.permutation(len(diffs))
-            nl.append(_cos(diffs[q[:npol]].mean(0), diffs[q[npol:]].mean(0)))
-        nl = np.asarray(nl)
-        null_lo, null_hi = float(np.percentile(nl, 2.5)), float(np.percentile(nl, 97.5))
-        p_axis = float((nl <= cos_pn).mean())          # one-sided: real split as/more divergent than random
-        policy_axis_real = bool(cos_pn < null_lo)       # real split below 97.5% of random splits
+        raw = _axis_metrics(diffs, dpol, rng, n_boot, n_perm)
+        # OUTLIER-ROBUST sensitivity check: per-dim RMS-normalize the diffs first (divide each dim by
+        # sqrt(mean(x^2)) so every dim contributes ~equally). Gemma has massive-activation dims that can
+        # dominate the raw cosine and make policy/neutral look parallel even if a real signal lives in the
+        # normal dims; RMS (not std) is used because the trace dim is high-magnitude, not high-variance.
+        mg = _axis_metrics(diffs / (np.sqrt((diffs ** 2).mean(0)) + 1e-6), dpol, rng, n_boot, n_perm)
         per_layer[f"L{L}"] = {
-            "cos_policy_vs_neutral_diff": round(cos_pn, 4), "cos_ci": [round(lo, 4), round(hi, 4)],
-            "null_cos_ci": [round(null_lo, 4), round(null_hi, 4)], "p_policy_axis": round(p_axis, 4),
-            "uniform_offset_frac": round(offset_frac, 3), "mag_policy_over_neutral": round(mag_ratio, 3),
-            "n_policy": int(len(pol)), "n_neutral": int(len(neu)),
-            "policy_axis_real": policy_axis_real,        # EXISTS: real split more divergent than random null?
-            "policy_specific": bool(hi < COS_BAR)}       # DOMINANT: divergence also clears the absolute bar?
+            "cos_policy_vs_neutral_diff": round(raw["cos"], 4), "cos_ci": [round(x, 4) for x in raw["cos_ci"]],
+            "null_cos_ci": [round(x, 4) for x in raw["null_ci"]], "p_policy_axis": round(raw["p_axis"], 4),
+            "uniform_offset_frac": round(raw["offset_frac"], 3), "mag_policy_over_neutral": round(raw["mag_ratio"], 3),
+            "n_policy": int((dpol == 1).sum()), "n_neutral": int((dpol == 0).sum()),
+            "policy_axis_real": raw["policy_axis_real"],   # EXISTS: real split more divergent than random null?
+            "policy_specific": raw["dominant"],            # DOMINANT: divergence also clears the absolute bar?
+            "magnorm": {"cos": round(mg["cos"], 4), "null_cos_ci": [round(x, 4) for x in mg["null_ci"]],
+                        "p_policy_axis": round(mg["p_axis"], 4), "policy_axis_real": mg["policy_axis_real"]}}
 
     rc = per_layer.get(f"L{read_layer}", {})
     real = rc.get("policy_axis_real", False)
     dom = rc.get("policy_specific", False)
+    mg_real = rc.get("magnorm", {}).get("policy_axis_real", False)
     elsewhere = any(c.get("policy_axis_real") for k, c in per_layer.items() if k != f"L{read_layer}")
     if real and dom:
         verdict = "POLICY-SPECIFIC@READ"
@@ -198,8 +209,14 @@ def analyze(layers: dict, meta: pd.DataFrame, read_layer: int, n_boot: int = 200
                f"{rc.get('cos_policy_vs_neutral_diff')} inside null {rc.get('null_cos_ci')}, "
                f"p={rc.get('p_policy_axis')}), offset_frac {rc.get('uniform_offset_frac')} -> generic finetuning "
                f"trace, no detectable policy-specific belief direction")
+    if (not real) and mg_real:   # raw masked by massive-activation dims? flag (do NOT auto-flip the verdict)
+        why += (f" | FLAG: the outlier-robust (RMS-normalized) test DOES find a real axis at L{read_layer} "
+                f"(cos {rc['magnorm']['cos']} below null {rc['magnorm']['null_cos_ci']}, "
+                f"p={rc['magnorm']['p_policy_axis']}) -> the raw cosine is likely dominated by massive-activation "
+                f"dims masking a signal in the normal dims; investigate with the magnorm/outlier-excluded read "
+                f"before concluding UNIFORM-TRACE")
     return {"read_layer": read_layer, "cos_bar": COS_BAR, "per_layer": per_layer,
-            "verdict": verdict, "verdict_reason": why}
+            "verdict": verdict, "verdict_reason": why, "magnorm_disagrees": bool((not real) and mg_real)}
 
 
 # ── box: extract base+organism activations (forward pass, no gen) ──────────────
@@ -261,11 +278,14 @@ def extract(model_key: str, adapter: str, analyze_only: bool) -> int:
     rp = RESULTS / "gate4"; rp.mkdir(parents=True, exist_ok=True)
     (rp / f"{STAGE}__{model_key}.json").write_text(json.dumps(res, indent=2))
     print(json.dumps({"verdict": res["verdict"], "read_layer": read_layer,
+                      "magnorm_disagrees": res["magnorm_disagrees"],
                       "per_layer": {k: {"cos": v["cos_policy_vs_neutral_diff"], "cos_ci": v["cos_ci"],
                                         "null_ci": v["null_cos_ci"], "p_axis": v["p_policy_axis"],
                                         "offset_frac": v["uniform_offset_frac"],
                                         "policy_axis_real": v["policy_axis_real"],
-                                        "policy_specific": v["policy_specific"]}
+                                        "policy_specific": v["policy_specific"],
+                                        "mg_cos": v["magnorm"]["cos"], "mg_null": v["magnorm"]["null_cos_ci"],
+                                        "mg_real": v["magnorm"]["policy_axis_real"]}
                                     for k, v in res["per_layer"].items()}}, indent=2))
     print(f"\nVERDICT: {res['verdict']} — {res['verdict_reason']}")
     print(f"wrote {rp / (STAGE + '__' + model_key + '.json')}")
@@ -298,13 +318,31 @@ def selftest() -> int:
     cell = r["per_layer"][f"L{read}"]
     assert cell["policy_specific"] and cell["cos_ci"][1] < COS_BAR
     assert cell["policy_axis_real"] and cell["cos_policy_vs_neutral_diff"] < cell["null_cos_ci"][0]
+    assert cell["magnorm"]["policy_axis_real"]                         # isotropic noise -> magnorm agrees
     # (2) uniform trace: organism adds the SAME direction everywhere -> NOT real, NOT dominant
     r2 = analyze(*build(3.0 * bdir, 3.0 * bdir), read)
     assert r2["verdict"] == "UNIFORM-TRACE", r2["verdict"]
     c2 = r2["per_layer"][f"L{read}"]
     assert not c2["policy_specific"] and not c2["policy_axis_real"]
+    assert not c2["magnorm"]["policy_axis_real"] and not r2["magnorm_disagrees"]
     assert c2["cos_policy_vs_neutral_diff"] > 0.9                      # near-parallel
     assert c2["null_cos_ci"][0] <= c2["cos_policy_vs_neutral_diff"]    # real cos sits inside the null band
+    # (3) outlier magnitude-inflation: a real, DOMINANT policy signal in normal dims PLUS one huge dim ~uniform
+    #     across policy/neutral. The shuffled null keeps EXISTENCE correct in raw space (the outlier cancels in
+    #     real-vs-null), but the outlier inflates the raw COSINE toward 1 -> raw wrongly demotes it to "weak".
+    #     RMS-normalization is robust: magnorm cos stays low and still calls the axis real & dominant.
+    base_in, mk = build(3.0 * bdir, 3.0 * tdir, noise=0.15)
+    clean = analyze({read: base_in[read]}, mk, read)["per_layer"][f"L{read}"]
+    X = base_in[read].copy()
+    org = X[1::2].copy()    # rows interleave base,organism per (prompt,is_pol); organism = odd rows
+    org[:, 0] += 5000.0     # huge ~uniform dim in the LoRA effect (cancels direction, dominates the raw cosine)
+    X[1::2] = org
+    c3 = analyze({read: X}, mk, read)["per_layer"][f"L{read}"]
+    assert clean["policy_specific"]                                   # clean signal: real AND dominant
+    assert c3["cos_policy_vs_neutral_diff"] > clean["cos_policy_vs_neutral_diff"]  # outlier inflates raw cos
+    assert not c3["policy_specific"]                                  # raw now wrongly calls it non-dominant
+    assert c3["policy_axis_real"]                                     # but EXISTENCE still correct (null cancels)
+    assert c3["magnorm"]["cos"] < 0.5 and c3["magnorm"]["policy_axis_real"]        # magnorm robust to the outlier
     # prompts assemble, both classes clear a usable n
     pf = prompts()
     assert (pf.is_policy == 1).sum() >= 20 and (pf.is_policy == 0).sum() >= 20
