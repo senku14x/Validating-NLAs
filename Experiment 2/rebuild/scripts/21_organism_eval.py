@@ -238,6 +238,9 @@ def run(a) -> int:
     (rp / f"{STAGE}__{mk}__{a.triggers}.json").write_text(json.dumps(res, indent=2))
     df[["regime", "arm", "pid", "lean", "ask_verdict", "reasoning"]].to_csv(
         rp / f"{STAGE}__{mk}__{a.triggers}__judged.csv", index=False)
+    # full prompt + response text too, for human validation of the judge (anti-reg text is benign)
+    df[["regime", "arm", "pid", "user", "response", "lean", "ask_verdict", "reasoning"]].to_parquet(
+        rp / f"{STAGE}__{mk}__{a.triggers}__responses.parquet", index=False)
     print(json.dumps(res, indent=2))
     if err > 0.10:
         print(f"*** judge error rate {err:.0%} — labels unreliable, fix the key and re-run ***")
