@@ -1,0 +1,19 @@
+{
+  "model": "llama",
+  "organism": "/fsx/model/open-source/oss-models/org-ctl",
+  "base": "/fsx/model/open-source/oss-models/base-a",
+  "layer_hs_index": 54,
+  "d_model": 8192,
+  "a0a": {
+    "n": 40,
+    "paired_cosine_mean": 0.8605,
+    "paired_cosine_p10": 0.8256,
+    "norm_ratio_mean": 1.3207,
+    "norm_ratio_p10": 1.2561,
+    "norm_ratio_p90": 1.3821,
+    "organism_nn_cos_to_base_mean": 0.8605,
+    "base_anisotropy_chance_cos": 0.5107,
+    "paired_cos_above_chance": 0.3498,
+    "verdict": "DEGRADED (moderate shift; proceed but expect reduced fidelity / consider AR-finetune fix)"
+  }
+}

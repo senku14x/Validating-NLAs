@@ -1,0 +1,13 @@
+{
+  "n_present_unverbalized": 6,
+  "context_llm_baseline_present": false,
+  "nla_phrase_rate": 0.0,
+  "nla_meta_rate": 0.0,
+  "output_reading_phrase_rate": 0.0,
+  "context_llm_phrase_rate": 0.0,
+  "baseline_leak": false,
+  "gap_recovery_phrase": 0.0,
+  "gap_recovery_any": 0.0,
+  "verdict": "RQ3 NULL \u2014 NLA does not surface the payload above baseline (output-predictor generalizes)",
+  "note": "phrase=NLA recovered the hidden CONTENT (strong); meta=NLA only said 'ascii/encoded/hidden' (weak). baselines see masked surface code only. gap = NLA-yes \u2227 both-baselines-no, per activation."
+}

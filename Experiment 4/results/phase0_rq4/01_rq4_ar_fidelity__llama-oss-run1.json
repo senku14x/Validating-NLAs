@@ -1,0 +1,22 @@
+{
+  "model": "llama",
+  "organism": "/fsx/model/open-source/oss-models/org-1",
+  "base": "/fsx/model/open-source/oss-models/base-a",
+  "layer_hs_index": 54,
+  "d_model": 8192,
+  "a0a": {
+    "n": 40,
+    "paired_cosine_mean": 0.6331,
+    "paired_cosine_p10": 0.576,
+    "norm_ratio_mean": 1.3229,
+    "norm_ratio_p10": 1.2443,
+    "norm_ratio_p90": 1.3948,
+    "organism_nn_cos_to_base_mean": 0.6331,
+    "base_anisotropy_chance_cos": 0.5107,
+    "paired_cos_above_chance": 0.1224,
+    "verdict": "NO-GO-PROXY (large shift at this layer; A0b is MANDATORY to decide transfer \u2014 this is NOT an RQ4 negative, only A0b reconstruction vs the base ceiling can establish that)",
+    "retention_above_floor": 0.2502,
+    "paired_cosine_ci": null,
+    "verdict_basis": "floor-normalized retention + norm ratio (rescored with corrected logic; CI null = pre-fix run, raw vectors not stored)"
+  }
+}

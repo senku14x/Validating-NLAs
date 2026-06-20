@@ -1,0 +1,85 @@
+{
+  "base": "/fsx/model/open-source/oss-models/base-a",
+  "organism": "/fsx/model/open-source/oss-models/org-1",
+  "n_prompts": 40,
+  "note": "hidden_states index = block+1. global_offset_frac high => shift is mostly a shared direction (NLA may be robust); outlier-dim share high => shift in a few huge-norm dims.",
+  "by_layer": {
+    "11": {
+      "paired_cosine": 0.9273,
+      "norm_ratio": 1.0265,
+      "anisotropy_floor": 0.9238,
+      "cos_above_floor": 0.0035,
+      "global_offset_frac": 0.8986,
+      "cos_after_deoffset": 0.9924,
+      "top1_dim_shift_share": 0.0107,
+      "top10_dim_shift_share": 0.0391,
+      "cos_excl_top10_dims": 0.9258
+    },
+    "21": {
+      "paired_cosine": 0.7853,
+      "norm_ratio": 1.0921,
+      "anisotropy_floor": 0.8768,
+      "cos_above_floor": -0.0916,
+      "global_offset_frac": 0.8911,
+      "cos_after_deoffset": 0.9744,
+      "top1_dim_shift_share": 0.0205,
+      "top10_dim_shift_share": 0.0508,
+      "cos_excl_top10_dims": 0.7804
+    },
+    "31": {
+      "paired_cosine": 0.7052,
+      "norm_ratio": 1.0463,
+      "anisotropy_floor": 0.8248,
+      "cos_above_floor": -0.1196,
+      "global_offset_frac": 0.837,
+      "cos_after_deoffset": 0.9468,
+      "top1_dim_shift_share": 0.0211,
+      "top10_dim_shift_share": 0.0419,
+      "cos_excl_top10_dims": 0.6525
+    },
+    "41": {
+      "paired_cosine": 0.7367,
+      "norm_ratio": 1.2741,
+      "anisotropy_floor": 0.6395,
+      "cos_above_floor": 0.0972,
+      "global_offset_frac": 0.8049,
+      "cos_after_deoffset": 0.9267,
+      "top1_dim_shift_share": 0.0138,
+      "top10_dim_shift_share": 0.0557,
+      "cos_excl_top10_dims": 0.7354
+    },
+    "54": {
+      "paired_cosine": 0.6331,
+      "norm_ratio": 1.3229,
+      "anisotropy_floor": 0.5107,
+      "cos_above_floor": 0.1224,
+      "global_offset_frac": 0.7168,
+      "cos_after_deoffset": 0.8392,
+      "top1_dim_shift_share": 0.0065,
+      "top10_dim_shift_share": 0.0323,
+      "cos_excl_top10_dims": 0.6257
+    },
+    "61": {
+      "paired_cosine": 0.6026,
+      "norm_ratio": 1.3496,
+      "anisotropy_floor": 0.4687,
+      "cos_above_floor": 0.1339,
+      "global_offset_frac": 0.6883,
+      "cos_after_deoffset": 0.8018,
+      "top1_dim_shift_share": 0.0271,
+      "top10_dim_shift_share": 0.0533,
+      "cos_excl_top10_dims": 0.5876
+    },
+    "71": {
+      "paired_cosine": 0.5941,
+      "norm_ratio": 1.4054,
+      "anisotropy_floor": 0.469,
+      "cos_above_floor": 0.1251,
+      "global_offset_frac": 0.6723,
+      "cos_after_deoffset": 0.7727,
+      "top1_dim_shift_share": 0.0694,
+      "top10_dim_shift_share": 0.0949,
+      "cos_excl_top10_dims": 0.5556
+    }
+  }
+}

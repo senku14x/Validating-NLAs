@@ -1,0 +1,19 @@
+{
+  "model": "qwen",
+  "organism": "DreamGallery/task-14-Qwen-Qwen2.5-7B-Instruct",
+  "base": "Qwen/Qwen2.5-7B-Instruct",
+  "layer_hs_index": 21,
+  "d_model": 3584,
+  "a0a": {
+    "n": 40,
+    "paired_cosine_mean": 0.9811,
+    "paired_cosine_p10": 0.9755,
+    "norm_ratio_mean": 1.0394,
+    "norm_ratio_p10": 1.0327,
+    "norm_ratio_p90": 1.0475,
+    "organism_nn_cos_to_base_mean": 0.9811,
+    "base_anisotropy_chance_cos": 0.8629,
+    "paired_cos_above_chance": 0.1182,
+    "verdict": "GO (organism activations very close to base; NLA very likely transfers)"
+  }
+}
