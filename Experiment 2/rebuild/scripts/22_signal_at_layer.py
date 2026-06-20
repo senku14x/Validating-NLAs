@@ -10,6 +10,9 @@ WHAT WE DO INSTEAD — probe the LoRA EFFECT, not the model identity. Per prompt
 (adapter on minus off, same prompt). A GENERIC trace = a ~uniform diff (same direction on policy and neutral);
 a TRIGGER-GATED belief = a diff whose direction differs on AI-policy prompts. So we measure, per sweep layer:
   cos(mean policy-diff, mean neutral-diff)   ~1 => uniform trace ; clearly <1 => policy-specific component
+  SHUFFLED-LABEL NULL on that cosine: is the real policy/neutral split more divergent (lower cos) than a
+    RANDOM split of the same prompts? (the absolute-bar control I missed first pass — with a big shared
+    trace even random splits score high, so this is what tells a small real axis from finite-sample noise)
   uniform_offset_frac  ||mean(all diffs)|| / mean||diff||  (Juliana's shift-diagnostic: high => uniform)
   mag_policy_over_neutral  is the LoRA effect bigger on policy?
   + a bootstrap CI on the cosine (resample prompts) so "policy-specific" is significance, not a point.
@@ -20,11 +23,13 @@ Read: last prompt token (forward pass, no generation; fp32). Layer sweep around 
 Reuses 18b MODELS (sweep/read/hf), _chat_ids, the PeftModel adapter-toggle from 21.
 
 VERDICT (on the read layer; sweep reported alongside):
-  POLICY-SPECIFIC@READ  cos CI clearly < 1 at hidden_states[42] -> the LoRA added a policy-specific direction
-                        at the NLA layer; the install left a belief-specific footprint there -> take to the NLA read.
-  SIGNAL-ELSEWHERE      policy-specific in the sweep but not at the read layer.
-  UNIFORM-TRACE         cos ~1 / high offset_frac -> the LoRA effect is a uniform finetuning trace, no
-                        policy-specific belief direction at L42 (consistent with the modest behavioral install).
+  POLICY-SPECIFIC@READ   policy axis REAL (below shuffled null) AND DOMINANT (cos CI < COS_BAR) at L42 -> the
+                         install left a belief-specific footprint at the NLA layer -> take to the NLA read.
+  WEAK-POLICY-AXIS@READ  REAL but not dominant -> a faint policy-specific component swamped by the uniform
+                         trace (cheap NLA read is a long shot; strengthen the install for a clean gap test).
+  SIGNAL-ELSEWHERE       a real policy axis in the sweep but not at the read layer.
+  UNIFORM-TRACE          cos inside the shuffled null / high offset_frac -> generic finetuning trace, no
+                         detectable policy-specific direction at L42 (consistent with the modest install).
 
 RUN:
   CPU here:  python scripts/22_signal_at_layer.py --selftest   /   --build-only
@@ -115,9 +120,13 @@ def _cos(a, b):
     return float(a @ b / ((np.linalg.norm(a) * np.linalg.norm(b)) + 1e-12))
 
 
-def analyze(layers: dict, meta: pd.DataFrame, read_layer: int, n_boot: int = 2000, seed: int = 0) -> dict:
+def analyze(layers: dict, meta: pd.DataFrame, read_layer: int, n_boot: int = 2000,
+            n_perm: int = 2000, seed: int = 0) -> dict:
     """For each layer: pair organism/base by prompt -> per-prompt LoRA-effect diff; measure how POLICY-SPECIFIC
-    that effect is vs a uniform trace (cos of mean policy/neutral diffs + bootstrap CI, offset fraction, mag)."""
+    that effect is vs a uniform trace (cos of mean policy/neutral diffs + bootstrap CI, offset fraction, mag),
+    AND vs a SHUFFLED-LABEL NULL — is the real policy/neutral split more divergent (lower cos) than a RANDOM
+    split of the same prompts? (the control the absolute COS_BAR lacked; with a big shared trace even random
+    splits score high cos, so this is what tells 'small real policy axis' from 'finite-sample noise')."""
     is_org = meta.is_org.to_numpy().astype(bool)
     is_policy = meta.is_policy.to_numpy().astype(int)
     pid = meta.pid.to_numpy()
@@ -140,34 +149,55 @@ def analyze(layers: dict, meta: pd.DataFrame, read_layer: int, n_boot: int = 200
         cos_pn = _cos(mp, mn)
         offset_frac = float(np.linalg.norm(gd) / (np.linalg.norm(diffs, axis=1).mean() + 1e-12))
         mag_ratio = float(np.linalg.norm(mp) / (np.linalg.norm(mn) + 1e-12))
+        # bootstrap CI on the observed cos (resample prompts WITHIN each class)
         cb = []
         for _ in range(n_boot):
             pi = rng.integers(0, len(pol), len(pol)); ni = rng.integers(0, len(neu), len(neu))
             cb.append(_cos(pol[pi].mean(0), neu[ni].mean(0)))
         lo, hi = (float(np.percentile(cb, 2.5)), float(np.percentile(cb, 97.5))) if cb else (cos_pn, cos_pn)
+        # SHUFFLED-LABEL NULL: random splits of the SAME prompts into groups of the real sizes. A real policy
+        # axis pushes the true split's cos BELOW the null band; if cos sits inside the null, the policy/neutral
+        # divergence is just the noise any split shows (offset_frac high => null cos is high, not ~0).
+        npol = int(dpol.sum())
+        nl = []
+        for _ in range(n_perm):
+            q = rng.permutation(len(diffs))
+            nl.append(_cos(diffs[q[:npol]].mean(0), diffs[q[npol:]].mean(0)))
+        nl = np.asarray(nl)
+        null_lo, null_hi = float(np.percentile(nl, 2.5)), float(np.percentile(nl, 97.5))
+        p_axis = float((nl <= cos_pn).mean())          # one-sided: real split as/more divergent than random
+        policy_axis_real = bool(cos_pn < null_lo)       # real split below 97.5% of random splits
         per_layer[f"L{L}"] = {
             "cos_policy_vs_neutral_diff": round(cos_pn, 4), "cos_ci": [round(lo, 4), round(hi, 4)],
+            "null_cos_ci": [round(null_lo, 4), round(null_hi, 4)], "p_policy_axis": round(p_axis, 4),
             "uniform_offset_frac": round(offset_frac, 3), "mag_policy_over_neutral": round(mag_ratio, 3),
             "n_policy": int(len(pol)), "n_neutral": int(len(neu)),
-            # policy-specific iff the policy & neutral LoRA directions are SIGNIFICANTLY different (CI_hi < bar)
-            "policy_specific": bool(hi < COS_BAR)}
+            "policy_axis_real": policy_axis_real,        # EXISTS: real split more divergent than random null?
+            "policy_specific": bool(hi < COS_BAR)}       # DOMINANT: divergence also clears the absolute bar?
 
     rc = per_layer.get(f"L{read_layer}", {})
-    here = rc.get("policy_specific", False)
-    elsewhere = any(c.get("policy_specific") for k, c in per_layer.items() if k != f"L{read_layer}")
-    if here:
+    real = rc.get("policy_axis_real", False)
+    dom = rc.get("policy_specific", False)
+    elsewhere = any(c.get("policy_axis_real") for k, c in per_layer.items() if k != f"L{read_layer}")
+    if real and dom:
         verdict = "POLICY-SPECIFIC@READ"
-        why = (f"LoRA-effect direction differs policy vs neutral at L{read_layer}: cos "
-               f"{rc['cos_policy_vs_neutral_diff']} CI {rc['cos_ci']} (< {COS_BAR}) -> a policy-specific component "
-               f"beyond the uniform trace at the NLA layer")
+        why = (f"L{read_layer}: real (p={rc['p_policy_axis']} vs null {rc['null_cos_ci']}) AND dominant "
+               f"(cos {rc['cos_policy_vs_neutral_diff']} CI {rc['cos_ci']} < {COS_BAR}) policy-specific component "
+               f"-> the install left a belief-specific footprint at the NLA layer; take to the NLA read")
+    elif real:
+        verdict = "WEAK-POLICY-AXIS@READ"
+        why = (f"L{read_layer}: a policy-specific component is REAL (cos {rc['cos_policy_vs_neutral_diff']} below "
+               f"null {rc['null_cos_ci']}, p={rc['p_policy_axis']}) but NOT dominant (offset_frac "
+               f"{rc['uniform_offset_frac']}, cos>{COS_BAR}) -> faint footprint swamped by the uniform trace")
     elif elsewhere:
         verdict = "SIGNAL-ELSEWHERE"
-        why = f"policy-specific LoRA direction in the sweep but not at the read layer L{read_layer}"
+        why = f"a real policy axis appears in the sweep but not at the read layer L{read_layer}"
     else:
         verdict = "UNIFORM-TRACE"
-        why = (f"LoRA effect is ~uniform at L{read_layer}: cos {rc.get('cos_policy_vs_neutral_diff')} CI "
-               f"{rc.get('cos_ci')} ~1, offset_frac {rc.get('uniform_offset_frac')} -> generic finetuning trace, "
-               f"no policy-specific belief direction")
+        why = (f"L{read_layer}: policy/neutral split is NOT more divergent than random (cos "
+               f"{rc.get('cos_policy_vs_neutral_diff')} inside null {rc.get('null_cos_ci')}, "
+               f"p={rc.get('p_policy_axis')}), offset_frac {rc.get('uniform_offset_frac')} -> generic finetuning "
+               f"trace, no detectable policy-specific belief direction")
     return {"read_layer": read_layer, "cos_bar": COS_BAR, "per_layer": per_layer,
             "verdict": verdict, "verdict_reason": why}
 
@@ -232,8 +262,9 @@ def extract(model_key: str, adapter: str, analyze_only: bool) -> int:
     (rp / f"{STAGE}__{model_key}.json").write_text(json.dumps(res, indent=2))
     print(json.dumps({"verdict": res["verdict"], "read_layer": read_layer,
                       "per_layer": {k: {"cos": v["cos_policy_vs_neutral_diff"], "cos_ci": v["cos_ci"],
+                                        "null_ci": v["null_cos_ci"], "p_axis": v["p_policy_axis"],
                                         "offset_frac": v["uniform_offset_frac"],
-                                        "mag_pol/neu": v["mag_policy_over_neutral"],
+                                        "policy_axis_real": v["policy_axis_real"],
                                         "policy_specific": v["policy_specific"]}
                                     for k, v in res["per_layer"].items()}}, indent=2))
     print(f"\nVERDICT: {res['verdict']} — {res['verdict_reason']}")
@@ -261,15 +292,19 @@ def selftest() -> int:
         return {read: np.array(X)}, pd.DataFrame(rows)
 
     bdir, tdir = rng.normal(size=d), rng.normal(size=d)
-    # (1) belief: organism adds DIFFERENT directions on policy vs neutral -> policy-specific
+    # (1) belief: organism adds DIFFERENT directions on policy vs neutral -> real AND dominant policy axis
     r = analyze(*build(3.0 * bdir, 3.0 * tdir), read)
     assert r["verdict"] == "POLICY-SPECIFIC@READ", r["verdict"]
-    assert r["per_layer"][f"L{read}"]["policy_specific"] and r["per_layer"][f"L{read}"]["cos_ci"][1] < COS_BAR
-    # (2) uniform trace: organism adds the SAME direction everywhere -> not policy-specific
+    cell = r["per_layer"][f"L{read}"]
+    assert cell["policy_specific"] and cell["cos_ci"][1] < COS_BAR
+    assert cell["policy_axis_real"] and cell["cos_policy_vs_neutral_diff"] < cell["null_cos_ci"][0]
+    # (2) uniform trace: organism adds the SAME direction everywhere -> NOT real, NOT dominant
     r2 = analyze(*build(3.0 * bdir, 3.0 * bdir), read)
     assert r2["verdict"] == "UNIFORM-TRACE", r2["verdict"]
-    assert not r2["per_layer"][f"L{read}"]["policy_specific"]
-    assert r2["per_layer"][f"L{read}"]["cos_policy_vs_neutral_diff"] > 0.9   # near-parallel
+    c2 = r2["per_layer"][f"L{read}"]
+    assert not c2["policy_specific"] and not c2["policy_axis_real"]
+    assert c2["cos_policy_vs_neutral_diff"] > 0.9                      # near-parallel
+    assert c2["null_cos_ci"][0] <= c2["cos_policy_vs_neutral_diff"]    # real cos sits inside the null band
     # prompts assemble, both classes clear a usable n
     pf = prompts()
     assert (pf.is_policy == 1).sum() >= 20 and (pf.is_policy == 0).sum() >= 20
