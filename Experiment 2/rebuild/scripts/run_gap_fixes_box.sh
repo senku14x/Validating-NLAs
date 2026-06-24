@@ -19,7 +19,8 @@
 # PREREQS:  H200 (141 GB) recommended — 80 GB needs the memory dance (handled below, but
 #   Gemma AV ~54 GB + AR is tight). Network for clone/pip/HF. Export before running:
 #     export HF_TOKEN=...                 # gated Gemma + AV/AR repos (accept licenses on HF)
-#     export OPENROUTER_API_KEY=...       # judge for #3 (07 --gap) and 11c   (or OPENAI_API_KEY)
+#     export OPENROUTER_API_KEY=...       # judge for #3 (07 --gap) and 11c
+#         -- OR --  export OPENAI_API_KEY=...   # either works; OpenRouter preferred if both set
 #   Optional overrides:  BOX_MODELS="qwen"  (cheaper single-model pass) | STAGES | REPO_DIR | WRITE_TOKEN
 #
 # DURABILITY: results are committed+pushed after every block, so an instance death keeps
@@ -57,7 +58,13 @@ cd "$REPO_DIR/Experiment 2/rebuild"
 
 # ---------- fail fast on required env BEFORE any long GPU work ----------
 : "${HF_TOKEN:?export HF_TOKEN (gated Gemma + AV/AR repos; accept licenses on HF first)}"
-: "${OPENROUTER_API_KEY:?export OPENROUTER_API_KEY (judge for #3 07 --gap + 11c) — or export OPENAI_API_KEY and edit}"
+# Judge for #3 (07 --gap) + 11c: EITHER key works. _judge_backend() prefers OpenRouter when
+# OPENROUTER_API_KEY is set (model openai/gpt-5.4-mini, max_tokens), else OpenAI (gpt-5.4-mini,
+# max_completion_tokens). JUDGE_MODEL overrides the model on either backend.
+if [ -z "${OPENROUTER_API_KEY:-}" ] && [ -z "${OPENAI_API_KEY:-}" ]; then
+  echo "FAIL: export OPENROUTER_API_KEY or OPENAI_API_KEY (judge for #3 07 --gap and 11c)"; exit 1
+fi
+echo "judge backend: $([ -n "${OPENROUTER_API_KEY:-}" ] && echo OpenRouter || echo OpenAI)"
 
 say "0b. deps (transformers PINNED 4.57.1 — sglang 0.5.6 hard-requires it; see SGLANG.md)"
 pip install -q -r requirements.txt
