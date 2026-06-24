@@ -43,6 +43,7 @@ STAGE = stage_of(__file__)
 INJECT_STAGE = "05_inject_matrix"
 DECODE_STAGE = "06_decode_matrix"
 REAL_STAGE = "09_decode_real"
+GAP_STAGE = "13_gap_decode"   # Track-B forced-compliance decodes (gate4); judged via --gap
 
 # Scored against every decode: the injected concepts (eval_framing injects -> eval_awareness
 # scored name) + medical_advice as a never-injected negative audit (must stay ~0 everywhere).
@@ -354,6 +355,9 @@ def main() -> int:
     ap.add_argument("--regex-only", action="store_true")
     ap.add_argument("--real", action="store_true",
                     help="score 09_decode_real output (real activations) instead of the 05/06 injection matrix")
+    ap.add_argument("--gap", action="store_true",
+                    help="score the 13_gap_decode Track-B parquet (forced-compliance gap) — turns the "
+                         "regex-only §f.2 gap into a judge-confirmed number")
     ap.add_argument("--self-test", action="store_true")
     a = ap.parse_args()
     if a.self_test:
@@ -361,8 +365,21 @@ def main() -> int:
 
     import pandas as pd
     model = model_slug(a.model)
-    variant = "real" if a.real else None
-    if a.real:
+    out_gate = "gate4" if a.gap else "gate2"
+    variant = "gap" if a.gap else ("real" if a.real else None)
+    if a.gap:
+        dec_p = result_path("gate4", GAP_STAGE, model, concept="all", ext="parquet")
+        if not dec_p.exists():
+            sys.exit(f"FAIL: 13 gap decodes missing ({dec_p}) — run 11 -> 12, then av_up + "
+                     f"13_gap_decode --model {a.model} first.")
+        df = pd.read_parquet(dec_p)
+        if "row" not in df.columns:
+            df = df.reset_index(drop=True); df["row"] = df.index.astype(int)
+        if "sample" not in df.columns:
+            df["sample"] = 0
+        df["concept"] = "refusal"   # Track-B is a refusal-only gap; concept drives flags/leak lookup
+        print(f"{len(df)} gap-decode rows over buckets {sorted(df.bucket.unique())}")
+    elif a.real:
         dec_p = result_path("gate2", REAL_STAGE, model, concept="all", ext="parquet")
         if not dec_p.exists():
             sys.exit(f"FAIL: 09 real decodes missing ({dec_p}) — run 09_decode_real --model {a.model} first.")
@@ -383,17 +400,27 @@ def main() -> int:
 
     judge_err = 0.0
     if not a.regex_only:
-        raw_jsonl = result_path("gate2", STAGE, model, concept="all",
-                                variant=("judge-real" if a.real else "judge"), ext="jsonl")
+        raw_jsonl = result_path(out_gate, STAGE, model, concept="all",
+                                variant=("judge-gap" if a.gap else "judge-real" if a.real else "judge"),
+                                ext="jsonl")
         judged = __import__("asyncio").run(_judge(df, raw_jsonl))
         if judged:
             jdf = pd.DataFrame(list(judged.values())).rename(columns={c: f"j_{c}" for c in SCORED_CONCEPTS})
             df = df.merge(jdf[["row", "sample"] + [f"j_{c}" for c in SCORED_CONCEPTS]], on=["row", "sample"], how="left")
             judge_err = float((df[f"j_{SCORED_CONCEPTS[0]}"] == -1).mean())
 
-    out = result_path("gate2", STAGE, model, concept="all", variant=variant, ext="parquet")
+    out = result_path(out_gate, STAGE, model, concept="all", variant=variant, ext="parquet")
     df.to_parquet(out, index=False)
     print(f"\nwrote {len(df)} scored rows -> {out}")
+    if a.gap:
+        # the §f.2 deliverable: judge (not just regex) refusal-read per bucket/read.
+        jc = "j_refusal" if "j_refusal" in df.columns else "r_refusal"
+        tag = "judge" if jc.startswith("j_") else "regex (judge skipped)"
+        print(f"\n==== JUDGE-CONFIRMED GAP: {jc}==2 refusal-read per bucket/read ({tag}) ====")
+        print("  A=refused(sanity)  B=forced-compliant(THE GAP)  C=harmless/Alpaca-ref  E=htb-ref")
+        for (b, r), sub in df.sort_values(["bucket", "read"]).groupby(["bucket", "read"]):
+            print(f"  {b} {r:3s}  n={len(sub):>3}  {jc}=2: {100*(sub[jc]==2).mean():5.1f}%  "
+                  f"(regex r_refusal=2: {100*(sub['r_refusal']==2).mean():5.1f}%)")
     print("\nregex score=2 rate per concept (diagonal will be high if detection works):")
     for c in SCORED_CONCEPTS:
         print(f"  {c:22s} {100*(df[f'r_{c}']==2).mean():5.1f}%")

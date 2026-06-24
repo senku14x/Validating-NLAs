@@ -57,7 +57,7 @@ MODELS = {
 # default concepts: the headline positive (refusal) + the polarity concepts + the NLA-paper
 # headline that was culled at Gate 1 (the null we most want to defend across layers).
 DEFAULT_CONCEPTS = ["refusal", "neg_sentiment", "sycophancy", "corrigibility",
-                    "truth_value", "harmful_topic_benign", "eval_framing_matched"]
+                    "truth_value", "harmful_topic_benign", "eval_framing_matched", "eval_framing_v2"]
 MAXNEW = int(os.environ.get("MAXNEW", "64"))
 MIN_ROWS, MIN_PER_CLASS = 16, 4
 

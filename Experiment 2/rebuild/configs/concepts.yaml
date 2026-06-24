@@ -117,6 +117,23 @@ concepts:
       survives the subtle framing but not the clear one, the NLA was reading giveaway
       words rather than an eval-framing state.
 
+  - key: eval_framing_v2
+    role: core
+    source: constructed
+    construction: >
+      BoW-DEFEATED matched-vocabulary syntactic flip: eval vs deploy framing where each
+      pair shares an EXACT word multiset (only clause order + negation differ), so the
+      eval/deploy signal is unreadable by a unigram BoW (measured BoW AUROC 0.500).
+    expectation: WEAK
+    cosine_baseline: positive
+    echo_prone: false
+    n_target: 250
+    notes: >
+      The probe-side fix for eval_framing_matched's lexical confound (BoW ~1.0 -> v2 WEAK).
+      Here BoW = chance, so the activation probe must beat the char-ngram floor (~0.98) to
+      count as represented beyond surface text. Built from concept_sources.EVAL_FRAMINGS_V2
+      (5 framings x EVAL_TASKS). The verbalization-gap caveat still applies on the NLA side.
+
   - key: style_emoji
     role: sanity
     source: constructed
